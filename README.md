@@ -1,6 +1,6 @@
 # Kryptera
 
-Kryptera is a full-stack currency exchange platform (₽ ↔ ZMW) inspired by Wise, focusing on trust, clarity, and modern design. It comprises a Django-based REST API backend and a React/TypeScript frontend.
+Kryptera is a full-stack currency exchange platform (₽ ↔ ZMW). It comprises a Django-based REST API backend and a React/TypeScript frontend.
 
 ## Project Structure
 
