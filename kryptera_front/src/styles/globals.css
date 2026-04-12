@@ -1,0 +1,190 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/**
+ * Global theme: shadcn HSL tokens + DESIGN.md / Wise-style hex tokens (--color-* for inline styles).
+ * Preflight is off in tailwind.config.cjs; Tailwind + PostCSS are wired in vite.config.ts.
+ */
+
+@layer base {
+  :root {
+    /* Page surface — #f5f7f2 */
+    --background: 80 22% 96%;
+    --foreground: 80 15% 5%;
+    --card: 0 0% 100%;
+    --card-foreground: 80 15% 5%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 80 15% 5%;
+    /* Primary CTA — #9fe870 */
+    --primary: 96 73% 67%;
+    --primary-foreground: 80 15% 5%;
+    --secondary: 80 18% 92%;
+    --secondary-foreground: 80 15% 5%;
+    --muted: 80 16% 92%;
+    --muted-foreground: 220 9% 46%;
+    --accent: 96 45% 92%;
+    --accent-foreground: 80 15% 5%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 18% 88%;
+    --input: 214 18% 88%;
+    /* Focus ring — aligned with primary */
+    --ring: 96 65% 45%;
+    --sidebar-background: 80 18% 97%;
+    --sidebar-foreground: 80 9% 20%;
+    --sidebar-primary: 96 66% 52%;
+    --sidebar-primary-foreground: 80 15% 5%;
+    --sidebar-accent: 96 32% 92%;
+    --sidebar-accent-foreground: 80 15% 5%;
+    --sidebar-border: 214 18% 88%;
+    --sidebar-ring: 96 65% 45%;
+
+    /* Legacy tokens — keep hex for existing inline style={...} across the app */
+    --color-primary: #9fe870;
+    --color-primary-dark: #6fcf3a;
+    --color-primary-subtle: #edfde3;
+    --color-text: #0e0f0c;
+    --color-text-muted: #6b7280;
+    --color-bg: #f5f7f2;
+    --color-surface: #ffffff;
+    --color-border: #e2e8e0;
+    --color-border-focus: #9fe870;
+    --color-error: #ef4444;
+    --color-warning: #f59e0b;
+    --color-success: #22c55e;
+
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --radius-xl: 28px;
+    /* shadcn `rounded-md` / calc(var(--radius)-*) consumers */
+    --radius: var(--radius-md);
+
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+
+    --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  }
+}
+
+/* Minimal box model reset (replaces Tailwind preflight + old universal margin/padding wipe) */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: light;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-body), system-ui, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.6;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* Default border color for Tailwind `border` + shadcn inputs (no preflight) */
+@layer base {
+  * {
+    @apply border-border;
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+
+/* Focus ring */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Utility */
+.mono {
+  font-family: var(--font-mono);
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.25s ease forwards;
+}
+.animate-fade-in {
+  animation: fadeIn 0.2s ease forwards;
+}

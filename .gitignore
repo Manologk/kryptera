@@ -1,0 +1,115 @@
+# =========================
+# OS FILES
+# =========================
+.DS_Store
+Thumbs.db
+desktop.ini
+NUL
+
+# =========================
+# ENVIRONMENT VARIABLES
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
+# NODE / REACT (VITE)
+# =========================
+node_modules/
+dist/
+build/
+.vite/
+coverage/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# =========================
+# DJANGO / PYTHON
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django stuff
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Media & static (optional depending on setup)
+media/
+staticfiles/
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# =========================
+# DJANGO MIGRATIONS (OPTIONAL)
+# =========================
+# Uncomment ONLY if you know what you're doing
+# */migrations/*.py
+# !*/migrations/__init__.py
+
+# =========================
+# IDE / EDITOR
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# =========================
+# TYPESCRIPT
+# =========================
+*.tsbuildinfo
+
+# =========================
+# TESTING
+# =========================
+coverage/
+htmlcov/
+.pytest_cache/
+
+# =========================
+# DOCKER
+# =========================
+docker-compose.override.yml
+
+# =========================
+# BUILD FILES
+# =========================
+*.tgz
+
+# =========================
+# CACHE
+# =========================
+.cache/
+.parcel-cache/
+
+# =========================
+# MISC
+# =========================
+*.bak
+*.tmp
+*.temp
+
+# =========================
+# SECRETS (VERY IMPORTANT)
+# =========================
+*.pem
+*.key
+*.crt
+
+# =========================
+# NEXT/EXTRA (SAFE DEFAULTS)
+# =========================
+.vercel/
+.netlify/
