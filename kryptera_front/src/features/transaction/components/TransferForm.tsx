@@ -1,6 +1,6 @@
 import { COMMISSION_RATE } from '@/constants';
 import { useRates } from '@/context/RatesContext';
-import Card from '@/components/ui/Card';
+import Card, { CardContent } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import type { ConversionMode } from '@/types';
@@ -152,54 +152,56 @@ export default function TransferForm({
       <RateSummary mode={mode} />
 
       <Card style={{ marginBottom: 16 }}>
-        <Input
-          label={inputLabel}
-          type="number"
-          min="0"
-          step="0.01"
-          placeholder="0.00"
-          value={amount}
-          onChange={e => onAmountChange(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && onCalculate()}
-          prefix={inputPrefix}
-          mono
-          hint={
-            commissionOnTop
-              ? 'Full amount converts; commission is added on top of this amount'
-              : '4.5% commission is deducted from this amount before conversion'
-          }
-        />
-
-        <label
-          style={{
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: 10,
-            marginTop: 16,
-            cursor: 'pointer',
-            fontSize: 14,
-            color: 'var(--color-text)',
-            lineHeight: 1.45,
-          }}
-        >
-          <input
-            type="checkbox"
-            checked={commissionOnTop}
-            onChange={e => onCommissionOnTopChange(e.target.checked)}
-            style={{ marginTop: 3, width: 18, height: 18, flexShrink: 0, cursor: 'pointer' }}
+        <CardContent className='pt-5'>
+          <Input
+            label={inputLabel}
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="0.00"
+            value={amount}
+            onChange={e => onAmountChange(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && onCalculate()}
+            prefix={inputPrefix}
+            mono
+            hint={
+              commissionOnTop
+                ? 'Full amount converts; commission is added on top of this amount'
+                : '4.5% commission is deducted from this amount before conversion'
+            }
           />
-          <span>
-            <strong>Add commission on top</strong>
-            <span style={{ display: 'block', fontSize: 13, color: 'var(--color-text-muted)', marginTop: 4 }}>
-              When checked, the amount above is converted in full and the fee is charged separately. When
-              unchecked, the fee is taken out of the amount you enter.
-            </span>
-          </span>
-        </label>
 
-        <Button fullWidth size="lg" onClick={onCalculate} style={{ marginTop: 16 }}>
-          Calculate
-        </Button>
+          <label
+            style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: 10,
+              marginTop: 16,
+              cursor: 'pointer',
+              fontSize: 14,
+              color: 'var(--color-text)',
+              lineHeight: 1.45,
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={commissionOnTop}
+              onChange={e => onCommissionOnTopChange(e.target.checked)}
+              style={{ marginTop: 3, width: 18, height: 18, flexShrink: 0, cursor: 'pointer' }}
+            />
+            <span>
+              <strong>Add commission on top</strong>
+              <span style={{ display: 'block', fontSize: 13, color: 'var(--color-text-muted)', marginTop: 4 }}>
+                When checked, the amount above is converted in full and the fee is charged separately. When
+                unchecked, the fee is taken out of the amount you enter.
+              </span>
+            </span>
+          </label>
+
+          <Button fullWidth size="lg" onClick={onCalculate} style={{ marginTop: 16 }}>
+            Calculate
+          </Button>
+        </CardContent>
       </Card>
     </>
   );
