@@ -49,7 +49,7 @@ export default function AdminShell() {
         <aside className="hidden w-56 shrink-0 border-r border-border bg-card md:flex md:flex-col">
           <div className="border-b border-border px-4 py-4">
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Admin</p>
-            <p className="text-sm font-bold text-foreground">CryptoFlux</p>
+            <p className="text-sm font-bold text-foreground">Kryptera</p>
           </div>
           <NavItems />
         </aside>

@@ -4,13 +4,13 @@ export { ROUTES, type RoutePath } from './routes';
 
 export const COMMISSION_RATE = 0.045; // 4.5%
 
-export const STORAGE_KEY = 'cryptoflux_rates';
+export const STORAGE_KEY = 'Kryptera_rates';
 
 /** Anonymous device ledger until backend auth exists */
-export const TRANSACTIONS_STORAGE_KEY = 'cryptoflux_transactions';
+export const TRANSACTIONS_STORAGE_KEY = 'Kryptera_transactions';
 
 /** Persisted JWT session (access + refresh + user snapshot) */
-export const AUTH_STORAGE_KEY = 'cryptoflux_auth';
+export const AUTH_STORAGE_KEY = 'Kryptera_auth';
 
 export const CURRENCIES: Record<'RUB' | 'ZMW' | 'USD', CurrencyMeta> = {
   RUB: { code: 'RUB', symbol: '₽', name: 'Russian Ruble', flag: '🇷🇺' },
@@ -26,10 +26,10 @@ export const DEFAULT_RATES: ExchangeRates = {
 };
 
 export const CONTACT_INFO = {
-  email: 'support@cryptoflux.com',
+  email: 'support@Kryptera.com',
   phone: '+1 (234) 567-890',
   whatsapp: '+1234567890',
-  telegram: '@cryptoflux',
+  telegram: '@Kryptera',
 };
 
 // Future: Django API base URL (proxied via Vite in dev)

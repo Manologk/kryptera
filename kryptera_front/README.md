@@ -1,6 +1,6 @@
-# CryptoFlux Trading — Frontend
+# Kryptera Trading — Frontend
 
-React + TypeScript frontend for the CryptoFlux currency exchange platform (₽ ↔ ZMW).
+React + TypeScript frontend for the Kryptera currency exchange platform (₽ ↔ ZMW).
 
 ## Stack
 

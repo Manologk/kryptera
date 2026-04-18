@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ROUTES } from '@/constants/routes';
 import { useAuth } from '@/context/AuthContext';
 import Layout, { PageHeader } from '@/components/layout/Layout';
-import Card from '@/components/ui/Card';
+import Card, { CardContent } from '@/components/ui/Card';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import { Alert } from '@/components/ui/Badge';
@@ -58,6 +58,7 @@ export default function LoginPage() {
         />
 
         <Card elevated style={{ marginTop: 8 }}>
+          <CardContent className='pt-5'>
           {error ? (
             <div style={{ marginBottom: 20 }}>
               <Alert type="error" message={error} onClose={() => setError(null)} />
@@ -100,7 +101,7 @@ export default function LoginPage() {
               textAlign: 'center',
             }}
           >
-            New to CryptoFlux?{' '}
+            New to Kryptera?{' '}
             <Link
               to={ROUTES.register}
               state={location.state}
@@ -112,6 +113,7 @@ export default function LoginPage() {
               Create an account
             </Link>
           </p>
+          </CardContent>
         </Card>
       </div>
     </Layout>

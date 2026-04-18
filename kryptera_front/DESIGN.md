@@ -1,4 +1,4 @@
-# DESIGN.md — CryptoFlux Trading
+# DESIGN.md — Kryptera Trading
 > Inspired by Wise's design system: bright green accent, friendly and clear.  
 > Reference: [Wise (getdesign.md)](https://getdesign.md/wise/design-md) — run `npx getdesign@latest add wise` for upstream token updates.
 

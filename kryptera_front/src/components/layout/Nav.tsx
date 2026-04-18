@@ -86,7 +86,7 @@ export default function Nav() {
               letterSpacing: '-0.3px',
             }}
           >
-            CryptoFlux
+            Kryptera
           </span>
         </NavLink>
 

@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ROUTES } from '@/constants/routes';
 import { useAuth } from '@/context/AuthContext';
 import Layout, { PageHeader } from '@/components/layout/Layout';
-import Card from '@/components/ui/Card';
+import Card, { CardContent } from '@/components/ui/Card';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import { Alert } from '@/components/ui/Badge';
@@ -69,10 +69,11 @@ export default function RegisterPage() {
       <div className="animate-fade-up">
         <PageHeader
           title="Create your account"
-          subtitle="Join CryptoFlux to send money and track transfers in one place."
+          subtitle="Join Kryptera to send money and track transfers in one place."
         />
 
         <Card elevated style={{ marginTop: 8 }}>
+          <CardContent className='pt-7'>
           {error ? (
             <div style={{ marginBottom: 20 }}>
               <Alert type="error" message={error} onClose={() => setError(null)} />
@@ -87,7 +88,7 @@ export default function RegisterPage() {
               autoComplete="name"
               value={fullName}
               onChange={e => setFullName(e.target.value)}
-              placeholder="Jane Doe"
+              placeholder="Mary Phiri"
               hint="Optional — you can add this later in your profile."
             />
             <Input
@@ -98,7 +99,7 @@ export default function RegisterPage() {
               required
               value={email}
               onChange={e => setEmail(e.target.value)}
-              placeholder="you@example.com"
+              placeholder="meme@example.com"
             />
             <Input
               label="Password"
@@ -148,6 +149,7 @@ export default function RegisterPage() {
               Sign in
             </Link>
           </p>
+          </CardContent>
         </Card>
       </div>
     </Layout>
