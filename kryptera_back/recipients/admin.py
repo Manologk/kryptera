@@ -5,6 +5,5 @@ from .models import Recipient
 
 @admin.register(Recipient)
 class RecipientAdmin(admin.ModelAdmin):
-    list_display = ["id", "user", "label", "full_name", "email", "is_active", "created_at"]
-    list_filter = ["is_active"]
-    search_fields = ["full_name", "email", "user__email"]
+    list_display = ["id", "owner", "full_name", "email", "phone_number", "delivery_method", "created_at"]
+    search_fields = ["full_name", "email", "phone_number", "owner__email"]

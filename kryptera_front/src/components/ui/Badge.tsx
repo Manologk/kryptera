@@ -64,28 +64,35 @@ export function Alert({ type, message, onClose }: AlertProps) {
   );
 }
 
-const statusStyles: Record<TransactionStatus, string> = {
-  pop_not_uploaded: 'bg-amber-100 text-amber-900 border-amber-200',
-  pending_verification: 'bg-sky-100 text-sky-900 border-sky-200',
-  completed: 'bg-emerald-100 text-emerald-900 border-emerald-200',
-  rejected: 'bg-red-100 text-red-900 border-red-200',
+/** Pill + dot for transaction tables / detail (non-border per design). */
+const statusPill: Record<TransactionStatus, { wrap: string; dot: string }> = {
+  completed: { wrap: 'bg-[#E8F5E9] text-[#2E7D32]', dot: 'bg-[#2E7D32]' },
+  awaiting_confirmation: { wrap: 'bg-[#FFF8E1] text-[#F59E0B]', dot: 'bg-[#F59E0B]' },
+  pending: { wrap: 'bg-[#F1EFE8] text-[#888]', dot: 'bg-[#CACACA]' },
+  pop_not_uploaded: { wrap: 'bg-[#F1EFE8] text-[#888]', dot: 'bg-[#CACACA]' },
+  pending_verification: { wrap: 'bg-[#FFF8E1] text-[#F59E0B]', dot: 'bg-[#F59E0B]' },
+  rejected: { wrap: 'bg-[#FDE8E8] text-[#E24B4A]', dot: 'bg-[#E24B4A]' },
 };
 
 const statusLabel: Record<TransactionStatus, string> = {
+  pending: 'Pending',
+  awaiting_confirmation: 'Awaiting confirmation',
   pop_not_uploaded: 'Awaiting POP',
-  pending_verification: 'Pending',
+  pending_verification: 'Pending verification',
   completed: 'Completed',
   rejected: 'Declined',
 };
 
 export function StatusBadge({ status }: { status: TransactionStatus }) {
+  const { wrap, dot } = statusPill[status];
   return (
     <span
       className={cn(
-        'inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold',
-        statusStyles[status],
+        'inline-flex items-center rounded-[20px] border-0 py-1 pl-[10px] pr-[10px] text-[12px] font-medium',
+        wrap,
       )}
     >
+      <span className={cn('mr-[5px] inline-block h-[6px] w-[6px] shrink-0 rounded-full', dot)} aria-hidden />
       {statusLabel[status]}
     </span>
   );

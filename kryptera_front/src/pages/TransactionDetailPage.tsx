@@ -1,40 +1,37 @@
-import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { ROUTES } from '@/constants/routes';
-import { useAuth } from '@/context/AuthContext';
-import { getTransaction } from '@/services/api';
-import { formatMoneyAmount } from '@/features/transaction/utils';
-import type { Transaction } from '@/types';
-import Card, { CardHeader } from '@/components/ui/Card';
-import Layout, { PageHeader } from '@/components/layout/Layout';
-import { StatusBadge } from '@/components/ui/Badge';
-
-function corridorLabel(mode: Transaction['mode']): string {
-  return mode === 'russia-zambia' ? 'Russia → Zambia' : 'Zambia → Russia';
-}
+import { useEffect, useState } from 'react'
+import { Link, useParams } from 'react-router-dom'
+import { ROUTES } from '@/constants/routes'
+import { useAuth } from '@/context/AuthContext'
+import { getTransaction } from '@/services/api'
+import TransactionSummaryCard from '@/features/transaction/TransactionSummaryCard'
+import { filenameFromPath, isImagePath, mediaHref } from '@/lib/media'
+import type { Transaction } from '@/types'
+import Button from '@/components/ui/Button'
+import Card, { CardHeader } from '@/components/ui/Card'
+import Layout, { PageHeader } from '@/components/layout/Layout'
 
 export default function TransactionDetailPage() {
-  const { id } = useParams<{ id: string }>();
-  const { accessToken, isAuthenticated } = useAuth();
-  const [tx, setTx] = useState<Transaction | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const { id } = useParams<{ id: string }>()
+  const { accessToken, isAuthenticated } = useAuth()
+  const [tx, setTx] = useState<Transaction | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!id || !accessToken) return;
-    let cancelled = false;
+    if (!id || !accessToken) return
+    let cancelled = false
     void (async () => {
-      const res = await getTransaction(accessToken, id);
-      if (cancelled) return;
+      const res = await getTransaction(accessToken, id)
+      if (cancelled) return
       if (res.error || !res.data) {
-        setError(res.error?.message ?? 'Could not load transfer.');
-        return;
+        setError(res.error?.message ?? 'Could not load transfer.')
+        return
       }
-      setTx(res.data);
-    })();
+      setTx(res.data)
+    })()
     return () => {
-      cancelled = true;
-    };
-  }, [id, accessToken]);
+      cancelled = true
+    }
+  }, [id, accessToken])
 
   if (!isAuthenticated) {
     return (
@@ -47,7 +44,7 @@ export default function TransactionDetailPage() {
           to view this transfer.
         </p>
       </Layout>
-    );
+    )
   }
 
   if (error) {
@@ -61,7 +58,7 @@ export default function TransactionDetailPage() {
           </Link>
         </p>
       </Layout>
-    );
+    )
   }
 
   if (!tx) {
@@ -70,72 +67,67 @@ export default function TransactionDetailPage() {
         <PageHeader title="Transfer detail" />
         <p style={{ color: 'var(--color-text-muted)' }}>Loading…</p>
       </Layout>
-    );
+    )
   }
 
-  const bd = tx.conversionBreakdown;
+  const deliveryProofPath = tx.deliveryProofPath ?? tx.receiptPath
+  const deliveryProofUrl = deliveryProofPath ? mediaHref(deliveryProofPath) : null
+  const deliveryProofIsImage = isImagePath(deliveryProofPath)
+  const deliveryProofFileName = filenameFromPath(deliveryProofPath)
+  const showCompletedDelivery = tx.status === 'completed'
 
   return (
     <Layout maxWidth={640}>
-      <PageHeader title="Transfer detail" subtitle={corridorLabel(tx.mode)} />
+      <PageHeader title="Transfer detail" />
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <StatusBadge status={tx.status} />
-        <span style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>
-          {new Date(tx.createdAt).toLocaleString()}
-        </span>
+      <div style={{ marginBottom: 16 }}>
+        <TransactionSummaryCard tx={tx} />
       </div>
 
-      <Card style={{ marginBottom: 16 }}>
-        <CardHeader title="Amounts" />
-        <p style={{ fontSize: 18, fontWeight: 700, fontFamily: 'var(--font-mono)', margin: 0 }}>
-          {formatMoneyAmount(tx.inputAmount, tx.inputCurrency)}
-          <span style={{ color: 'var(--color-text-muted)', margin: '0 8px' }}>→</span>
-          {formatMoneyAmount(tx.resultAmount, tx.resultCurrency)}
-        </p>
-        {tx.purpose ? (
-          <p style={{ marginTop: 12, fontSize: 15 }}>{tx.purpose}</p>
-        ) : null}
-      </Card>
-
-      {tx.recipient || tx.recipientSnapshot ? (
+      {showCompletedDelivery ? (
         <Card style={{ marginBottom: 16 }}>
-          <CardHeader title="Recipient" />
-          <p style={{ margin: 0, fontWeight: 600 }}>
-            {tx.recipient?.fullName ?? tx.recipientSnapshot?.full_name ?? '—'}
-          </p>
-          <p style={{ margin: '8px 0 0', fontSize: 14, color: 'var(--color-text-muted)' }}>
-            {[tx.recipient?.email ?? tx.recipientSnapshot?.email, tx.recipient?.phone ?? tx.recipientSnapshot?.phone]
-              .filter(Boolean)
-              .join(' · ')}
-          </p>
-        </Card>
-      ) : null}
-
-      {bd ? (
-        <Card style={{ marginBottom: 16 }}>
-          <CardHeader title="Breakdown (from stored rates)" />
-          <ul style={{ margin: 0, paddingLeft: 18, fontSize: 14, color: 'var(--color-text-muted)' }}>
-            <li>After commission: {bd.afterCommission} {bd.inputCurrency}</li>
-            <li>USD leg: {bd.usd} USD</li>
-            <li>Output: {bd.final} {bd.outputCurrency}</li>
-          </ul>
-        </Card>
-      ) : null}
-
-      {tx.rateSnapshot ? (
-        <Card subtle>
-          <CardHeader title="Rate snapshot" subtitle="Frozen at creation time" />
-          <pre
-            style={{
-              fontSize: 12,
-              margin: 0,
-              overflow: 'auto',
-              fontFamily: 'var(--font-mono)',
-            }}
-          >
-            {JSON.stringify(tx.rateSnapshot, null, 2)}
-          </pre>
+          <CardHeader title="Delivery proof" />
+          {deliveryProofUrl ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {deliveryProofIsImage ? (
+                <img
+                  src={deliveryProofUrl}
+                  alt="Delivery proof"
+                  style={{
+                    width: '100%',
+                    maxHeight: 360,
+                    objectFit: 'contain',
+                    borderRadius: 'var(--radius-md)',
+                    border: '1px solid var(--color-border)',
+                    background: 'var(--color-surface)',
+                  }}
+                />
+              ) : null}
+              <div>
+                <Button asChild variant="secondary">
+                  <a href={deliveryProofUrl} download={deliveryProofFileName || 'delivery-proof'}>
+                    Download delivery proof
+                  </a>
+                </Button>
+              </div>
+              {tx.deliveryNotes != null && String(tx.deliveryNotes).trim() !== '' ? (
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: 14,
+                    lineHeight: 1.5,
+                    color: 'var(--color-text-muted)',
+                  }}
+                >
+                  {tx.deliveryNotes}
+                </p>
+              ) : null}
+            </div>
+          ) : (
+            <p style={{ fontSize: 14, color: 'var(--color-text-muted)', margin: 0 }}>
+              No delivery proof was attached for this transfer.
+            </p>
+          )}
         </Card>
       ) : null}
 
@@ -145,5 +137,5 @@ export default function TransactionDetailPage() {
         </Link>
       </p>
     </Layout>
-  );
+  )
 }

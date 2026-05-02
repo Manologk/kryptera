@@ -1,68 +1,71 @@
-import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
-import { ROUTES, activityTransaction } from '@/constants/routes';
-import { ADMIN_PAGE_SIZE } from '@/constants';
-import { useAuth } from '@/context/AuthContext';
-import { adminKeys } from '@/features/admin/queryKeys';
-import { recipientDisplay, TRANSACTION_STATUS_FILTER_OPTIONS, transactionStatusLabel } from '@/features/admin/transactionLabels';
-import { formatMoneyAmount } from '@/features/transaction/utils';
-import { getAdminTransactions, patchAdminTransaction } from '@/services/api';
-import type { Transaction, TransactionStatus } from '@/types';
-import { Button } from '@/components/ui/button';
-import Card, { CardContent, CardHeader } from '@/components/ui/Card';
+import { useEffect, useMemo, useState, type KeyboardEvent } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { ADMIN_PAGE_SIZE } from '@/constants'
+import { PAYMENT_OPTIONS } from '@/constants/transferPlaceholders'
+import { adminTransactionDetail } from '@/constants/routes'
+import { useAuth } from '@/context/AuthContext'
+import { adminKeys } from '@/features/admin/queryKeys'
+import { recipientDisplay } from '@/features/admin/transactionLabels'
+import { downloadTransactionRecordText } from '@/features/transaction/transactionDownload'
 import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { StatusBadge } from '@/components/ui/Badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Textarea } from '@/components/ui/textarea';
+  RecipientStackedCell,
+  SortChevrons,
+  TxRowActions,
+  TxTableCheckbox,
+} from '@/features/transaction/TransactionTableUi'
+import { formatMoneyAmount } from '@/features/transaction/utils'
+import { getAdminTransactions } from '@/services/api'
+import type { Transaction } from '@/types'
+import Button from '@/components/ui/Button'
+import { StatusBadge } from '@/components/ui/Badge'
+import Card, { CardContent, CardHeader } from '@/components/ui/Card'
+import { Skeleton } from '@/components/ui/skeleton'
+import { cn } from '@/lib/utils'
 
-const STATUSES: TransactionStatus[] = [
-  'pop_not_uploaded',
-  'pending_verification',
-  'completed',
-  'rejected',
-];
+type TxTab = 'all' | 'awaiting_confirmation' | 'completed'
+
+type SortKey = 'recipient' | 'amount' | 'createdAt'
+
+function paymentLabel(id: string | undefined): string {
+  if (!id) return '—'
+  return PAYMENT_OPTIONS.find(o => o.id === id)?.title ?? id
+}
+
+function formatListDate(iso: string): string {
+  const d = new Date(iso)
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+}
 
 export default function AdminTransactionsPage() {
-  const { accessToken } = useAuth();
-  const queryClient = useQueryClient();
-  const [page, setPage] = useState(1);
-  const [search, setSearch] = useState('');
-  const [status, setStatus] = useState('');
-  const [userId, setUserId] = useState('');
-  const [createdAfter, setCreatedAfter] = useState('');
-  const [createdBefore, setCreatedBefore] = useState('');
-  const [applied, setApplied] = useState({
-    search: '',
-    status: '',
-    user: '',
-    created_after: '',
-    created_before: '',
-  });
-  const [detailTx, setDetailTx] = useState<Transaction | null>(null);
-  const [noteDraft, setNoteDraft] = useState('');
-  const [statusDraft, setStatusDraft] = useState<TransactionStatus>('pending_verification');
+  const { accessToken } = useAuth()
+  const [tab, setTab] = useState<TxTab>('all')
+  const [page, setPage] = useState(1)
+  const [sortKey, setSortKey] = useState<SortKey>('createdAt')
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
+  const [selected, setSelected] = useState<Set<string>>(() => new Set())
+
+  useEffect(() => {
+    setPage(1)
+    if (tab === 'awaiting_confirmation') {
+      setSortKey('createdAt')
+      setSortDir('asc')
+    }
+  }, [tab])
+
+  const statusForApi = tab === 'all' ? undefined : tab === 'awaiting_confirmation' ? 'awaiting_confirmation' : 'completed'
 
   const filterKey = useMemo(
     () => ({
-      search: applied.search,
-      status: applied.status,
-      user: applied.user,
-      created_after: applied.created_after,
-      created_before: applied.created_before,
+      tab,
+      search: '',
+      user: '',
+      created_after: '',
+      created_before: '',
+      ordering: tab === 'awaiting_confirmation' ? 'created_at' : '',
+      status: statusForApi ?? '',
     }),
-    [applied],
-  );
+    [tab, statusForApi],
+  )
 
   const listQuery = useQuery({
     queryKey: adminKeys.transactions(page, filterKey),
@@ -70,155 +73,123 @@ export default function AdminTransactionsPage() {
     queryFn: async () => {
       const res = await getAdminTransactions(accessToken!, {
         page,
-        search: applied.search || undefined,
-        status: applied.status || undefined,
-        user: applied.user || undefined,
-        created_after: applied.created_after || undefined,
-        created_before: applied.created_before || undefined,
-      });
-      if (res.error) throw new Error(res.error.message);
-      if (!res.data) throw new Error('No data');
-      return res.data;
+        status: statusForApi,
+        ordering: tab === 'awaiting_confirmation' ? 'created_at' : undefined,
+      })
+      if (res.error) throw new Error(res.error.message)
+      if (!res.data) throw new Error('No data')
+      return res.data
     },
-  });
+  })
 
-  const patchMutation = useMutation({
-    mutationFn: async ({
-      id,
-      body,
-    }: {
-      id: string;
-      body: { status?: TransactionStatus; admin_note?: string };
-    }) => {
-      const res = await patchAdminTransaction(accessToken!, id, body);
-      if (res.error) throw new Error(res.error.message);
-      return res.data;
-    },
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['admin', 'tx'] });
-    },
-    onError: (e: Error) => toast.error(e.message),
-  });
+  const rows = listQuery.data?.results ?? []
 
-  function applyFilters() {
-    setApplied({
-      search: search.trim(),
-      status,
-      user: userId.trim(),
-      created_after: createdAfter ? new Date(createdAfter).toISOString() : '',
-      created_before: createdBefore ? new Date(createdBefore).toISOString() : '',
-    });
-    setPage(1);
-  }
+  const sortedRows = useMemo(() => {
+    const dir = sortDir === 'asc' ? 1 : -1
+    const list = [...rows]
+    const primaryDate = (tx: Transaction) =>
+      tab === 'awaiting_confirmation' ? tx.updatedAt : tx.createdAt
+    list.sort((a, b) => {
+      let cmp = 0
+      if (sortKey === 'createdAt') {
+        cmp = new Date(primaryDate(a)).getTime() - new Date(primaryDate(b)).getTime()
+      } else if (sortKey === 'recipient') {
+        cmp = recipientDisplay(a).localeCompare(recipientDisplay(b))
+      } else {
+        cmp = a.inputAmount - b.inputAmount
+      }
+      return cmp * dir
+    })
+    return list
+  }, [rows, sortKey, sortDir, tab])
 
-  function openDetail(tx: Transaction) {
-    setDetailTx(tx);
-    setNoteDraft(tx.adminNote ?? '');
-    setStatusDraft(tx.status);
-  }
+  useEffect(() => {
+    const ids = new Set(sortedRows.map(t => t.id))
+    setSelected(prev => {
+      const next = new Set<string>()
+      prev.forEach(id => {
+        if (ids.has(id)) next.add(id)
+      })
+      return next
+    })
+  }, [sortedRows])
 
-  function saveDetail() {
-    if (!detailTx) return;
-    const statusChanged = statusDraft !== detailTx.status;
-    const noteChanged = noteDraft !== (detailTx.adminNote ?? '');
-    if (!statusChanged && !noteChanged) {
-      toast.message('No changes to save');
-      return;
+  const toggleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDir(d => (d === 'asc' ? 'desc' : 'asc'))
+    } else {
+      setSortKey(key)
+      setSortDir(key === 'createdAt' ? 'desc' : 'asc')
     }
-    patchMutation.mutate(
-      {
-        id: detailTx.id,
-        body: {
-          status: statusChanged ? statusDraft : undefined,
-          admin_note: noteChanged ? noteDraft : undefined,
-        },
-      },
-      {
-        onSuccess: data => {
-          toast.success('Transaction updated');
-          setDetailTx(data ?? null);
-          if (data) {
-            setNoteDraft(data.adminNote ?? '');
-            setStatusDraft(data.status);
-          }
-        },
-      },
-    );
+  }
+
+  const submittedOrCreatedAt = (tx: Transaction) =>
+    tab === 'awaiting_confirmation' ? tx.updatedAt : tx.createdAt
+
+  const allSelected = sortedRows.length > 0 && sortedRows.every(t => selected.has(t.id))
+  const someSelected = sortedRows.some(t => selected.has(t.id)) && !allSelected
+
+  const handleHeaderCheckbox = () => {
+    if (allSelected) setSelected(new Set())
+    else setSelected(new Set(sortedRows.map(t => t.id)))
+  }
+
+  const toggleRow = (id: string) => {
+    setSelected(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
   }
 
   if (!accessToken) {
-    return <p className="text-sm text-muted-foreground">Sign in as admin.</p>;
+    return <p className="text-sm text-muted-foreground">Sign in as admin.</p>
   }
 
-  const rows = listQuery.data?.results ?? [];
-  const totalPages = listQuery.data ? Math.max(1, Math.ceil(listQuery.data.count / ADMIN_PAGE_SIZE)) : 1;
+  const totalPages = listQuery.data ? Math.max(1, Math.ceil(listQuery.data.count / ADMIN_PAGE_SIZE)) : 1
+
+  const tabBtn = (id: TxTab, label: string) => (
+    <button
+      type="button"
+      onClick={() => setTab(id)}
+      className={cn(
+        'min-h-[44px] flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+        tab === id ? 'bg-primary text-primary-foreground shadow' : 'text-muted-foreground hover:bg-muted',
+      )}
+    >
+      {label}
+    </button>
+  )
+
+  const sortableThClass =
+    'cursor-pointer select-none px-3 text-left align-middle text-[11px] font-semibold uppercase tracking-[0.06em] text-[#888] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
+
+  const handleHeaderKeyDown = (key: SortKey) => (e: KeyboardEvent<HTMLTableCellElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      toggleSort(key)
+    }
+  }
 
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold tracking-tight">Transactions</h2>
-        <p className="text-sm text-muted-foreground">
-          Filter and update transfer status. End users keep read-only activity views.
-        </p>
+        <p className="text-sm text-muted-foreground">Review transfers by status. End users keep read-only activity views.</p>
       </div>
 
-      <Card>
-        <CardHeader title="Filters" />
-        <CardContent className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="space-y-2">
-              <Label htmlFor="tx-search">Search</Label>
-              <Input
-                id="tx-search"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                placeholder="Email, purpose, or UUID"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="tx-status">Status</Label>
-              <select
-                id="tx-status"
-                value={status}
-                onChange={e => setStatus(e.target.value)}
-                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                <option value="">Any</option>
-                {TRANSACTION_STATUS_FILTER_OPTIONS.map(o => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="tx-user">User ID</Label>
-              <Input id="tx-user" value={userId} onChange={e => setUserId(e.target.value)} placeholder="Numeric" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="tx-after">Created after (local)</Label>
-              <Input
-                id="tx-after"
-                type="datetime-local"
-                value={createdAfter}
-                onChange={e => setCreatedAfter(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="tx-before">Created before (local)</Label>
-              <Input
-                id="tx-before"
-                type="datetime-local"
-                value={createdBefore}
-                onChange={e => setCreatedBefore(e.target.value)}
-              />
-            </div>
-          </div>
-          <Button type="button" onClick={applyFilters} disabled={listQuery.isFetching}>
-            Apply filters
-          </Button>
-        </CardContent>
-      </Card>
+      <div className="flex flex-wrap gap-2 rounded-lg border border-border bg-muted/30 p-1">
+        {tabBtn('all', 'All')}
+        {tabBtn('awaiting_confirmation', 'Awaiting confirmation')}
+        {tabBtn('completed', 'Completed')}
+      </div>
+
+      {tab === 'awaiting_confirmation' ? (
+        <p className="text-xs text-muted-foreground">
+          Transfers where the client has uploaded proof of payment and is waiting on admin confirmation.
+        </p>
+      ) : null}
 
       <Card>
         <CardHeader title="Results" subtitle={`${listQuery.data?.count ?? '—'} total`} />
@@ -230,51 +201,121 @@ export default function AdminTransactionsPage() {
             </div>
           ) : listQuery.isError ? (
             <p className="text-sm text-destructive">{(listQuery.error as Error).message}</p>
-          ) : rows.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No transactions match.</p>
+          ) : sortedRows.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No transactions in this view.</p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Sender</TableHead>
-                  <TableHead>Recipient</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {rows.map(tx => (
-                  <TableRow key={tx.id}>
-                    <TableCell className="max-w-[180px] truncate text-sm" title={tx.userEmail}>
-                      {tx.userEmail ?? '—'}
-                    </TableCell>
-                    <TableCell className="max-w-[160px] truncate text-sm">{recipientDisplay(tx)}</TableCell>
-                    <TableCell className="whitespace-nowrap font-mono text-sm">
-                      {formatMoneyAmount(tx.inputAmount, tx.inputCurrency)} →{' '}
-                      {formatMoneyAmount(tx.resultAmount, tx.resultCurrency)}
-                    </TableCell>
-                    <TableCell>
-                      <StatusBadge status={tx.status} />
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
-                      {new Date(tx.createdAt).toLocaleString()}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex flex-wrap justify-end gap-2">
-                        <Button type="button" variant="outline" size="sm" onClick={() => openDetail(tx)}>
-                          Detail
-                        </Button>
-                        <Button type="button" variant="ghost" size="sm" asChild>
-                          <Link to={activityTransaction(tx.id)}>Public view</Link>
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <div className="overflow-hidden rounded-[14px] border border-[#EBEBEB] bg-white">
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[860px] border-collapse">
+                  <thead className="border-b border-[#EBEBEB] bg-[#F7F7F5]">
+                    <tr className="h-10">
+                      <th scope="col" className="w-12 px-2 text-center align-middle">
+                        <div className="flex justify-center">
+                          <TxTableCheckbox
+                            checked={allSelected}
+                            indeterminate={someSelected}
+                            ariaLabel="Select all transactions"
+                            onPress={handleHeaderCheckbox}
+                          />
+                        </div>
+                      </th>
+                      <th
+                        scope="col"
+                        tabIndex={0}
+                        className={sortableThClass}
+                        onClick={() => toggleSort('recipient')}
+                        onKeyDown={handleHeaderKeyDown('recipient')}
+                      >
+                        <span className="inline-flex items-center gap-1">
+                          Recipient
+                          {sortKey === 'recipient' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
+                        </span>
+                      </th>
+                      <th
+                        scope="col"
+                        tabIndex={0}
+                        className={sortableThClass}
+                        onClick={() => toggleSort('amount')}
+                        onKeyDown={handleHeaderKeyDown('amount')}
+                      >
+                        <span className="inline-flex items-center gap-1">
+                          Amount
+                          <SortChevrons active={sortKey === 'amount'} />
+                        </span>
+                      </th>
+                      <th scope="col" className="px-3 text-left align-middle text-[11px] font-semibold uppercase tracking-[0.06em] text-[#888]">
+                        Method
+                      </th>
+                      <th
+                        scope="col"
+                        tabIndex={0}
+                        className={sortableThClass}
+                        onClick={() => toggleSort('createdAt')}
+                        onKeyDown={handleHeaderKeyDown('createdAt')}
+                      >
+                        <span className="inline-flex items-center gap-1">
+                          Date
+                          <SortChevrons active={sortKey === 'createdAt'} />
+                        </span>
+                      </th>
+                      <th scope="col" className="px-3 text-left align-middle text-[11px] font-semibold uppercase tracking-[0.06em] text-[#888]">
+                        Status
+                      </th>
+                      <th scope="col" className="w-[72px] px-0 align-middle" aria-hidden />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sortedRows.map(tx => {
+                      const isSel = selected.has(tx.id)
+                      return (
+                        <tr
+                          key={tx.id}
+                          className={cn(
+                            'min-h-[64px] border-b border-[#EBEBEB] transition-colors duration-150',
+                            isSel ? 'bg-[#F0FAF5] hover:bg-[#F0FAF5]' : 'bg-white hover:bg-[#F7F7F5]',
+                          )}
+                        >
+                          <td className="w-12 px-2 text-center align-middle">
+                            <div className="flex min-h-[64px] items-center justify-center">
+                              <TxTableCheckbox
+                                checked={isSel}
+                                ariaLabel="Select transaction"
+                                onCheckedChange={() => toggleRow(tx.id)}
+                              />
+                            </div>
+                          </td>
+                          <td className="px-3 align-middle">
+                            <RecipientStackedCell tx={tx} includeReference />
+                          </td>
+                          <td className="px-3 align-middle">
+                            <span className="text-[14px] font-medium leading-snug text-[#163300]">
+                              {formatMoneyAmount(tx.inputAmount, tx.inputCurrency)}
+                              <span className="mx-1 text-[#888]">→</span>
+                              {formatMoneyAmount(tx.resultAmount, tx.resultCurrency)}
+                            </span>
+                          </td>
+                          <td className="px-3 align-middle text-[13px] font-normal text-[#888]">
+                            {paymentLabel(tx.paymentMethod)}
+                          </td>
+                          <td className="whitespace-nowrap px-3 align-middle text-[13px] font-normal text-[#888]">
+                            {formatListDate(submittedOrCreatedAt(tx))}
+                          </td>
+                          <td className="px-3 align-middle">
+                            <StatusBadge status={tx.status} />
+                          </td>
+                          <td className="w-[72px] px-0 align-middle">
+                            <TxRowActions
+                              detailHref={adminTransactionDetail(tx.id)}
+                              onDownloadRecord={() => downloadTransactionRecordText(tx)}
+                            />
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           )}
 
           {listQuery.data != null && totalPages > 1 ? (
@@ -285,8 +326,9 @@ export default function AdminTransactionsPage() {
               <div className="flex gap-2">
                 <Button
                   type="button"
-                  variant="outline"
-                  size="sm"
+                  variant="secondary"
+                  fullWidth={false}
+                  className="min-w-[120px]"
                   disabled={page <= 1 || listQuery.isFetching}
                   onClick={() => setPage(p => Math.max(1, p - 1))}
                 >
@@ -294,8 +336,9 @@ export default function AdminTransactionsPage() {
                 </Button>
                 <Button
                   type="button"
-                  variant="outline"
-                  size="sm"
+                  variant="secondary"
+                  fullWidth={false}
+                  className="min-w-[120px]"
                   disabled={page >= totalPages || listQuery.isFetching}
                   onClick={() => setPage(p => p + 1)}
                 >
@@ -306,62 +349,6 @@ export default function AdminTransactionsPage() {
           ) : null}
         </CardContent>
       </Card>
-
-      <p className="text-sm">
-        <Link to={ROUTES.activity} className="font-medium text-primary underline-offset-4 hover:underline">
-          ← Public activity
-        </Link>
-      </p>
-
-      <Dialog open={!!detailTx} onOpenChange={open => !open && setDetailTx(null)}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Transaction</DialogTitle>
-          </DialogHeader>
-          {detailTx ? (
-            <div className="space-y-4 text-sm">
-              <p className="font-mono text-xs text-muted-foreground">{detailTx.id}</p>
-              <p>
-                <span className="text-muted-foreground">Sender</span>
-                <br />
-                {detailTx.userEmail ?? '—'}
-              </p>
-              <p>
-                <span className="text-muted-foreground">Recipient</span>
-                <br />
-                {recipientDisplay(detailTx)}
-              </p>
-              <p className="font-mono">
-                {formatMoneyAmount(detailTx.inputAmount, detailTx.inputCurrency)} →{' '}
-                {formatMoneyAmount(detailTx.resultAmount, detailTx.resultCurrency)}
-              </p>
-              <div className="space-y-2">
-                <Label>Status</Label>
-                <select
-                  value={statusDraft}
-                  onChange={e => setStatusDraft(e.target.value as TransactionStatus)}
-                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  {STATUSES.map(s => (
-                    <option key={s} value={s}>
-                      {transactionStatusLabel(s)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="admin-note">Admin note</Label>
-                <Textarea id="admin-note" value={noteDraft} onChange={e => setNoteDraft(e.target.value)} rows={4} />
-              </div>
-            </div>
-          ) : null}
-          <DialogFooter>
-            <Button type="button" onClick={saveDetail} disabled={patchMutation.isPending || !detailTx}>
-              Save changes
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
-  );
+  )
 }

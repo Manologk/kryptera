@@ -4,6 +4,13 @@ const tailwindcssAnimate = require('tailwindcss-animate');
 /** Normalize for Tailwind glob matching on Windows */
 const root = path.join(__dirname).replace(/\\/g, '/');
 
+/**
+ * Breakpoints (mobile-first):
+ *   default — mobile
+ *   `sm`    — 640px  (tablet)
+ *   `lg`    — 1024px (desktop)
+ * Default Tailwind `md` (768px) remains available until components migrate.
+ */
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: ['class'],
@@ -12,6 +19,13 @@ module.exports = {
   },
   content: [`${root}/index.html`, `${root}/src/**/*.{js,ts,jsx,tsx}`],
   theme: {
+    screens: {
+      sm: '640px',
+      md: '768px',
+      lg: '1024px',
+      xl: '1280px',
+      '2xl': '1536px',
+    },
     extend: {
       colors: {
         border: 'hsl(var(--border))',
@@ -58,7 +72,7 @@ module.exports = {
           ring: 'hsl(var(--sidebar-ring))',
         },
       },
-      /* Match DESIGN.md: sm 8px, md 12px (buttons/inputs), lg 20px (cards), xl 28px */
+      /* Mirrors globals.css --radius-* (Kryptera design system) */
       borderRadius: {
         none: '0',
         sm: 'var(--radius-sm)',

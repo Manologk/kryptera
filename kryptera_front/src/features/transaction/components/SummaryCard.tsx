@@ -1,11 +1,8 @@
-import { Link } from 'react-router-dom';
 import { COMMISSION_RATE } from '@/constants';
-import { ROUTES } from '@/constants/routes';
 import Card, { CardContent } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import { Alert } from '@/components/ui/Badge';
 import { formatMoneyAmount } from '@/features/transaction/utils';
-import type { ConversionBreakdown, ConversionMode, Recipient } from '@/types';
+import type { ConversionBreakdown, ConversionMode } from '@/types';
 
 interface BreakdownRowProps {
   label: string;
@@ -49,47 +46,17 @@ function BreakdownRow({ label, value, highlight, negative, additive }: Breakdown
 export interface SummaryCardProps {
   mode: ConversionMode;
   result: ConversionBreakdown;
-  recordMsg: { type: 'success' | 'error'; text: string } | null;
-  onDismissRecordMsg: () => void;
-  onRecord: () => void;
-  recipients?: Recipient[];
-  recipientId: number | null;
-  onRecipientIdChange: (id: number | null) => void;
+  onSend: () => void;
+  sendDisabled?: boolean;
 }
 
-export default function SummaryCard({
-  mode,
-  result,
-  recordMsg,
-  onDismissRecordMsg,
-  onRecord,
-  recipients = [],
-  recipientId,
-  onRecipientIdChange,
-}: SummaryCardProps) {
+export default function SummaryCard({ mode, result, onSend, sendDisabled }: SummaryCardProps) {
   const isRZ = mode === 'russia-zambia';
   const onTop = result.commissionOnTop;
 
   return (
     <Card style={{ animation: 'fadeUp 0.25s ease' }}>
       <CardContent>
-        {recordMsg && (
-          <div style={{ marginBottom: 16 }}>
-            <Alert
-              type={recordMsg.type === 'success' ? 'success' : 'error'}
-              message={recordMsg.text}
-              onClose={onDismissRecordMsg}
-            />
-            {recordMsg.type === 'success' && (
-              <p style={{ marginTop: 10, marginBottom: 0, fontSize: 14 }}>
-                <Link to={ROUTES.activity} style={{ color: '#166534', fontWeight: 600 }}>
-                  View activity →
-                </Link>
-              </p>
-            )}
-          </div>
-        )}
-
         <p
           style={{
             fontSize: 11,
@@ -149,52 +116,10 @@ export default function SummaryCard({
           />
         </div>
 
-        {recipients.length > 0 ? (
-          <div style={{ marginTop: 20 }}>
-            <label
-              style={{
-                fontSize: 12,
-                fontWeight: 700,
-                letterSpacing: '0.06em',
-                textTransform: 'uppercase',
-                color: 'var(--color-text-muted)',
-                display: 'block',
-                marginBottom: 8,
-              }}
-            >
-              Link recipient (optional)
-            </label>
-            <select
-              value={recipientId ?? ''}
-              onChange={e => {
-                const v = e.target.value;
-                onRecipientIdChange(v === '' ? null : Number(v));
-              }}
-              style={{
-                width: '100%',
-                padding: '12px 14px',
-                borderRadius: 'var(--radius-md)',
-                border: '1px solid var(--color-border)',
-                fontFamily: 'var(--font-body)',
-                fontSize: 14,
-                background: 'var(--color-surface)',
-              }}
-            >
-              <option value="">None</option>
-              {recipients.filter(r => r.isActive).map(r => (
-                <option key={r.id} value={r.id}>
-                  {r.label ? `${r.label} — ${r.fullName}` : r.fullName}
-                </option>
-              ))}
-            </select>
-          </div>
-        ) : null}
-
-        <Button fullWidth size="lg" variant="primary" style={{ marginTop: 20 }} onClick={onRecord}>
-          Record transfer
+        <Button fullWidth size="lg" variant="primary" className="mt-5" onClick={onSend} disabled={sendDisabled}>
+          Send
         </Button>
       </CardContent>
-
     </Card>
   );
 }

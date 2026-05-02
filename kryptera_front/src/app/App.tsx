@@ -12,8 +12,13 @@ import AdminRatesPage from '@/pages/admin/AdminRatesPage';
 import AdminCurrenciesPage from '@/pages/admin/AdminCurrenciesPage';
 import AdminUsersPage from '@/pages/admin/AdminUsersPage';
 import AdminTransactionsPage from '@/pages/admin/AdminTransactionsPage';
+import AdminTransactionDetailPage from '@/pages/admin/AdminTransactionDetailPage';
+import AdminPendingTransactionsPage from '@/pages/admin/AdminPendingTransactionsPage';
+import AdminPendingTransactionDetailPage from '@/pages/admin/AdminPendingTransactionDetailPage';
 import LoginPage from '@/pages/LoginPage';
 import RegisterPage from '@/pages/RegisterPage';
+import TransferPage from '@/pages/TransferPage';
+import TransferConfirmationPage from '@/pages/TransferConfirmationPage';
 import { ROUTES } from '@/constants/routes';
 
 export default function App() {
@@ -24,6 +29,8 @@ export default function App() {
           <Routes>
             <Route element={<PublicLayout />}>
               <Route path={ROUTES.home} element={<ConverterPage />} />
+              <Route path="/transfer/:txId/confirmation" element={<TransferConfirmationPage />} />
+              <Route path={ROUTES.transfer} element={<TransferPage />} />
               <Route path={ROUTES.activity} element={<ActivityPage />} />
               <Route path="/activity/:id" element={<TransactionDetailPage />} />
               <Route path={ROUTES.recipients} element={<RecipientsPage />} />
@@ -39,6 +46,9 @@ export default function App() {
               <Route path="currencies" element={<AdminCurrenciesPage />} />
               <Route path="users" element={<AdminUsersPage />} />
               <Route path="transactions" element={<AdminTransactionsPage />} />
+              <Route path="transactions/:id" element={<AdminTransactionDetailPage />} />
+              <Route path="pending" element={<AdminPendingTransactionsPage />} />
+              <Route path="pending/:id" element={<AdminPendingTransactionDetailPage />} />
             </Route>
 
             <Route path="*" element={<Navigate to={ROUTES.home} replace />} />

@@ -1,76 +1,117 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /**
- * Global theme: shadcn HSL tokens + DESIGN.md / Wise-style hex tokens (--color-* for inline styles).
- * Preflight is off in tailwind.config.cjs; Tailwind + PostCSS are wired in vite.config.ts.
+ * Kryptera mobile-first design system — tokens & global base only.
+ * Components continue to use existing shadcn `hsl(var(--*))` mappings + legacy `--color-*` where applicable.
+ *
+ * Breakpoints (Tailwind defaults align with this foundation):
+ *   Mobile:  default (< 640px)
+ *   Tablet:  min-width: 640px  (`sm:`)
+ *   Desktop: min-width: 1024px (`lg:`)
  */
 
 @layer base {
   :root {
-    /* Page surface — #f5f7f2 */
-    --background: 80 22% 96%;
-    --foreground: 80 15% 5%;
-    --card: 0 0% 100%;
-    --card-foreground: 80 15% 5%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 80 15% 5%;
-    /* Primary CTA — #9fe870 */
-    --primary: 96 73% 67%;
-    --primary-foreground: 80 15% 5%;
-    --secondary: 80 18% 92%;
-    --secondary-foreground: 80 15% 5%;
-    --muted: 80 16% 92%;
-    --muted-foreground: 220 9% 46%;
-    --accent: 96 45% 92%;
-    --accent-foreground: 80 15% 5%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 214 18% 88%;
-    --input: 214 18% 88%;
-    /* Focus ring — aligned with primary */
-    --ring: 96 65% 45%;
-    --sidebar-background: 80 18% 97%;
-    --sidebar-foreground: 80 9% 20%;
-    --sidebar-primary: 96 66% 52%;
-    --sidebar-primary-foreground: 80 15% 5%;
-    --sidebar-accent: 96 32% 92%;
-    --sidebar-accent-foreground: 80 15% 5%;
-    --sidebar-border: 214 18% 88%;
-    --sidebar-ring: 96 65% 45%;
+    /* ── Brand palette (source of truth) ───────────────────────────────── */
+    --kryptera-dark: #163300;
+    --kryptera-green: #9fe1cb;
+    --kryptera-surface: #f7f7f5;
+    --kryptera-card: #ffffff;
+    --kryptera-border: #ebebeb;
+    --kryptera-muted: #888888;
+    --kryptera-pending: #ef9f27;
+    --kryptera-success: #1d9e75;
+    --kryptera-danger: #e24b4a;
 
-    /* Legacy tokens — keep hex for existing inline style={...} across the app */
-    --color-primary: #9fe870;
-    --color-primary-dark: #6fcf3a;
-    --color-primary-subtle: #edfde3;
-    --color-text: #0e0f0c;
-    --color-text-muted: #6b7280;
-    --color-bg: #f5f7f2;
-    --color-surface: #ffffff;
-    --color-border: #e2e8e0;
-    --color-border-focus: #9fe870;
-    --color-error: #ef4444;
-    --color-warning: #f59e0b;
-    --color-success: #22c55e;
+    /* ── Spacing scale (px — use for gap/padding/margin via var or docs) ─ */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 24px;
+    --space-6: 32px;
+    --space-7: 48px;
 
-    --radius-sm: 8px;
-    --radius-md: 12px;
-    --radius-lg: 20px;
-    --radius-xl: 28px;
-    /* shadcn `rounded-md` / calc(var(--radius)-*) consumers */
+    /* ── Radius ───────────────────────────────────────────────────────── */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 20px;
     --radius: var(--radius-md);
 
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
-    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+    /* ── Typography tokens ─────────────────────────────────────────────── */
+    --font-size-body: 14px;
+    --font-weight-body: 400;
+    --line-height-body: 1.6;
 
-    --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
-    --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+    --font-size-label: 12px;
+    --font-weight-label: 500;
+    --color-label: var(--kryptera-muted);
+
+    --font-size-heading: 20px;
+    --font-weight-heading: 700;
+    --color-heading: var(--kryptera-dark);
+
+    --font-size-sub: 13px;
+    --font-weight-sub: 400;
+
+    --font-body: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: 'JetBrains Mono', 'Courier New', ui-monospace, monospace;
+
+    /* ── Legacy hex aliases (inline style={...} across the app) ────────── */
+    --color-primary: var(--kryptera-dark);
+    --color-primary-dark: #0f2600;
+    --color-primary-subtle: color-mix(in srgb, var(--kryptera-green) 22%, transparent);
+    --color-text: var(--kryptera-dark);
+    --color-text-muted: var(--kryptera-muted);
+    --color-bg: var(--kryptera-surface);
+    --color-surface: var(--kryptera-card);
+    --color-border: var(--kryptera-border);
+    --color-border-focus: var(--kryptera-green);
+    --color-error: var(--kryptera-danger);
+    --color-warning: var(--kryptera-pending);
+    --color-success: var(--kryptera-success);
+
+    --shadow-sm: 0 1px 3px rgba(22, 51, 0, 0.06);
+    --shadow-md: 0 4px 16px rgba(22, 51, 0, 0.08);
+    --shadow-lg: 0 8px 32px rgba(22, 51, 0, 0.1);
+
+    /* ── shadcn / Tailwind HSL channels (aligned to Kryptera palette) ───── */
+    --background: 60 7% 96%;
+    --foreground: 82 100% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 82 100% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 82 100% 10%;
+    --primary: 82 100% 10%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 60 7% 94%;
+    --secondary-foreground: 82 100% 10%;
+    --muted: 60 6% 94%;
+    --muted-foreground: 0 0% 53%;
+    --accent: 160 54% 92%;
+    --accent-foreground: 82 100% 10%;
+    --destructive: 0 72% 59%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 92%;
+    --input: 0 0% 92%;
+    --ring: 160 54% 75%;
+    --sidebar-background: 60 7% 97%;
+    --sidebar-foreground: 82 30% 18%;
+    --sidebar-primary: 82 100% 10%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 160 40% 94%;
+    --sidebar-accent-foreground: 82 100% 10%;
+    --sidebar-border: 0 0% 92%;
+    --sidebar-ring: 160 54% 55%;
   }
 }
 
-/* Minimal box model reset (replaces Tailwind preflight + old universal margin/padding wipe) */
+/* ── Global reset ──────────────────────────────────────────────────────── */
 *,
 *::before,
 *::after {
@@ -79,18 +120,21 @@
 
 html {
   color-scheme: light;
-  font-size: 16px;
+  font-size: 100%;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  margin: 0;
   min-height: 100vh;
-  font-family: var(--font-body), system-ui, sans-serif;
-  background-color: var(--color-bg);
-  color: var(--color-text);
-  line-height: 1.6;
+  padding: 0;
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-body);
+  line-height: var(--line-height-body);
+  background-color: var(--kryptera-surface);
+  color: var(--kryptera-dark);
 }
 
 #root {
@@ -99,48 +143,86 @@ body {
   flex-direction: column;
 }
 
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
+  height: auto;
+}
+
 a {
   color: inherit;
   text-decoration: none;
 }
 
-button,
-input,
-textarea,
-select {
-  font-family: inherit;
-}
-
-button {
-  cursor: pointer;
-}
-
-/* Default border color for Tailwind `border` + shadcn inputs (no preflight) */
 @layer base {
   * {
     @apply border-border;
   }
+
+  /* Strip UA chrome so Tailwind / component classes own appearance (avoids “default” button/input look) */
+  button {
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    color: inherit;
+    cursor: pointer;
+    margin: 0;
+    padding: 0;
+    background-color: transparent;
+    background-image: none;
+    border-width: 0;
+    border-style: solid;
+    appearance: none;
+  }
+
+  button::-moz-focus-inner {
+    border: 0;
+    padding: 0;
+  }
+
+  input,
+  textarea,
+  select {
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    color: inherit;
+    margin: 0;
+  }
+
+  textarea {
+    resize: vertical;
+  }
 }
 
-/* Scrollbar */
+/* Thin scrollbar — brand-aligned (WebKit) */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--color-bg);
+  background: var(--kryptera-surface);
+  border-radius: var(--radius-sm);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: 3px;
+  background: var(--kryptera-border);
+  background: color-mix(in srgb, var(--kryptera-dark) 35%, var(--kryptera-green));
+  border-radius: var(--radius-sm);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--kryptera-muted);
+  background: color-mix(in srgb, var(--kryptera-dark) 50%, var(--kryptera-green));
 }
 
-/* Focus ring */
+/* Focus ring — accent green */
 :focus-visible {
-  outline: 2px solid var(--color-primary);
+  outline: 2px solid var(--kryptera-green);
   outline-offset: 2px;
 }
 
-/* Utility */
+/* Utilities */
 .mono {
   font-family: var(--font-mono);
 }

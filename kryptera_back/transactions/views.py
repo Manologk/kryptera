@@ -22,7 +22,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from rates.permissions import IsAdminUser
-from .models import Transaction
+from .models import Transaction, TransactionStatus
 from .serializers import (
     AdminTransactionSerializer,
     PopUploadSerializer,
@@ -70,6 +70,20 @@ class PopUploadView(APIView):
         except Transaction.DoesNotExist:
             raise NotFound("Transaction not found.")
 
+        if tx.pop_file:
+            return Response(
+                {"detail": "Proof of payment already uploaded."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if tx.status not in (
+            TransactionStatus.PENDING,
+            TransactionStatus.POP_NOT_UPLOADED,
+        ):
+            return Response(
+                {"detail": "Cannot upload proof for this transaction status."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         serializer = PopUploadSerializer(tx, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -90,6 +104,11 @@ class AdminTransactionListView(generics.ListAPIView):
 
         if v := p.get("status"):
             qs = qs.filter(status=v)
+        if v := p.get("status_in"):
+            valid = {choice for choice, _ in TransactionStatus.choices}
+            wanted = [s.strip() for s in v.split(",") if s.strip() in valid]
+            if wanted:
+                qs = qs.filter(status__in=wanted)
         if v := p.get("mode"):
             qs = qs.filter(mode=v)
         if v := p.get("user"):
@@ -116,6 +135,12 @@ class AdminTransactionListView(generics.ListAPIView):
             except (ValueError, TypeError, AttributeError):
                 pass
             qs = qs.filter(q)
+
+        ordering = (p.get("ordering") or "").strip()
+        if ordering == "created_at":
+            qs = qs.order_by("created_at")
+        elif ordering == "-created_at":
+            qs = qs.order_by("-created_at")
 
         return qs
 

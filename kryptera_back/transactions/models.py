@@ -12,10 +12,12 @@ class ConversionMode(models.TextChoices):
 
 
 class TransactionStatus(models.TextChoices):
-    POP_NOT_UPLOADED     = "pop_not_uploaded",     "Awaiting POP"
+    PENDING = "pending", "Pending"
+    AWAITING_CONFIRMATION = "awaiting_confirmation", "Awaiting confirmation"
+    POP_NOT_UPLOADED = "pop_not_uploaded", "Awaiting POP"
     PENDING_VERIFICATION = "pending_verification", "Pending Verification"
-    COMPLETED            = "completed",            "Completed"
-    REJECTED             = "rejected",             "Rejected"
+    COMPLETED = "completed", "Completed"
+    REJECTED = "rejected", "Rejected"
 
 
 class Currency(models.TextChoices):
@@ -42,13 +44,20 @@ class Transaction(models.Model):
     result_currency = models.CharField(max_length=3, choices=Currency.choices)
     commission_rate = models.DecimalField(max_digits=5, decimal_places=4, default="0.0450")
     purpose         = models.CharField(max_length=500, blank=True)
+    delivery_method = models.CharField(max_length=48, blank=True)
+    payment_method  = models.CharField(max_length=48, blank=True)
     status          = models.CharField(
-        max_length=25, choices=TransactionStatus.choices,
-        default=TransactionStatus.POP_NOT_UPLOADED,
+        max_length=30, choices=TransactionStatus.choices,
+        default=TransactionStatus.PENDING,
     )
     pop_file    = models.FileField(upload_to=pop_upload_path, null=True, blank=True)
     receipt_file = models.FileField(upload_to=receipt_upload_path, null=True, blank=True)
+    delivery_proof = models.FileField(upload_to="delivery_proofs/", null=True, blank=True)
     admin_note  = models.TextField(blank=True)
+    admin_notes = models.TextField(blank=True, help_text="Optional notes shown to the client with delivery proof.")
+    receipt_confirmed = models.BooleanField(default=False)
+    receipt_confirmed_at = models.DateTimeField(null=True, blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
     recipient = models.ForeignKey(
         "recipients.Recipient",
         null=True,

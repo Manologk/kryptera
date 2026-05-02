@@ -102,31 +102,45 @@ function recipientSnapshotFromApi(s: unknown): Record<string, string> | undefine
   if (!s || typeof s !== 'object') return undefined;
   const out: Record<string, string> = {};
   for (const [k, v] of Object.entries(s as Record<string, unknown>)) {
-    if (v != null) out[k] = String(v);
+    if (v == null) continue;
+    if (typeof v === 'object' && !Array.isArray(v)) {
+      out[k] = JSON.stringify(v);
+    } else {
+      out[k] = String(v);
+    }
   }
   return Object.keys(out).length ? out : undefined;
 }
 
 function recipientThinFromApi(row: Record<string, unknown> | undefined) {
   if (!row || typeof row !== 'object') return undefined;
+  const det = row.delivery_details;
   return {
     id: Number(row.id),
-    label: String(row.label ?? ''),
     fullName: String(row.full_name ?? ''),
     email: row.email != null && String(row.email) !== '' ? String(row.email) : undefined,
-    phone: row.phone != null && String(row.phone) !== '' ? String(row.phone) : undefined,
+    phoneNumber:
+      row.phone_number != null && String(row.phone_number) !== '' ? String(row.phone_number) : undefined,
+    deliveryMethod:
+      row.delivery_method != null && String(row.delivery_method) !== ''
+        ? String(row.delivery_method)
+        : undefined,
+    deliveryDetails:
+      det != null && typeof det === 'object' ? (det as Record<string, unknown>) : undefined,
   };
 }
 
 function transactionFromApi(row: Record<string, unknown>): Transaction {
   const status = row.status;
   const statusOk: TransactionStatus =
+    status === 'pending' ||
+    status === 'awaiting_confirmation' ||
     status === 'pop_not_uploaded' ||
     status === 'pending_verification' ||
     status === 'completed' ||
     status === 'rejected'
       ? status
-      : 'pop_not_uploaded';
+      : 'pending';
 
   return {
     id: String(row.id),
@@ -136,13 +150,52 @@ function transactionFromApi(row: Record<string, unknown>): Transaction {
     resultAmount: Number(row.result_amount),
     resultCurrency: row.result_currency as Currency,
     purpose: row.purpose != null && String(row.purpose) !== '' ? String(row.purpose) : undefined,
+    deliveryMethod:
+      row.delivery_method != null && String(row.delivery_method) !== ''
+        ? String(row.delivery_method)
+        : undefined,
+    paymentMethod:
+      row.payment_method != null && String(row.payment_method) !== ''
+        ? String(row.payment_method)
+        : undefined,
     status: statusOk,
     userEmail: row.user_email != null && String(row.user_email) !== '' ? String(row.user_email) : undefined,
+    userFullName:
+      row.user_full_name != null && String(row.user_full_name) !== ''
+        ? String(row.user_full_name)
+        : undefined,
+    userPhone:
+      row.user_phone != null && String(row.user_phone) !== '' ? String(row.user_phone) : undefined,
+    referenceCode:
+      row.reference_code != null && String(row.reference_code) !== ''
+        ? String(row.reference_code)
+        : undefined,
+    receiptConfirmed:
+      row.receipt_confirmed != null ? Boolean(row.receipt_confirmed) : undefined,
+    receiptConfirmedAt:
+      row.receipt_confirmed_at != null && String(row.receipt_confirmed_at) !== ''
+        ? String(row.receipt_confirmed_at)
+        : undefined,
     adminNote: row.admin_note != null && String(row.admin_note) !== '' ? String(row.admin_note) : undefined,
+    adminNotes: row.admin_notes != null && String(row.admin_notes) !== '' ? String(row.admin_notes) : undefined,
     popPath: row.pop_file != null && String(row.pop_file) !== '' ? String(row.pop_file) : undefined,
+    deliveryProofPath:
+      row.delivery_proof != null && String(row.delivery_proof) !== ''
+        ? String(row.delivery_proof)
+        : undefined,
     receiptPath:
       row.receipt_file != null && String(row.receipt_file) !== ''
         ? String(row.receipt_file)
+        : undefined,
+    deliveryNotes:
+      row.delivery_notes != null && String(row.delivery_notes) !== ''
+        ? String(row.delivery_notes)
+        : row.delivery_notes === null || row.delivery_notes === ''
+          ? null
+          : undefined,
+    completedAt:
+      row.completed_at != null && String(row.completed_at) !== ''
+        ? String(row.completed_at)
         : undefined,
     createdAt: String(row.created_at),
     updatedAt: String(row.updated_at),
@@ -154,19 +207,20 @@ function transactionFromApi(row: Record<string, unknown>): Transaction {
 }
 
 function recipientFromApi(row: Record<string, unknown>): Recipient {
+  const det = row.delivery_details;
   return {
     id: Number(row.id),
-    label: String(row.label ?? ''),
     fullName: String(row.full_name ?? ''),
     email: row.email != null && String(row.email) !== '' ? String(row.email) : undefined,
-    phone: row.phone != null && String(row.phone) !== '' ? String(row.phone) : undefined,
-    payoutDetails:
-      row.payout_details != null && typeof row.payout_details === 'object'
-        ? (row.payout_details as Record<string, unknown>)
-        : {},
-    isActive: Boolean(row.is_active),
+    phoneNumber:
+      row.phone_number != null && String(row.phone_number) !== '' ? String(row.phone_number) : undefined,
+    deliveryMethod:
+      row.delivery_method != null && String(row.delivery_method) !== ''
+        ? String(row.delivery_method)
+        : undefined,
+    deliveryDetails:
+      det != null && typeof det === 'object' ? (det as Record<string, unknown>) : {},
     createdAt: String(row.created_at),
-    updatedAt: String(row.updated_at),
   };
 }
 
@@ -418,7 +472,13 @@ export async function getRecipients(token: string): Promise<ApiResponse<Recipien
 
 export async function createRecipient(
   token: string,
-  body: { label?: string; full_name: string; email?: string; phone?: string; payout_details?: object },
+  body: {
+    full_name: string;
+    email?: string;
+    phone_number?: string;
+    delivery_method: string;
+    delivery_details?: Record<string, unknown>;
+  },
 ): Promise<ApiResponse<Recipient>> {
   return withTokenRetry(token, t =>
     request<Record<string, unknown>>('/recipients/', {
@@ -436,7 +496,13 @@ export async function createRecipient(
 export async function updateRecipient(
   token: string,
   id: number,
-  body: Partial<{ label: string; full_name: string; email: string; phone: string; payout_details: object; is_active: boolean }>,
+  body: Partial<{
+    full_name: string;
+    email: string;
+    phone_number: string;
+    delivery_method: string;
+    delivery_details: Record<string, unknown>;
+  }>,
 ): Promise<ApiResponse<Recipient>> {
   return withTokenRetry(token, t =>
     request<Record<string, unknown>>(`/recipients/${id}/`, {
@@ -501,7 +567,14 @@ export async function createTransaction(
     inputAmount: number;
     purpose?: string;
     recipientId?: number | null;
+    recipientFullName?: string;
+    recipientEmail?: string;
+    recipientPhone?: string;
+    recipientDeliveryMethod?: string;
+    recipientDeliveryDetails?: Record<string, unknown>;
     commissionOnTop?: boolean;
+    deliveryMethod?: string;
+    paymentMethod?: string;
   },
   token: string,
 ): Promise<ApiResponse<Transaction>> {
@@ -515,6 +588,27 @@ export async function createTransaction(
   }
   if (payload.recipientId != null) {
     body.recipient_id = payload.recipientId;
+  }
+  if (payload.recipientFullName != null && payload.recipientFullName.trim() !== '') {
+    body.recipient_full_name = payload.recipientFullName.trim();
+  }
+  if (payload.recipientEmail != null && payload.recipientEmail.trim() !== '') {
+    body.recipient_email = payload.recipientEmail.trim();
+  }
+  if (payload.recipientPhone != null && payload.recipientPhone.trim() !== '') {
+    body.recipient_phone = payload.recipientPhone.trim();
+  }
+  if (payload.recipientDeliveryMethod != null && payload.recipientDeliveryMethod.trim() !== '') {
+    body.recipient_delivery_method = payload.recipientDeliveryMethod.trim();
+  }
+  if (payload.recipientDeliveryDetails != null && Object.keys(payload.recipientDeliveryDetails).length > 0) {
+    body.recipient_delivery_details = payload.recipientDeliveryDetails;
+  }
+  if (payload.deliveryMethod != null && payload.deliveryMethod !== '') {
+    body.delivery_method = payload.deliveryMethod;
+  }
+  if (payload.paymentMethod != null && payload.paymentMethod !== '') {
+    body.payment_method = payload.paymentMethod;
   }
   return withTokenRetry(token, t =>
     request<Record<string, unknown>>('/transactions/', {
@@ -646,19 +740,57 @@ export async function getAdminTransaction(token: string, id: string): Promise<Ap
 export async function patchAdminTransaction(
   token: string,
   id: string,
-  body: { status?: TransactionStatus; admin_note?: string },
+  body: {
+    status?: TransactionStatus;
+    admin_note?: string;
+    admin_notes?: string;
+    confirmReceipt?: boolean;
+    delivery_proof?: File;
+    receipt_file?: File;
+  },
 ): Promise<ApiResponse<Transaction>> {
-  return withTokenRetry(token, t =>
-    request<Record<string, unknown>>(`/transactions/admin/${id}/`, {
+  const file = body.delivery_proof ?? body.receipt_file;
+  const onlyConfirm =
+    body.confirmReceipt === true &&
+    body.status == null &&
+    !(file instanceof File) &&
+    body.admin_notes == null &&
+    body.admin_note == null;
+
+  const needsMultipart =
+    file instanceof File ||
+    body.admin_notes != null ||
+    body.admin_note != null ||
+    body.status != null ||
+    body.confirmReceipt === true;
+
+  return withTokenRetry(token, t => {
+    const init: RequestInit = {
       method: 'PATCH',
-      body: JSON.stringify(body),
       headers: { Authorization: `Bearer ${t}` },
-    }).then(res => {
+    };
+    if (onlyConfirm) {
+      init.body = JSON.stringify({ confirm_receipt: true });
+    } else if (needsMultipart) {
+      const form = new FormData();
+      if (body.confirmReceipt === true) form.append('confirm_receipt', 'true');
+      if (body.status != null) form.append('status', body.status);
+      if (body.admin_note != null) form.append('admin_note', body.admin_note);
+      if (body.admin_notes != null) form.append('admin_notes', body.admin_notes);
+      if (file instanceof File) form.append('delivery_proof', file);
+      init.body = form;
+    } else {
+      const json: Record<string, unknown> = {};
+      if (body.status != null) json.status = body.status;
+      if (body.admin_note != null) json.admin_note = body.admin_note;
+      init.body = JSON.stringify(json);
+    }
+    return request<Record<string, unknown>>(`/transactions/admin/${id}/`, init).then(res => {
       if (res.error) return res;
       if (res.data == null) return { error: { message: 'Empty response' } };
       return { data: transactionFromApi(res.data) };
-    }),
-  );
+    });
+  });
 }
 
 export type AdminUserRow = User & { isActive?: boolean; isStaff?: boolean; updatedAt?: string };

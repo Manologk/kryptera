@@ -1,6 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { createRecipient, deleteRecipient, getRecipients, updateRecipient } from '@/services/api';
+import {
+  buildDeliveryDetailsPayload,
+  emptyDeliveryDetailFields,
+  fieldsFromStoredDetails,
+  type DeliveryDetailFields,
+} from '@/features/recipient/deliveryDetails';
+import { DELIVERY_OPTIONS, type DeliveryOptionId } from '@/constants/transferPlaceholders';
 import type { Recipient } from '@/types';
 import Card, { CardHeader } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -13,10 +20,11 @@ export default function RecipientsPage() {
   const [rows, setRows] = useState<Recipient[]>([]);
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [label, setLabel] = useState('');
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [deliveryMethod, setDeliveryMethod] = useState<DeliveryOptionId | ''>('');
+  const [detailFields, setDetailFields] = useState<DeliveryDetailFields>(emptyDeliveryDetailFields());
   const [editing, setEditing] = useState<Recipient | null>(null);
 
   async function load() {
@@ -38,43 +46,49 @@ export default function RecipientsPage() {
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
-    if (!accessToken || !fullName.trim()) return;
+    if (!accessToken || !fullName.trim() || !deliveryMethod) return;
     setMsg(null);
+    const details = buildDeliveryDetailsPayload(deliveryMethod, detailFields);
     const res = await createRecipient(accessToken, {
       full_name: fullName.trim(),
-      label: label.trim() || undefined,
       email: email.trim() || undefined,
-      phone: phone.trim() || undefined,
+      phone_number: phoneNumber.trim() || undefined,
+      delivery_method: deliveryMethod,
+      delivery_details: details,
     });
     if (res.error) setMsg({ type: 'error', text: res.error.message });
     else {
       setMsg({ type: 'success', text: 'Recipient saved.' });
-      setLabel('');
       setFullName('');
       setEmail('');
-      setPhone('');
+      setPhoneNumber('');
+      setDeliveryMethod('');
+      setDetailFields(emptyDeliveryDetailFields());
       await load();
     }
   }
 
   async function handleUpdate(e: React.FormEvent) {
     e.preventDefault();
-    if (!accessToken || !editing) return;
+    if (!accessToken || !editing || !deliveryMethod) return;
     setMsg(null);
+    const details = buildDeliveryDetailsPayload(deliveryMethod, detailFields);
     const res = await updateRecipient(accessToken, editing.id, {
       full_name: fullName.trim(),
-      label: label.trim(),
       email: email.trim() || undefined,
-      phone: phone.trim() || undefined,
+      phone_number: phoneNumber.trim() || undefined,
+      delivery_method: deliveryMethod,
+      delivery_details: details,
     });
     if (res.error) setMsg({ type: 'error', text: res.error.message });
     else {
       setMsg({ type: 'success', text: 'Recipient updated.' });
       setEditing(null);
-      setLabel('');
       setFullName('');
       setEmail('');
-      setPhone('');
+      setPhoneNumber('');
+      setDeliveryMethod('');
+      setDetailFields(emptyDeliveryDetailFields());
       await load();
     }
   }
@@ -93,11 +107,22 @@ export default function RecipientsPage() {
 
   function startEdit(r: Recipient) {
     setEditing(r);
-    setLabel(r.label);
     setFullName(r.fullName);
     setEmail(r.email ?? '');
-    setPhone(r.phone ?? '');
+    setPhoneNumber(r.phoneNumber ?? '');
+    const dm = (r.deliveryMethod ?? '') as DeliveryOptionId | '';
+    setDeliveryMethod(dm && DELIVERY_OPTIONS.some(o => o.id === dm) ? dm : '');
+    setDetailFields(fieldsFromStoredDetails(r.deliveryMethod, r.deliveryDetails));
     setMsg(null);
+  }
+
+  function resetForm() {
+    setEditing(null);
+    setFullName('');
+    setEmail('');
+    setPhoneNumber('');
+    setDeliveryMethod('');
+    setDetailFields(emptyDeliveryDetailFields());
   }
 
   if (!isAuthenticated) {
@@ -127,25 +152,85 @@ export default function RecipientsPage() {
         <CardHeader title={editing ? 'Edit recipient' : 'Add recipient'} />
         <form onSubmit={editing ? handleUpdate : handleCreate}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <Input label="Nickname (optional)" value={label} onChange={e => setLabel(e.target.value)} />
             <Input label="Full name" value={fullName} onChange={e => setFullName(e.target.value)} required />
             <Input label="Email (optional)" type="email" value={email} onChange={e => setEmail(e.target.value)} />
-            <Input label="Phone (optional)" value={phone} onChange={e => setPhone(e.target.value)} />
-          </div>
-          <div style={{ display: 'flex', gap: 10, marginTop: 18, flexWrap: 'wrap' }}>
-            <Button type="submit">{editing ? 'Save changes' : 'Add recipient'}</Button>
-            {editing ? (
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => {
-                  setEditing(null);
-                  setLabel('');
-                  setFullName('');
-                  setEmail('');
-                  setPhone('');
+            <Input label="Phone number (optional)" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} />
+            <div>
+              <label
+                htmlFor="rcp-delivery"
+                style={{
+                  display: 'block',
+                  fontSize: 12,
+                  fontWeight: 700,
+                  letterSpacing: '0.06em',
+                  textTransform: 'uppercase',
+                  color: 'var(--color-text-muted)',
+                  marginBottom: 8,
                 }}
               >
+                Delivery method
+              </label>
+              <select
+                id="rcp-delivery"
+                value={deliveryMethod}
+                onChange={e => {
+                  const v = e.target.value as DeliveryOptionId | '';
+                  setDeliveryMethod(v);
+                  setDetailFields(emptyDeliveryDetailFields());
+                }}
+                required
+                style={{
+                  width: '100%',
+                  fontSize: 14,
+                  padding: '10px 12px',
+                  borderRadius: 'var(--radius-md)',
+                  border: '1px solid var(--color-border)',
+                  background: 'var(--color-surface)',
+                }}
+              >
+                <option value="">Select…</option>
+                {DELIVERY_OPTIONS.map(o => (
+                  <option key={o.id} value={o.id}>
+                    {o.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {deliveryMethod === 'mobile_money' ? (
+              <Input
+                label="Mobile money number"
+                value={detailFields.wallet}
+                onChange={e => setDetailFields(prev => ({ ...prev, wallet: e.target.value }))}
+              />
+            ) : null}
+            {deliveryMethod === 'bank_deposit' ? (
+              <>
+                <Input
+                  label="Bank name"
+                  value={detailFields.bankName}
+                  onChange={e => setDetailFields(prev => ({ ...prev, bankName: e.target.value }))}
+                />
+                <Input
+                  label="Account number"
+                  value={detailFields.accountNumber}
+                  onChange={e => setDetailFields(prev => ({ ...prev, accountNumber: e.target.value }))}
+                />
+              </>
+            ) : null}
+            {deliveryMethod === 'cash_pickup' ? (
+              <Input
+                label="Pickup / location notes"
+                value={detailFields.cashNotes}
+                onChange={e => setDetailFields(prev => ({ ...prev, cashNotes: e.target.value }))}
+              />
+            ) : null}
+          </div>
+          <div className="mt-[18px] flex flex-wrap gap-3">
+            <Button type="submit" fullWidth={false} className="min-w-[160px] flex-1">
+              {editing ? 'Save changes' : 'Add recipient'}
+            </Button>
+            {editing ? (
+              <Button type="button" variant="secondary" fullWidth={false} className="min-w-[120px] flex-1" onClick={resetForm}>
                 Cancel
               </Button>
             ) : null}
@@ -174,18 +259,24 @@ export default function RecipientsPage() {
                 }}
               >
                 <div>
-                  <p style={{ fontWeight: 700, margin: 0 }}>{r.label || r.fullName}</p>
+                  <p style={{ fontWeight: 700, margin: 0 }}>{r.fullName}</p>
                   <p style={{ fontSize: 13, color: 'var(--color-text-muted)', margin: '6px 0 0' }}>
-                    {r.fullName}
+                    {DELIVERY_OPTIONS.find(o => o.id === r.deliveryMethod)?.title ?? r.deliveryMethod ?? '—'}
+                    {r.phoneNumber ? ` · ${r.phoneNumber}` : ''}
                     {r.email ? ` · ${r.email}` : ''}
-                    {r.phone ? ` · ${r.phone}` : ''}
                   </p>
                 </div>
-                <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
-                  <Button type="button" size="sm" variant="secondary" onClick={() => startEdit(r)}>
+                <div className="flex shrink-0 gap-2">
+                  <Button type="button" variant="secondary" fullWidth={false} className="w-auto px-4" onClick={() => startEdit(r)}>
                     Edit
                   </Button>
-                  <Button type="button" size="sm" variant="danger" onClick={() => void handleDelete(r.id)}>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    fullWidth={false}
+                    className="w-auto px-4"
+                    onClick={() => void handleDelete(r.id)}
+                  >
                     Delete
                   </Button>
                 </div>

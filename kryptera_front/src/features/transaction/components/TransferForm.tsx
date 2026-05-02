@@ -198,7 +198,7 @@ export default function TransferForm({
             </span>
           </label>
 
-          <Button fullWidth size="lg" onClick={onCalculate} style={{ marginTop: 16 }}>
+          <Button fullWidth size="lg" onClick={onCalculate} className="mt-4">
             Calculate
           </Button>
         </CardContent>

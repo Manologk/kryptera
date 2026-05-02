@@ -3,25 +3,25 @@ from django.db import models
 
 
 class Recipient(models.Model):
-    user = models.ForeignKey(
+    """Contact belonging to a sender — not a login account."""
+
+    owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="recipients",
     )
-    label = models.CharField(max_length=100, blank=True)
     full_name = models.CharField(max_length=255)
     email = models.EmailField(blank=True)
-    phone = models.CharField(max_length=50, blank=True)
-    payout_details = models.JSONField(default=dict, blank=True)
-    is_active = models.BooleanField(default=True)
+    phone_number = models.CharField(max_length=50, blank=True)
+    delivery_method = models.CharField(max_length=48, blank=True)
+    delivery_details = models.JSONField(default=dict, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ["-created_at"]
         indexes = [
-            models.Index(fields=["user", "is_active"]),
+            models.Index(fields=["owner"]),
         ]
 
     def __str__(self):
-        return self.label or self.full_name or str(self.pk)
+        return self.full_name or str(self.pk)

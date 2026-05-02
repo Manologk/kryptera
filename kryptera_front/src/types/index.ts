@@ -46,28 +46,30 @@ export interface ApiCurrency {
 }
 
 // ── Recipients ───────────────────────────────────────────────────────────────
+/** Saved payout contact — belongs to the sender only; not a login account. */
 export interface Recipient {
   id: number;
-  label: string;
   fullName: string;
   email?: string;
-  phone?: string;
-  payoutDetails: Record<string, unknown>;
-  isActive: boolean;
+  phoneNumber?: string;
+  deliveryMethod?: string;
+  deliveryDetails: Record<string, unknown>;
   createdAt: string;
-  updatedAt: string;
 }
 
 export interface RecipientThin {
   id: number;
-  label: string;
   fullName: string;
   email?: string;
-  phone?: string;
+  phoneNumber?: string;
+  deliveryMethod?: string;
+  deliveryDetails?: Record<string, unknown>;
 }
 
 // ── Transaction ─────────────────────────────────────────────────────────────
 export type TransactionStatus =
+  | 'pending'
+  | 'awaiting_confirmation'
   | 'pop_not_uploaded'
   | 'pending_verification'
   | 'completed'
@@ -100,12 +102,26 @@ export interface Transaction {
   resultAmount: number;
   resultCurrency: Currency;
   purpose?: string;
+  deliveryMethod?: string;
+  paymentMethod?: string;
   status: TransactionStatus;
   popPath?: string;
+  /** Delivery proof file path from API (legacy receipts may only populate receiptPath). */
+  deliveryProofPath?: string;
+  /** Public notes from admin shown with delivery proof when completed */
+  deliveryNotes?: string | null;
+  completedAt?: string;
+  /** Legacy admin-upload path before delivery_proof field */
   receiptPath?: string;
   /** Present on admin API responses */
   userEmail?: string;
+  userFullName?: string;
+  userPhone?: string;
+  referenceCode?: string;
+  receiptConfirmed?: boolean;
+  receiptConfirmedAt?: string;
   adminNote?: string;
+  adminNotes?: string;
   createdAt: string;
   updatedAt: string;
   recipient?: RecipientThin;

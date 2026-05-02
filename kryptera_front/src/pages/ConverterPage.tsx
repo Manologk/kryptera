@@ -1,17 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '@/constants/routes';
+import { saveTransferQuote } from '@/services/transferQuoteStorage';
 import { useAuth } from '@/context/AuthContext';
 import { useRates } from '@/context/RatesContext';
 import { useConverter } from '@/hooks/useConverter';
-import { useTransactions } from '@/features/transaction/hooks';
 import TransferForm from '@/features/transaction/components/TransferForm';
 import SummaryCard from '@/features/transaction/components/SummaryCard';
 import Layout, { PageHeader } from '@/components/layout/Layout';
-import { getRecipients } from '@/services/api';
-import type { Recipient } from '@/types';
 
 export default function ConverterPage() {
+  const navigate = useNavigate();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const { rates } = useRates();
-  const { accessToken } = useAuth();
   const {
     mode,
     setMode,
@@ -23,27 +23,6 @@ export default function ConverterPage() {
     calculate,
     reset,
   } = useConverter();
-  const { recordFromQuote } = useTransactions();
-
-  const [recordMsg, setRecordMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [recipientId, setRecipientId] = useState<number | null>(null);
-  const [recipients, setRecipients] = useState<Recipient[]>([]);
-
-  useEffect(() => {
-    if (!accessToken) {
-      setRecipients([]);
-      setRecipientId(null);
-      return;
-    }
-    let cancelled = false;
-    void (async () => {
-      const res = await getRecipients(accessToken);
-      if (!cancelled && res.data) setRecipients(res.data);
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [accessToken]);
 
   const isRZ = mode === 'russia-zambia';
   const inputLabel = isRZ ? 'Amount in Rubles (₽)' : 'Amount in Kwacha (ZMW)';
@@ -54,21 +33,26 @@ export default function ConverterPage() {
       alert('Exchange rates not configured. Please visit the Admin page.');
       return;
     }
-    setRecordMsg(null);
     calculate(rates);
   }
 
-  async function handleRecordTransfer() {
-    if (!result) return;
-    const res = await recordFromQuote(mode, result, undefined, recipientId);
-    if (res.ok) {
-      setRecordMsg({
-        type: 'success',
-        text: 'Saved to your activity.',
-      });
-    } else {
-      setRecordMsg({ type: 'error', text: res.error });
+  function handleSend() {
+    if (authLoading) return;
+    if (result) {
+      const raw = parseFloat(String(amount).replace(/,/g, ''));
+      if (Number.isFinite(raw) && raw > 0) {
+        saveTransferQuote({
+          mode,
+          inputAmount: raw,
+          commissionOnTop,
+        });
+      }
     }
+    if (isAuthenticated) {
+      navigate(ROUTES.transfer);
+      return;
+    }
+    navigate(ROUTES.login, { state: { from: ROUTES.transfer } });
   }
 
   return (
@@ -88,8 +72,6 @@ export default function ConverterPage() {
         onModeChange={m => {
           setMode(m);
           reset();
-          setRecordMsg(null);
-          setRecipientId(null);
         }}
         onAmountChange={setAmount}
         onCalculate={handleCalculate}
@@ -99,12 +81,8 @@ export default function ConverterPage() {
         <SummaryCard
           mode={mode}
           result={result}
-          recordMsg={recordMsg}
-          onDismissRecordMsg={() => setRecordMsg(null)}
-          onRecord={handleRecordTransfer}
-          recipients={recipients}
-          recipientId={recipientId}
-          onRecipientIdChange={setRecipientId}
+          onSend={handleSend}
+          sendDisabled={authLoading}
         />
       )}
     </Layout>
