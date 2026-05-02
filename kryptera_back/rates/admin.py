@@ -1,5 +1,16 @@
 from django.contrib import admin
-from .models import Currency, ExchangeRate, ExchangeRateQuote, RateAuditLog, RateQuoteAuditLog
+from .models import Currency, ExchangeRate, ExchangeRateQuote, PlatformSettings, RateAuditLog, RateQuoteAuditLog
+
+
+@admin.register(PlatformSettings)
+class PlatformSettingsAdmin(admin.ModelAdmin):
+    list_display = ["commission_rate", "updated_at"]
+
+    def has_add_permission(self, request):
+        return not PlatformSettings.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(Currency)

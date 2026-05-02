@@ -3,6 +3,7 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
+  Legend,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -48,7 +49,8 @@ export default function AdminDashboardPage() {
   const chartData =
     chartQuery.data?.series.map(p => ({
       label: p.date ? String(p.date).slice(5) : '—',
-      count: p.count,
+      zmw: p.volumeZmw,
+      rub: p.volumeRub,
     })) ?? [];
 
   return (
@@ -67,7 +69,7 @@ export default function AdminDashboardPage() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {statsQuery.isLoading ? (
           Array.from({ length: 6 }).map((_, i) => (
-            <Card key={i} subtle>
+            <Card key={i} className="border border-border bg-muted/40 shadow-md">
               <CardHeader title={<Skeleton className="h-4 w-28" />} />
               <CardContent>
                 <Skeleton className="h-8 w-20" />
@@ -76,37 +78,37 @@ export default function AdminDashboardPage() {
           ))
         ) : stats ? (
           <>
-            <Card subtle>
+            <Card className="border border-border bg-muted/40 shadow-md">
               <CardHeader title="Users" subtitle="Registered accounts" />
               <CardContent>
                 <p className="font-mono text-2xl font-bold">{stats.userCount}</p>
               </CardContent>
             </Card>
-            <Card subtle>
+            <Card className="border border-border bg-muted/40 shadow-md">
               <CardHeader title="Admins" />
               <CardContent>
                 <p className="font-mono text-2xl font-bold">{stats.adminCount}</p>
               </CardContent>
             </Card>
-            <Card subtle>
+            <Card className="border border-border bg-muted/40 shadow-md">
               <CardHeader title="Transactions" subtitle="All time" />
               <CardContent>
                 <p className="font-mono text-2xl font-bold">{stats.transactionTotal}</p>
               </CardContent>
             </Card>
-            <Card subtle>
+            <Card className="border border-border bg-muted/40 shadow-md">
               <CardHeader title="Pending verification" />
               <CardContent>
                 <p className="font-mono text-2xl font-bold">{stats.pendingVerificationCount}</p>
               </CardContent>
             </Card>
-            <Card subtle>
-              <CardHeader title="Total input amount (mixed currencies)" subtitle="Sum of input_amount across all rows" />
+            <Card className="border border-border bg-muted/40 shadow-md">
+              <CardHeader title="Total commission (ZMW)" subtitle="Sum of per-transfer commission in ZMW" />
               <CardContent>
-                <p className="font-mono text-2xl font-bold">{stats.totalInputAmountSum}</p>
+                <p className="font-mono text-2xl font-bold">{stats.totalCommissionZmw}</p>
               </CardContent>
             </Card>
-            <Card subtle>
+            <Card className="border border-border bg-muted/40 shadow-md">
               <CardHeader title="Active currencies" subtitle="Enabled for public list" />
               <CardContent>
                 <p className="font-mono text-2xl font-bold">{stats.enabledCurrencyCount}</p>
@@ -135,7 +137,10 @@ export default function AdminDashboardPage() {
       )}
 
       <Card>
-        <CardHeader title="Transactions (30 days)" subtitle="Count per day" />
+        <CardHeader
+          title="Input volume by currency (30 days)"
+          subtitle="Daily sum of input_amount in ZMW vs RUB"
+        />
         <CardContent className="h-72 w-full">
           {chartQuery.isLoading ? (
             <Skeleton className="h-full w-full" />
@@ -148,12 +153,21 @@ export default function AdminDashboardPage() {
               <BarChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                 <XAxis dataKey="label" tick={{ fontSize: 11 }} className="text-muted-foreground" />
-                <YAxis allowDecimals={false} tick={{ fontSize: 11 }} width={32} />
+                <YAxis tick={{ fontSize: 11 }} width={48} />
                 <Tooltip
                   contentStyle={{ borderRadius: 8, border: '1px solid hsl(var(--border))' }}
+                  formatter={(value: number, name: string) => [
+                    typeof value === 'number' ? value.toLocaleString(undefined, { maximumFractionDigits: 2 }) : value,
+                    name === 'zmw' ? 'ZMW volume' : 'RUB volume',
+                  ]}
                   labelFormatter={(_, p) => (p[0]?.payload?.label != null ? String(p[0].payload.label) : '')}
                 />
-                <Bar dataKey="count" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                <Legend
+                  formatter={value => (value === 'zmw' ? 'ZMW' : 'RUB')}
+                  wrapperStyle={{ fontSize: 12 }}
+                />
+                <Bar dataKey="zmw" fill="hsl(160 54% 42%)" name="zmw" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="rub" fill="hsl(82 100% 18%)" name="rub" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           )}

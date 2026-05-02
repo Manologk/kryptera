@@ -22,6 +22,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from rates.permissions import IsAdminUser
+
+from .pagination import AdminTransactionPagination
 from .models import Transaction, TransactionStatus
 from .serializers import (
     AdminTransactionSerializer,
@@ -97,6 +99,7 @@ class AdminTransactionListView(generics.ListAPIView):
     """GET /api/v1/transactions/admin/ — all transactions, admin only."""
     serializer_class = AdminTransactionSerializer
     permission_classes = [IsAdminUser]
+    pagination_class = AdminTransactionPagination
 
     def get_queryset(self):
         qs = Transaction.objects.select_related("user", "recipient").all()

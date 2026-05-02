@@ -98,3 +98,18 @@ class RateQuoteAuditLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = RateQuoteAuditLog
         fields = ["id", "slug", "old_rate", "new_rate", "changed_by_email", "created_at"]
+
+
+class PlatformCommissionSerializer(serializers.Serializer):
+    """PATCH body for admin commission update."""
+
+    commission_rate = serializers.DecimalField(max_digits=7, decimal_places=6)
+
+    def validate_commission_rate(self, value):
+        from decimal import Decimal
+
+        if value <= Decimal("0"):
+            raise serializers.ValidationError("Commission must be greater than zero.")
+        if value >= Decimal("1"):
+            raise serializers.ValidationError("Commission must be less than 100%.")
+        return value

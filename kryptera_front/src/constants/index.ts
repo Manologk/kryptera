@@ -2,8 +2,6 @@ import type { CurrencyMeta, ExchangeRates } from '@/types';
 
 export { ROUTES, type RoutePath } from './routes';
 
-export const COMMISSION_RATE = 0.045; // 4.5%
-
 export const STORAGE_KEY = 'Kryptera_rates';
 
 /** Anonymous device ledger until backend auth exists */
@@ -18,11 +16,12 @@ export const CURRENCIES: Record<'RUB' | 'ZMW' | 'USD', CurrencyMeta> = {
   USD: { code: 'USD', symbol: '$', name: 'US Dollar', flag: '🇺🇸' },
 };
 
+/** Placeholder before GET /rates/ — no sample numbers; UI stays in loading or empty state. */
 export const DEFAULT_RATES: ExchangeRates = {
-  rubleToUsdBuying: 95.5,
-  usdToKwachaSelling: 27.5,
-  kwachaToUsdBuying: 28.0,
-  usdToRubleSelling: 96.0,
+  rubleToUsdBuying: 0,
+  usdToKwachaSelling: 0,
+  kwachaToUsdBuying: 0,
+  usdToRubleSelling: 0,
 };
 
 export const CONTACT_INFO = {
@@ -35,5 +34,8 @@ export const CONTACT_INFO = {
 // Future: Django API base URL (proxied via Vite in dev)
 export const API_BASE = '/api/v1';
 
-/** Matches Django REST `PAGE_SIZE` for admin list endpoints */
+/** Default page size for most admin list endpoints (Django REST global PAGE_SIZE). */
 export const ADMIN_PAGE_SIZE = 20;
+
+/** Transaction tables (activity + admin tx list); admin API uses min 10 per page. */
+export const TRANSACTION_TABLE_PAGE_SIZE = 10;

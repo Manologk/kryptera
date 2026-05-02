@@ -1,9 +1,32 @@
 """
 rates/models — Currencies, quote rows, singleton exchange rate (legacy + sync), audit logs.
 """
+from decimal import Decimal
+
 from django.db import models
 from django.utils import timezone
 from users.models import User
+
+
+class PlatformSettings(models.Model):
+    """Singleton (pk=1) — global commission rate and other platform knobs."""
+
+    id = models.PositiveSmallIntegerField(primary_key=True, default=1, editable=False)
+    commission_rate = models.DecimalField(max_digits=7, decimal_places=6, default=Decimal("0.045000"))
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Platform settings"
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        pass
+
+    def __str__(self):
+        return f"Platform settings (commission={self.commission_rate})"
 
 
 class Currency(models.Model):

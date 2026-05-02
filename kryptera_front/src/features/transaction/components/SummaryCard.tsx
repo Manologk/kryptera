@@ -1,4 +1,3 @@
-import { COMMISSION_RATE } from '@/constants';
 import Card, { CardContent } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { formatMoneyAmount } from '@/features/transaction/utils';
@@ -53,6 +52,7 @@ export interface SummaryCardProps {
 export default function SummaryCard({ mode, result, onSend, sendDisabled }: SummaryCardProps) {
   const isRZ = mode === 'russia-zambia';
   const onTop = result.commissionOnTop;
+  const commissionPct = `${(result.commissionRate * 100).toFixed(2)}%`;
 
   return (
     <Card style={{ animation: 'fadeUp 0.25s ease' }}>
@@ -77,7 +77,7 @@ export default function SummaryCard({ mode, result, onSend, sendDisabled }: Summ
               value={formatMoneyAmount(result.input, result.inputCurrency)}
             />
             <BreakdownRow
-              label={`Commission (${(COMMISSION_RATE * 100).toFixed(1)}%, on top)`}
+              label={`Commission (${commissionPct}, on top)`}
               value={formatMoneyAmount(result.commission, result.inputCurrency)}
               additive
             />
@@ -90,7 +90,7 @@ export default function SummaryCard({ mode, result, onSend, sendDisabled }: Summ
           <>
             <BreakdownRow label="You send" value={formatMoneyAmount(result.totalDebited, result.inputCurrency)} />
             <BreakdownRow
-              label={`Commission (${(COMMISSION_RATE * 100).toFixed(1)}%)`}
+              label={`Commission (${commissionPct})`}
               value={`− ${formatMoneyAmount(result.commission, result.inputCurrency)}`}
               negative
             />

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/constants/routes';
 import { useAuth } from '@/context/AuthContext';
+import { postAuthRedirectPath } from '@/lib/userRole';
 import Layout, { PageHeader } from '@/components/layout/Layout';
 import Card, { CardContent } from '@/components/ui/Card';
 import Input from '@/components/ui/Input';
@@ -9,10 +10,8 @@ import Button from '@/components/ui/Button';
 import { Alert } from '@/components/ui/Badge';
 
 export default function RegisterPage() {
-  const { register, isAuthenticated, loading: authLoading } = useAuth();
+  const { register, user, isAuthenticated, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-  const from = (location.state as { from?: string } | null)?.from ?? ROUTES.home;
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -22,10 +21,10 @@ export default function RegisterPage() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (!authLoading && isAuthenticated) {
-      navigate(from, { replace: true });
+    if (!authLoading && isAuthenticated && user) {
+      navigate(postAuthRedirectPath(user), { replace: true });
     }
-  }, [authLoading, isAuthenticated, navigate, from]);
+  }, [authLoading, isAuthenticated, user, navigate]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -50,7 +49,7 @@ export default function RegisterPage() {
         setError(r.message);
         return;
       }
-      navigate(from, { replace: true });
+      navigate(postAuthRedirectPath(r.user), { replace: true });
     } finally {
       setBusy(false);
     }
@@ -140,7 +139,6 @@ export default function RegisterPage() {
             Already have an account?{' '}
             <Link
               to={ROUTES.login}
-              state={location.state}
               style={{
                 fontWeight: 600,
                 color: 'var(--color-primary-dark)',

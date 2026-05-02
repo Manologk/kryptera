@@ -1,10 +1,12 @@
-import { Navigate } from 'react-router-dom';
-import { useAuth } from '@/context/AuthContext';
+import { Navigate, useLocation } from 'react-router-dom';
 import { ROUTES } from '@/constants/routes';
+import { useAuth } from '@/context/AuthContext';
+import { userRole } from '@/lib/userRole';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function RequireAdmin({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+  const { user, loading, isAuthenticated } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -17,7 +19,13 @@ export default function RequireAdmin({ children }: { children: React.ReactNode }
     );
   }
 
-  if (!user?.isAdmin) {
+  if (!isAuthenticated) {
+    return (
+      <Navigate to={ROUTES.login} replace state={{ from: `${location.pathname}${location.search}` }} />
+    );
+  }
+
+  if (userRole(user) !== 'admin') {
     return <Navigate to={ROUTES.home} replace />;
   }
 

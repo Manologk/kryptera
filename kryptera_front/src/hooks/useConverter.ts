@@ -1,15 +1,22 @@
 import { useCallback, useState } from 'react';
-import { COMMISSION_RATE } from '@/constants';
 import type { ConversionBreakdown, ConversionMode, ExchangeRates } from '@/types';
+
+function commissionFraction(rates: ExchangeRates): number {
+  const c = rates.commissionRate;
+  if (c != null && Number.isFinite(c) && c > 0 && c < 1) return c;
+  return 0.045;
+}
 
 function calcRussiaToZambia(
   amount: number,
   rates: ExchangeRates,
   commissionOnTop: boolean,
+  cr: number,
 ): ConversionBreakdown {
   const principal = amount;
-  const commission = principal * COMMISSION_RATE;
-  const afterCommission = commissionOnTop ? principal : principal - commission;
+  const commission = principal * cr;
+  // Match backend calculate_conversion: within = principal × (1 − rate); on top = full principal converts.
+  const afterCommission = commissionOnTop ? principal : principal * (1 - cr);
   const usd = afterCommission / rates.rubleToUsdBuying;
   const final = usd * rates.usdToKwachaSelling;
   const totalDebited = commissionOnTop ? principal + commission : principal;
@@ -23,6 +30,7 @@ function calcRussiaToZambia(
     outputCurrency: 'ZMW',
     commissionOnTop,
     totalDebited,
+    commissionRate: cr,
   };
 }
 
@@ -30,10 +38,11 @@ function calcZambiaToRussia(
   amount: number,
   rates: ExchangeRates,
   commissionOnTop: boolean,
+  cr: number,
 ): ConversionBreakdown {
   const principal = amount;
-  const commission = principal * COMMISSION_RATE;
-  const afterCommission = commissionOnTop ? principal : principal - commission;
+  const commission = principal * cr;
+  const afterCommission = commissionOnTop ? principal : principal * (1 - cr);
   const usd = afterCommission / rates.kwachaToUsdBuying;
   const final = usd * rates.usdToRubleSelling;
   const totalDebited = commissionOnTop ? principal + commission : principal;
@@ -47,6 +56,7 @@ function calcZambiaToRussia(
     outputCurrency: 'RUB',
     commissionOnTop,
     totalDebited,
+    commissionRate: cr,
   };
 }
 
@@ -84,10 +94,11 @@ export function useConverter(): UseConverterReturn {
     (rates: ExchangeRates) => {
       const n = parseFloat(amount);
       if (!n || n <= 0) return;
+      const cr = commissionFraction(rates);
       const breakdown =
         mode === 'russia-zambia'
-          ? calcRussiaToZambia(n, rates, commissionOnTop)
-          : calcZambiaToRussia(n, rates, commissionOnTop);
+          ? calcRussiaToZambia(n, rates, commissionOnTop, cr)
+          : calcZambiaToRussia(n, rates, commissionOnTop, cr);
       setResult(breakdown);
     },
     [amount, mode, commissionOnTop],

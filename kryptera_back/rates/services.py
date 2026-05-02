@@ -9,6 +9,17 @@ from typing import Any
 
 from django.db import transaction
 
+
+def get_commission_rate() -> Decimal:
+    """Active platform commission as a decimal fraction (e.g. 0.045 = 4.5%)."""
+    from .models import PlatformSettings
+
+    row = PlatformSettings.objects.filter(pk=1).first()
+    if row:
+        return row.commission_rate
+    return Decimal("0.045000")
+
+
 # Stable slugs ↔ legacy ExchangeRate column names
 SLUG_TO_FIELD: dict[str, str] = {
     "rub_usd_buy": "ruble_to_usd_buying",
@@ -62,6 +73,7 @@ def snapshot_rates_dict() -> dict[str, str]:
         "usd_to_kwacha_selling": str(d["usd_to_kwacha_selling"]),
         "kwacha_to_usd_buying": str(d["kwacha_to_usd_buying"]),
         "usd_to_ruble_selling": str(d["usd_to_ruble_selling"]),
+        "commission_rate": str(get_commission_rate()),
     }
 
 

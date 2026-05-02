@@ -7,12 +7,25 @@ from django.utils import timezone
 from rest_framework import serializers
 
 from rates.models import ExchangeRate
+from rates.services import get_commission_rate
 from recipients.models import Recipient
 from recipients.serializers import RecipientThinSerializer
 
 from .models import Transaction, TransactionStatus
 
-COMMISSION_RATE = Decimal("0.0450")
+# Fallback for unit tests and legacy calls; live API uses get_commission_rate() + stored snapshot.
+DEFAULT_COMMISSION_DECIMAL = Decimal("0.045000")
+
+
+def _commission_rate_for_breakdown(obj: Transaction, snap: dict) -> Decimal:
+    """Use rate locked in rate_snapshot; else the value stored on the transaction row."""
+    raw = snap.get("commission_rate")
+    if raw is not None and str(raw).strip() != "":
+        try:
+            return Decimal(str(raw))
+        except InvalidOperation:
+            pass
+    return obj.commission_rate
 
 
 def calculate_conversion(
@@ -21,12 +34,14 @@ def calculate_conversion(
     rates: ExchangeRate,
     *,
     commission_on_top: bool = False,
-    commission_rate: Decimal = COMMISSION_RATE,
+    commission_rate: Decimal = DEFAULT_COMMISSION_DECIMAL,
 ) -> Decimal:
-    """Pure conversion logic — mirrors the React hook.
+    """Pure conversion logic — mirrors useConverter (frontend).
 
-    If commission_on_top is False (default), commission is taken *from* input_amount.
-    If True, input_amount is the full principal that converts; commission is charged on top.
+    * commission_on_top=False ("within"): input_amount is the gross you send; commission is
+      deducted first: convertible principal = input_amount × (1 − commission_rate).
+    * commission_on_top=True ("on top"): input_amount is the full principal that converts;
+      commission_rate × input_amount is an additional fee (total debited = input + fee).
     """
     if commission_on_top:
         after_commission = input_amount
@@ -70,6 +85,7 @@ def build_conversion_breakdown(
     *,
     commission_on_top: bool = False,
 ) -> dict:
+    """Fee in input currency is always input_amount × commission_rate; routing follows calculate_conversion."""
     commission_amount = input_amount * commission_rate
     if commission_on_top:
         after_commission = input_amount
@@ -186,10 +202,7 @@ class TransactionSerializer(serializers.ModelSerializer):
         rates = _rates_from_snapshot(snap)
         if rates is None:
             return None
-        try:
-            cr = Decimal(str(snap.get("commission_rate", COMMISSION_RATE)))
-        except InvalidOperation:
-            cr = COMMISSION_RATE
+        cr = _commission_rate_for_breakdown(obj, snap)
         return build_conversion_breakdown(
             obj.mode,
             obj.input_amount,
@@ -218,10 +231,15 @@ class TransactionSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Exchange rates have not been configured.")
 
         commission_on_top = bool(data.pop("commission_on_top", False))
+        cr = get_commission_rate()
         data["result_amount"] = calculate_conversion(
-            mode, data["input_amount"], rates, commission_on_top=commission_on_top
+            mode,
+            data["input_amount"],
+            rates,
+            commission_on_top=commission_on_top,
+            commission_rate=cr,
         )
-        data["commission_rate"] = COMMISSION_RATE
+        data["commission_rate"] = cr
 
         rid = data.pop("recipient_id", None)
         recipient_full_name = (data.pop("recipient_full_name", None) or "").strip()
@@ -263,7 +281,6 @@ class TransactionSerializer(serializers.ModelSerializer):
         from rates.services import snapshot_rates_dict
 
         snap = snapshot_rates_dict()
-        snap["commission_rate"] = str(COMMISSION_RATE)
         snap["commission_on_top"] = commission_on_top
         data["rate_snapshot"] = snap
 
@@ -308,6 +325,7 @@ class AdminTransactionSerializer(serializers.ModelSerializer):
     user_phone = serializers.CharField(source="user.phone", read_only=True)
     recipient = RecipientThinSerializer(read_only=True)
     conversion_breakdown = serializers.SerializerMethodField()
+    commission_amount_zmw = serializers.SerializerMethodField()
     reference_code = serializers.SerializerMethodField()
     confirm_receipt = serializers.BooleanField(write_only=True, required=False)
     pop_file = serializers.FileField(read_only=True)
@@ -344,6 +362,7 @@ class AdminTransactionSerializer(serializers.ModelSerializer):
             "recipient_snapshot",
             "rate_snapshot",
             "conversion_breakdown",
+            "commission_amount_zmw",
             "confirm_receipt",
             "created_at",
             "updated_at",
@@ -370,6 +389,7 @@ class AdminTransactionSerializer(serializers.ModelSerializer):
             "recipient_snapshot",
             "rate_snapshot",
             "conversion_breakdown",
+            "commission_amount_zmw",
             "created_at",
         ]
 
@@ -377,15 +397,17 @@ class AdminTransactionSerializer(serializers.ModelSerializer):
         hx = str(obj.pk).replace("-", "")[:8].upper()
         return f"KRP-{hx}"
 
+    def get_commission_amount_zmw(self, obj: Transaction) -> str:
+        from .commission_zmw import commission_amount_zmw
+
+        return str(commission_amount_zmw(obj))
+
     def get_conversion_breakdown(self, obj: Transaction):
         snap = obj.rate_snapshot or {}
         rates = _rates_from_snapshot(snap)
         if rates is None:
             return None
-        try:
-            cr = Decimal(str(snap.get("commission_rate", COMMISSION_RATE)))
-        except InvalidOperation:
-            cr = COMMISSION_RATE
+        cr = _commission_rate_for_breakdown(obj, snap)
         return build_conversion_breakdown(
             obj.mode,
             obj.input_amount,

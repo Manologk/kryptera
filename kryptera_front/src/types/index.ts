@@ -5,6 +5,8 @@ export interface ExchangeRates {
   kwachaToUsdBuying: number; // How many ZMW = $1
   usdToRubleSelling: number; // $1 = how many ₽
   updatedAt?: string;
+  /** Platform commission as a fraction (e.g. 0.045 = 4.5%). From GET /rates/. */
+  commissionRate?: number;
 }
 
 // ── Conversion ─────────────────────────────────────────────────────────────
@@ -23,6 +25,8 @@ export interface ConversionBreakdown {
   commissionOnTop: boolean;
   /** Total debited from user (inclusive: equals `input`; on-top: `input` + commission). */
   totalDebited: number;
+  /** Fraction used for this breakdown (matches platform settings at calculate time). */
+  commissionRate: number;
 }
 
 export type Currency = 'RUB' | 'ZMW' | 'USD';
@@ -128,6 +132,8 @@ export interface Transaction {
   recipientSnapshot?: Record<string, string>;
   rateSnapshot?: RateSnapshot;
   conversionBreakdown?: ConversionBreakdownView;
+  /** Admin list/detail: commission fee in ZMW (booking-time FX). */
+  commissionAmountZmw?: number;
 }
 
 // ── User / Auth ─────────────────────────────────────────────────────────────
@@ -161,7 +167,7 @@ export interface AdminDashboardStats {
   adminCount: number;
   transactionTotal: number;
   transactionsByStatus: Record<string, number>;
-  totalInputAmountSum: string;
+  totalCommissionZmw: string;
   pendingVerificationCount: number;
   enabledCurrencyCount: number;
 }
@@ -175,7 +181,10 @@ export interface Paginated<T> {
 
 export interface AdminTransactionsByDayPoint {
   date: string | null;
-  count: number;
+  /** Sum of input_amount for rows with input currency ZMW that day */
+  volumeZmw: number;
+  /** Sum of input_amount for rows with input currency RUB that day */
+  volumeRub: number;
 }
 
 export interface AdminTransactionsByDayResponse {

@@ -216,7 +216,7 @@ export default function AdminShell() {
                 )
               }
             >
-              Settings
+              Rates Setup
             </NavLink>
           </nav>
 
@@ -311,7 +311,7 @@ export default function AdminShell() {
                 )}
               >
                 <IconSettings active={isActive} />
-                <span>Settings</span>
+                <span>Rates</span>
               </div>
             )}
           </NavLink>

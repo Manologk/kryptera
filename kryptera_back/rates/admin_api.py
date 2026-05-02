@@ -2,8 +2,8 @@
 from datetime import timedelta
 from decimal import Decimal
 
-from django.db.models import Count
-from django.db.models.functions import TruncDate
+from django.db.models import Count, Q, Sum, Value
+from django.db.models.functions import Coalesce, TruncDate
 from django.utils import timezone
 from rest_framework import generics, status
 from rest_framework.response import Response
@@ -102,14 +102,16 @@ class AdminDashboardStatsView(APIView):
     permission_classes = [IsAdminUser]
 
     def get(self, request):
-        from django.db.models import Sum
-        from django.db.models.functions import Coalesce
+        from transactions.commission_zmw import commission_amount_zmw
         from transactions.models import Transaction, TransactionStatus
         from users.models import User
 
         tx = Transaction.objects.all()
         by_status = dict(tx.values("status").annotate(c=Count("id")).values_list("status", "c"))
-        total_volume_input = tx.aggregate(s=Coalesce(Sum("input_amount"), Decimal("0")))["s"]
+        total_commission_zmw = sum(
+            (commission_amount_zmw(t) for t in tx.iterator()),
+            start=Decimal("0"),
+        )
 
         return Response(
             {
@@ -117,7 +119,7 @@ class AdminDashboardStatsView(APIView):
                 "admin_count": User.objects.filter(is_admin=True).count(),
                 "transaction_total": tx.count(),
                 "transactions_by_status": by_status,
-                "total_input_amount_sum": str(total_volume_input),
+                "total_commission_zmw": str(total_commission_zmw),
                 "pending_verification_count": by_status.get(TransactionStatus.PENDING_VERIFICATION, 0),
                 "enabled_currency_count": Currency.objects.filter(is_enabled=True).count(),
             }
@@ -128,7 +130,7 @@ class AdminDashboardTransactionsByDayView(APIView):
     permission_classes = [IsAdminUser]
 
     def get(self, request):
-        from transactions.models import Transaction
+        from transactions.models import Currency, Transaction
 
         try:
             days = int(request.query_params.get("days", "30"))
@@ -141,13 +143,28 @@ class AdminDashboardTransactionsByDayView(APIView):
             Transaction.objects.filter(created_at__gte=since)
             .annotate(d=TruncDate("created_at"))
             .values("d")
-            .annotate(count=Count("id"))
+            .annotate(
+                volume_zmw=Coalesce(
+                    Sum("input_amount", filter=Q(input_currency=Currency.ZMW)),
+                    Value(Decimal("0")),
+                ),
+                volume_rub=Coalesce(
+                    Sum("input_amount", filter=Q(input_currency=Currency.RUB)),
+                    Value(Decimal("0")),
+                ),
+            )
             .order_by("d")
         )
         out = []
         for r in rows:
             d = r["d"]
-            out.append({"date": d.isoformat() if d else None, "count": r["count"]})
+            out.append(
+                {
+                    "date": d.isoformat() if d else None,
+                    "volume_zmw": str(r["volume_zmw"]),
+                    "volume_rub": str(r["volume_rub"]),
+                }
+            )
         return Response({"days": days, "series": out})
 
 

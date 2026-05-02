@@ -1,4 +1,3 @@
-import { COMMISSION_RATE } from '@/constants';
 import { useRates } from '@/context/RatesContext';
 import Card, { CardContent } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -79,6 +78,14 @@ function RateSummary({ mode }: { mode: ConversionMode }) {
   const sellRate = mode === 'russia-zambia' ? rates.usdToKwachaSelling : rates.usdToRubleSelling;
   const fromCcy = mode === 'russia-zambia' ? '₽' : 'ZMW';
   const toCcy = mode === 'russia-zambia' ? 'ZMW' : '₽';
+  const cr =
+    rates.commissionRate != null &&
+    Number.isFinite(rates.commissionRate) &&
+    rates.commissionRate > 0 &&
+    rates.commissionRate < 1
+      ? rates.commissionRate
+      : 0.045;
+  const commissionPct = `${(cr * 100).toFixed(2)}%`;
 
   return (
     <div
@@ -92,7 +99,7 @@ function RateSummary({ mode }: { mode: ConversionMode }) {
       {[
         { label: 'Buy rate', value: `$1 = ${buyRate} ${fromCcy}` },
         { label: 'Sell rate', value: `$1 = ${sellRate} ${toCcy}` },
-        { label: 'Commission', value: `${(COMMISSION_RATE * 100).toFixed(1)}%` },
+        { label: 'Commission', value: commissionPct },
       ].map(({ label, value }) => (
         <div
           key={label}

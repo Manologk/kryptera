@@ -17,20 +17,22 @@ interface AuthState {
   user: User;
 }
 
+type LoginResult = { ok: true; user: User } | { ok: false; message: string };
+
 interface AuthContextValue {
   user: User | null;
   accessToken: string | null;
   refreshToken: string | null;
   isAuthenticated: boolean;
   loading: boolean;
-  login: (email: string, password: string) => Promise<{ ok: true } | { ok: false; message: string }>;
+  login: (email: string, password: string) => Promise<LoginResult>;
   register: (input: {
     email: string;
     password: string;
     password2: string;
     full_name?: string;
     phone?: string;
-  }) => Promise<{ ok: true } | { ok: false; message: string }>;
+  }) => Promise<LoginResult>;
   logout: () => void;
   refreshProfile: () => Promise<void>;
 }
@@ -69,9 +71,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const stored = readStoredSession();
-    setSession(stored);
-    setLoading(false);
+    let cancelled = false;
+    const run = async () => {
+      const stored = readStoredSession();
+      if (!stored?.access) {
+        if (!cancelled) {
+          setSession(stored);
+          setLoading(false);
+        }
+        return;
+      }
+      const res = await getMe(stored.access);
+      if (cancelled) return;
+      if (res.data) {
+        const next: AuthState = { ...stored, user: res.data };
+        setSession(next);
+        persistSession(next);
+      } else {
+        setSession(stored);
+      }
+      setLoading(false);
+    };
+    void run();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -96,7 +120,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = useCallback(
-    async (email: string, password: string): Promise<{ ok: true } | { ok: false; message: string }> => {
+    async (email: string, password: string): Promise<LoginResult> => {
       const res = await apiLogin(email, password);
       if (res.error || !res.data) {
         return { ok: false, message: res.error?.message ?? 'Login failed' };
@@ -105,7 +129,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const next: AuthState = { access, refresh, user };
       setSession(next);
       persistSession(next);
-      return { ok: true };
+      return { ok: true, user };
     },
     [],
   );
@@ -117,7 +141,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       password2: string;
       full_name?: string;
       phone?: string;
-    }): Promise<{ ok: true } | { ok: false; message: string }> => {
+    }): Promise<LoginResult> => {
       const res = await apiRegister(input);
       if (res.error || !res.data) {
         return { ok: false, message: res.error?.message ?? 'Registration failed' };
@@ -126,7 +150,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const next: AuthState = { access, refresh, user };
       setSession(next);
       persistSession(next);
-      return { ok: true };
+      return { ok: true, user };
     },
     [],
   );

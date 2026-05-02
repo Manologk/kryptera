@@ -14,9 +14,6 @@ const root = path.join(__dirname).replace(/\\/g, '/');
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: ['class'],
-  corePlugins: {
-    preflight: false,
-  },
   content: [`${root}/index.html`, `${root}/src/**/*.{js,ts,jsx,tsx}`],
   theme: {
     screens: {

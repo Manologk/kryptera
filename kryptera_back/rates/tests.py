@@ -27,6 +27,7 @@ class RatesPublicTests(TestCase):
         res = self.client.get("/api/v1/rates/")
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertIn("ruble_to_usd_buying", res.data)
+        self.assertIn("commission_rate", res.data)
 
     def test_put_rates_unauthenticated(self):
         res = self.client.put("/api/v1/rates/", {}, format="json")
@@ -53,7 +54,21 @@ class RatesAdminTests(TestCase):
         res = self.client.put("/api/v1/rates/", payload, format="json")
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data["ruble_to_usd_buying"], "100.000000")
+        self.assertIn("commission_rate", res.data)
         self.assertEqual(RateAuditLog.objects.count(), 1)
+
+    def test_patch_commission_admin(self):
+        self.client.force_authenticate(user=self.admin)
+        res = self.client.patch("/api/v1/rates/commission/", {"commission_rate": "0.050000"}, format="json")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data["commission_rate"], "0.050000")
+        res2 = self.client.get("/api/v1/rates/")
+        self.assertEqual(res2.data["commission_rate"], "0.050000")
+
+    def test_patch_commission_non_admin_forbidden(self):
+        self.client.force_authenticate(user=self.regular)
+        res = self.client.patch("/api/v1/rates/commission/", {"commission_rate": "0.050000"}, format="json")
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_put_rates_non_admin_forbidden(self):
         self.client.force_authenticate(user=self.regular)

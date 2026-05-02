@@ -25,12 +25,16 @@ import type {
 // ── Snake_case ↔ app types ─────────────────────────────────────────────────
 
 function ratesFromApi(row: Record<string, unknown>): ExchangeRates {
+  const cr = row.commission_rate;
+  const commissionRate =
+    cr != null && cr !== '' && Number.isFinite(Number(cr)) ? Number(cr) : undefined;
   return {
     rubleToUsdBuying: Number(row.ruble_to_usd_buying),
     usdToKwachaSelling: Number(row.usd_to_kwacha_selling),
     kwachaToUsdBuying: Number(row.kwacha_to_usd_buying),
     usdToRubleSelling: Number(row.usd_to_ruble_selling),
     updatedAt: row.updated_at != null ? String(row.updated_at) : undefined,
+    commissionRate,
   };
 }
 
@@ -203,6 +207,10 @@ function transactionFromApi(row: Record<string, unknown>): Transaction {
     recipientSnapshot: recipientSnapshotFromApi(row.recipient_snapshot),
     rateSnapshot: rateSnapshotFromApi(row.rate_snapshot),
     conversionBreakdown: breakdownFromApi(row.conversion_breakdown as Record<string, unknown> | undefined),
+    commissionAmountZmw:
+      row.commission_amount_zmw != null && row.commission_amount_zmw !== ''
+        ? Number(row.commission_amount_zmw)
+        : undefined,
   };
 }
 
@@ -374,6 +382,33 @@ export async function updateRates(
       if (res.error) return res;
       if (res.data == null) return { error: { message: 'Empty response' } };
       return { data: ratesFromApi(res.data) };
+    }),
+  );
+}
+
+/** Admin: update platform commission fraction (e.g. 0.045 for 4.5%). */
+export async function patchPlatformCommission(
+  commissionRate: number,
+  accessToken: string,
+): Promise<ApiResponse<{ commissionRate: number; updatedAt: string }>> {
+  return withTokenRetry(accessToken, t =>
+    request<Record<string, unknown>>('/rates/commission/', {
+      method: 'PATCH',
+      body: JSON.stringify({ commission_rate: commissionRate }),
+      headers: {
+        Authorization: `Bearer ${t}`,
+        'Content-Type': 'application/json',
+      },
+    }).then(res => {
+      if (res.error) return res;
+      if (res.data == null) return { error: { message: 'Empty response' } };
+      const d = res.data;
+      return {
+        data: {
+          commissionRate: Number(d.commission_rate),
+          updatedAt: String(d.updated_at ?? ''),
+        },
+      };
     }),
   );
 }
@@ -653,7 +688,7 @@ function adminStatsFromApi(row: Record<string, unknown>): AdminDashboardStats {
     transactionTotal: Number(row.transaction_total ?? 0),
     transactionsByStatus:
       by != null && typeof by === 'object' ? (by as Record<string, number>) : {},
-    totalInputAmountSum: String(row.total_input_amount_sum ?? '0'),
+    totalCommissionZmw: String(row.total_commission_zmw ?? '0'),
     pendingVerificationCount: Number(row.pending_verification_count ?? 0),
     enabledCurrencyCount: Number(row.enabled_currency_count ?? 0),
   };
@@ -687,7 +722,8 @@ export async function getAdminDashboardTimeseries(
       const series: AdminTransactionsByDayResponse['series'] = Array.isArray(seriesRaw)
         ? (seriesRaw as Record<string, unknown>[]).map(s => ({
             date: s.date != null ? String(s.date) : null,
-            count: Number(s.count ?? 0),
+            volumeZmw: Number(s.volume_zmw ?? 0),
+            volumeRub: Number(s.volume_rub ?? 0),
           }))
         : [];
       return {

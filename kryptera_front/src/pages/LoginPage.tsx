@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/constants/routes';
 import { useAuth } from '@/context/AuthContext';
+import { postAuthRedirectPath } from '@/lib/userRole';
 import Layout, { PageHeader } from '@/components/layout/Layout';
 import Card, { CardContent } from '@/components/ui/Card';
 import Input from '@/components/ui/Input';
@@ -9,10 +10,8 @@ import Button from '@/components/ui/Button';
 import { Alert } from '@/components/ui/Badge';
 
 export default function LoginPage() {
-  const { login, isAuthenticated, loading: authLoading } = useAuth();
+  const { login, user, isAuthenticated, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-  const from = (location.state as { from?: string } | null)?.from ?? ROUTES.home;
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -20,10 +19,10 @@ export default function LoginPage() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (!authLoading && isAuthenticated) {
-      navigate(from, { replace: true });
+    if (!authLoading && isAuthenticated && user) {
+      navigate(postAuthRedirectPath(user), { replace: true });
     }
-  }, [authLoading, isAuthenticated, navigate, from]);
+  }, [authLoading, isAuthenticated, user, navigate]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -35,7 +34,7 @@ export default function LoginPage() {
         setError(r.message);
         return;
       }
-      navigate(from, { replace: true });
+      navigate(postAuthRedirectPath(r.user), { replace: true });
     } finally {
       setBusy(false);
     }
@@ -104,7 +103,6 @@ export default function LoginPage() {
             New to Kryptera?{' '}
             <Link
               to={ROUTES.register}
-              state={location.state}
               style={{
                 fontWeight: 600,
                 color: 'var(--color-primary-dark)',

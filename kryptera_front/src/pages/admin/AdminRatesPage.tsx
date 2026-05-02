@@ -11,6 +11,7 @@ import {
   deleteAdminRateQuote,
   getAdminRateQuotes,
   patchAdminRateQuote,
+  patchPlatformCommission,
   type AdminRateQuote,
 } from '@/services/api';
 import type { ExchangeRates } from '@/types';
@@ -66,7 +67,7 @@ const RATE_FIELDS: RateField[] = [
 function LogicCard() {
   return (
     <Card subtle>
-      <CardHeader title="Conversion logic" subtitle="How corridor rates are applied" />
+      <CardHeader title="Conversion logic" subtitle="How these rates are applied to transfers" />
       <CardContent className="space-y-5 text-sm text-muted-foreground">
         {[
           {
@@ -102,13 +103,15 @@ function LogicCard() {
 
 export default function AdminRatesPage() {
   const { accessToken, user } = useAuth();
-  const { rates, loading, saveRates } = useRates();
+  const { rates, loading, saveRates, refresh } = useRates();
   const queryClient = useQueryClient();
 
   const [bulkForm, setBulkForm] = useState<Record<string, string>>({});
   const [savingBulk, setSavingBulk] = useState(false);
   const [bulkAlert, setBulkAlert] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [bulkErrors, setBulkErrors] = useState<Partial<Record<keyof ExchangeRates, string>>>({});
+  const [commissionInput, setCommissionInput] = useState('');
+  const [savingCommission, setSavingCommission] = useState(false);
 
   const [quotePage, setQuotePage] = useState(1);
   const [addOpen, setAddOpen] = useState(false);
@@ -178,7 +181,32 @@ export default function AdminRatesPage() {
       kwachaToUsdBuying: String(rates.kwachaToUsdBuying),
       usdToRubleSelling: String(rates.usdToRubleSelling),
     });
+    if (rates.commissionRate != null && Number.isFinite(rates.commissionRate)) {
+      setCommissionInput(String(rates.commissionRate));
+    }
   }, [loading, rates]);
+
+  async function handleCommissionSave() {
+    if (!accessToken || !user?.isAdmin) {
+      toast.error('Sign in as admin to save.');
+      return;
+    }
+    const v = parseFloat(commissionInput.trim());
+    if (Number.isNaN(v) || v <= 0 || v >= 1) {
+      toast.error('Enter a decimal between 0 and 1 (e.g. 0.045 for 4.5%).');
+      return;
+    }
+    setSavingCommission(true);
+    const res = await patchPlatformCommission(v, accessToken);
+    setSavingCommission(false);
+    if (res.error) {
+      toast.error(res.error.message);
+      return;
+    }
+    toast.success('Commission saved.');
+    await refresh();
+    void queryClient.invalidateQueries({ queryKey: ['admin', 'rateQuotes'] });
+  }
 
   function validateBulk(): boolean {
     const newErrors: Partial<Record<keyof ExchangeRates, string>> = {};
@@ -237,9 +265,9 @@ export default function AdminRatesPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">Rates</h2>
+        <h2 className="text-2xl font-bold tracking-tight">Rates Setup</h2>
         <p className="text-sm text-muted-foreground">
-          Bulk-update the four corridor rates and manage individual quote rows.
+          Set the platform commission and the four FX legs. Manage slug-based quote rows on the right.
         </p>
       </div>
 
@@ -251,7 +279,41 @@ export default function AdminRatesPage() {
 
           <Card>
             <CardHeader
-              title="Corridor rates (bulk)"
+              title="Commission"
+              subtitle="Fraction taken on each transfer (stored server-side). Example: 0.045 = 4.5%."
+            />
+            <CardContent className="space-y-4">
+              <Input
+                label="Commission rate"
+                type="number"
+                step="0.000001"
+                min="0"
+                max="1"
+                placeholder="e.g. 0.045"
+                value={commissionInput}
+                onChange={e => setCommissionInput(e.target.value)}
+                hint="Must be greater than 0 and less than 1."
+                mono
+              />
+            </CardContent>
+            <CardDivider />
+            <CardContent>
+              <Button
+                type="button"
+                className="w-full"
+                size="lg"
+                onClick={() => void handleCommissionSave()}
+                loading={savingCommission}
+                disabled={!accessToken}
+              >
+                Save commission
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader
+              title="Current rates"
               subtitle={
                 rates.updatedAt ? `Last updated ${new Date(rates.updatedAt).toLocaleString()}` : 'Not configured'
               }
@@ -279,7 +341,7 @@ export default function AdminRatesPage() {
             <CardDivider />
             <CardContent>
               <Button className="w-full" size="lg" onClick={() => void handleBulkSave()} loading={savingBulk}>
-                Save corridor rates
+                Save current rates
               </Button>
             </CardContent>
           </Card>
@@ -290,7 +352,7 @@ export default function AdminRatesPage() {
         <Card>
           <CardHeader
             title="Rate quotes"
-            subtitle="Slug-based rows; corridor slugs may soft-disable instead of hard delete"
+            subtitle="Slug-based rows; built-in pair slugs may soft-disable instead of hard delete"
           />
           <CardContent className="space-y-4">
             <Button type="button" onClick={() => setAddOpen(true)} disabled={!accessToken}>

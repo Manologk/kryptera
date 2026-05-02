@@ -1,11 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ChevronsUpDown, Download, MoreVertical } from 'lucide-react'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { ChevronsUpDown } from 'lucide-react'
 import { recipientDisplay, recipientPhoneLine } from '@/features/admin/transactionLabels'
 import { transactionReferenceDisplay } from '@/features/transaction/transactionReference'
 import { cn } from '@/lib/utils'
@@ -75,51 +69,15 @@ export function RecipientStackedCell({ tx, includeReference }: { tx: Transaction
   )
 }
 
-type ActionsProps = {
-  detailHref: string
-  onDownloadRecord: () => void
-}
-
-export function TxRowActions({ detailHref, onDownloadRecord }: ActionsProps) {
+export function TxRowDetailLink({ detailHref }: { detailHref: string }) {
   return (
-    <div className="flex w-[72px] shrink-0 items-center justify-center gap-3">
-      <button
-        type="button"
-        className="text-[#888] transition-colors hover:text-[#163300]"
-        aria-label="Download transaction record"
-        onClick={e => {
-          e.stopPropagation()
-          onDownloadRecord()
-        }}
+    <div className="flex min-w-[52px] items-center justify-center px-2">
+      <Link
+        to={detailHref}
+        className="text-[13px] font-medium text-[#163300] underline-offset-4 hover:underline"
       >
-        <Download className="h-4 w-4" strokeWidth={1.75} />
-      </button>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <button
-            type="button"
-            className="text-[#888] transition-colors hover:text-[#163300]"
-            aria-label="More actions"
-          >
-            <MoreVertical className="h-4 w-4" strokeWidth={1.75} />
-          </button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="min-w-[10rem]">
-          <DropdownMenuItem asChild>
-            <Link to={detailHref} className="cursor-pointer">
-              View details
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className="cursor-pointer"
-            onClick={() => {
-              onDownloadRecord()
-            }}
-          >
-            Download
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+        View
+      </Link>
     </div>
   )
 }
