@@ -117,33 +117,27 @@ export default function ActivityPage() {
       <PageHeader title="Activity" subtitle="Recent transfers" />
 
       {remoteLoading ? (
-        <Card subtle>
-          <p style={{ fontSize: 15, color: 'var(--color-text-muted)', margin: 0 }}>Loading transfers…</p>
+        <Card subtle className="p-6">
+          <p className="m-0 text-[15px] text-muted">Loading transfers…</p>
         </Card>
       ) : transactions.length === 0 ? (
-        <Card subtle>
-          <p style={{ fontSize: 15, color: 'var(--color-text-muted)', margin: 0, lineHeight: 1.55 }}>
+        <Card subtle className="p-6">
+          <p className="m-0 text-[15px] leading-[1.55] text-muted">
             {isApi
               ? 'Nothing here yet. Record a transfer from Send money while signed in.'
               : 'Nothing here yet. Sign in to load transfers from your account, or record transfers on this device only (not synced).'}
           </p>
-          <p style={{ marginTop: 16, marginBottom: 0 }}>
+          <p className="mt-4 mb-0">
             <Link
               to={ROUTES.home}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                fontWeight: 600,
-                fontSize: 14,
-                color: 'var(--color-primary-dark)',
-              }}
+              className="inline-flex items-center font-semibold text-[14px] text-primary-dark"
             >
               Send money →
             </Link>
           </p>
         </Card>
       ) : (
-        <Card>
+        <Card className="p-6">
           <CardHeader title="Transfers" subtitle={`${filtered.length} shown · ${transactions.length} total`} />
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
             <div className="min-w-[160px] flex-1">
@@ -234,7 +228,7 @@ export default function ActivityPage() {
 
           {filtered.length > 0 ? (
             <div className="mt-4 flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground m-0">
                 {rangeStart}–{rangeEnd} of {filtered.length}
                 {totalPages > 1 ? ` · Page ${page} of ${totalPages}` : null}
               </p>

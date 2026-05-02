@@ -89,22 +89,46 @@ export default function TransactionDetailPage() {
           <CardHeader title="Delivery proof" />
           {deliveryProofUrl ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {deliveryProofIsImage ? (
-                <img
-                  src={deliveryProofUrl}
-                  alt="Delivery proof"
-                  style={{
-                    width: '100%',
-                    maxHeight: 360,
-                    objectFit: 'contain',
-                    borderRadius: 'var(--radius-md)',
-                    border: '1px solid var(--color-border)',
-                    background: 'var(--color-surface)',
-                  }}
-                />
-              ) : null}
-              <div>
-                <Button asChild variant="secondary">
+              <div className="flex justify-center mb-2">
+                {deliveryProofIsImage ? (
+                  <img
+                    src={deliveryProofUrl}
+                    alt="Delivery proof - preview"
+                    className="rounded-md border border-solid"
+                    style={{
+                      width: 80,
+                      height: 80,
+                      objectFit: 'cover',
+                      borderColor: 'var(--color-border)',
+                      background: 'var(--color-surface)',
+                      padding: 5,
+                      marginRight: 5,
+                    }}
+                  />
+                ) : deliveryProofFileName && deliveryProofFileName.toLowerCase().endsWith('.pdf') ? (
+                  <div
+                    className="flex flex-col items-center justify-center"
+                    style={{
+                      width: 80,
+                      height: 80,
+                      border: '1px solid var(--color-border)',
+                      background: 'var(--color-surface)',
+                      borderRadius: 'var(--radius-md)',
+                    }}
+                  >
+                    <svg width="32" height="40" viewBox="0 0 32 40" aria-label="PDF file" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect x="4" y="4" width="24" height="32" rx="3" fill="#F2F0EC"/>
+                      <path d="M8 7C8 5.89543 8.89543 5 10 5H22C23.1046 5 24 5.89543 24 7V33C24 34.1046 23.1046 35 22 35H10C8.89543 35 8 34.1046 8 33V7Z" fill="#fff"/>
+                      <text x="16" y="29" textAnchor="middle" fontSize="12" fill="#CB3837" fontWeight="bold" fontFamily="sans-serif">
+                        PDF
+                      </text>
+                    </svg>
+                    <span className="text-xs text-muted" style={{ marginTop: 4 }}>PDF</span>
+                  </div>
+                ) : null}
+              </div>
+              <div className="flex justify-center" style={{ marginBottom: 12 }}>
+                <Button asChild variant="primary" className="w-fit px-6">
                   <a href={deliveryProofUrl} download={deliveryProofFileName || 'delivery-proof'}>
                     Download delivery proof
                   </a>
@@ -130,6 +154,7 @@ export default function TransactionDetailPage() {
           )}
         </Card>
       ) : null}
+
 
       <p style={{ marginTop: 24 }}>
         <Link to={ROUTES.activity} style={{ fontWeight: 600 }}>
