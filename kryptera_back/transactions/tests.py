@@ -145,7 +145,8 @@ class TransactionAPITests(TestCase):
         results = res.data.get("results", res.data)
         self.assertGreaterEqual(len(results), 2)
 
-    def test_admin_update_status(self):
+    def test_admin_cannot_complete_without_receipt_and_proof(self):
+        """Lifecycle requires confirm_receipt + delivery proof before completed."""
         self.client.force_authenticate(user=self.user)
         create = self.client.post("/api/v1/transactions/", {
             "mode": "russia-zambia", "input_amount": "5000",
@@ -155,8 +156,7 @@ class TransactionAPITests(TestCase):
         res = self.client.patch(f"/api/v1/transactions/admin/{tx_id}/", {
             "status": "completed", "admin_note": "Verified and completed."
         }, format="json")
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(res.data["status"], "completed")
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_negative_amount_rejected(self):
         self.client.force_authenticate(user=self.user)
@@ -282,33 +282,36 @@ class TransactionAPITests(TestCase):
         self.assertEqual(statuses, {"pending"})
         self.assertTrue(any(r["id"] == pending_id for r in results))
 
-    def test_admin_patch_completed_with_receipt_file(self):
+    def test_admin_patch_completed_with_delivery_proof_and_confirm(self):
         _, awaiting_id = self._seed_pending_pair()
-        receipt = SimpleUploadedFile(
-            "receipt.jpg", b"\xff\xd8\xff fakejpeg", content_type="image/jpeg"
+        proof = SimpleUploadedFile(
+            "delivery.jpg", b"\xff\xd8\xff fakejpeg", content_type="image/jpeg"
         )
         self.client.force_authenticate(user=self.admin)
         res = self.client.patch(
             f"/api/v1/transactions/admin/{awaiting_id}/",
-            {"status": "completed", "receipt_file": receipt},
+            {
+                "status": "completed",
+                "delivery_proof": proof,
+                "confirm_receipt": "true",
+            },
             format="multipart",
         )
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data["status"], "completed")
         tx = Transaction.objects.get(pk=awaiting_id)
         self.assertEqual(tx.status, TransactionStatus.COMPLETED)
-        self.assertTrue(tx.receipt_file)
+        self.assertTrue(tx.delivery_proof)
+        self.assertTrue(tx.receipt_confirmed)
 
-    def test_admin_patch_completed_without_receipt_file(self):
+    def test_admin_patch_completed_without_proof_rejected(self):
         _, awaiting_id = self._seed_pending_pair()
         self.client.force_authenticate(user=self.admin)
         res = self.client.patch(
             f"/api/v1/transactions/admin/{awaiting_id}/",
-            {"status": "completed"},
+            {"status": "completed", "confirm_receipt": True},
             format="json",
         )
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(res.data["status"], "completed")
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         tx = Transaction.objects.get(pk=awaiting_id)
-        self.assertEqual(tx.status, TransactionStatus.COMPLETED)
-        self.assertFalse(tx.receipt_file)
+        self.assertNotEqual(tx.status, TransactionStatus.COMPLETED)

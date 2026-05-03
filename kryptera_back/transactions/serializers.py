@@ -419,9 +419,12 @@ class AdminTransactionSerializer(serializers.ModelSerializer):
     def update(self, instance: Transaction, validated_data):
         confirm = validated_data.pop("confirm_receipt", False)
         if confirm:
-            if instance.status != TransactionStatus.AWAITING_CONFIRMATION:
+            if instance.status not in (
+                TransactionStatus.AWAITING_CONFIRMATION,
+                TransactionStatus.PENDING_VERIFICATION,
+            ):
                 raise serializers.ValidationError(
-                    {"confirm_receipt": "Only allowed while awaiting confirmation."},
+                    {"confirm_receipt": "Only allowed while awaiting confirmation or pending verification."},
                 )
             validated_data["receipt_confirmed"] = True
             validated_data["receipt_confirmed_at"] = timezone.now()
