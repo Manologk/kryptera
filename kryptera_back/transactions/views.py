@@ -72,15 +72,23 @@ class PopUploadView(APIView):
         except Transaction.DoesNotExist:
             raise NotFound("Transaction not found.")
 
-        if tx.pop_file:
+        if tx.receipt_confirmed:
             return Response(
-                {"detail": "Proof of payment already uploaded."},
+                {"detail": "Proof of payment can no longer be changed after receipt was confirmed."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        if tx.status not in (
+        if tx.status in (TransactionStatus.COMPLETED, TransactionStatus.REJECTED):
+            return Response(
+                {"detail": "Cannot upload proof for this transaction status."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        allowed = {
             TransactionStatus.PENDING,
             TransactionStatus.POP_NOT_UPLOADED,
-        ):
+            TransactionStatus.AWAITING_CONFIRMATION,
+            TransactionStatus.PENDING_VERIFICATION,
+        }
+        if tx.status not in allowed:
             return Response(
                 {"detail": "Cannot upload proof for this transaction status."},
                 status=status.HTTP_400_BAD_REQUEST,

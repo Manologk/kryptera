@@ -148,6 +148,8 @@ class TransactionSerializer(serializers.ModelSerializer):
             "delivery_method",
             "payment_method",
             "status",
+            "receipt_confirmed",
+            "receipt_confirmed_at",
             "pop_file",
             "delivery_proof",
             "delivery_notes",
@@ -173,6 +175,8 @@ class TransactionSerializer(serializers.ModelSerializer):
             "result_currency",
             "commission_rate",
             "status",
+            "receipt_confirmed",
+            "receipt_confirmed_at",
             "pop_file",
             "delivery_proof",
             "delivery_notes",
@@ -311,6 +315,8 @@ class PopUploadSerializer(serializers.ModelSerializer):
         return value
 
     def update(self, instance, validated_data):
+        if instance.pop_file:
+            instance.pop_file.delete(save=False)
         instance.pop_file = validated_data["pop_file"]
         instance.status = TransactionStatus.AWAITING_CONFIRMATION
         instance.save()

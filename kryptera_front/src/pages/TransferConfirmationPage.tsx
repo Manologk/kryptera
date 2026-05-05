@@ -79,9 +79,22 @@ export default function TransferConfirmationPage() {
 
   const status = tx?.status;
   const isCompleted = status === 'completed';
-  const showUpload =
-    !!tx && (status === 'pending' || status === 'pop_not_uploaded') && !tx.popPath;
-  const showAwaitingMessage = status === 'awaiting_confirmation' || status === 'pending_verification';
+  const receiptLocked = Boolean(tx?.receiptConfirmed);
+  const mayUploadOrReplacePop =
+    !!tx &&
+    status != null &&
+    !TERMINAL_STATUSES.has(status) &&
+    status !== 'rejected' &&
+    !receiptLocked &&
+    (status === 'pending' ||
+      status === 'pop_not_uploaded' ||
+      status === 'awaiting_confirmation' ||
+      status === 'pending_verification');
+  const showUpload = mayUploadOrReplacePop;
+  const showAwaitingMessage =
+    (status === 'awaiting_confirmation' || status === 'pending_verification') &&
+    Boolean(tx?.popPath) &&
+    !showUpload;
 
   async function handleSubmitProof(e: React.FormEvent) {
     e.preventDefault();
@@ -141,6 +154,7 @@ export default function TransferConfirmationPage() {
   const deliveryProofUrl = deliveryProofPath ? mediaHref(deliveryProofPath) : null;
   const deliveryProofIsImage = isImagePath(deliveryProofPath);
   const deliveryProofFileName = filenameFromPath(deliveryProofPath);
+  const showDeliveryProofToSender = Boolean(deliveryProofUrl) && tx.status !== 'rejected';
 
   return (
     <Layout maxWidth={560}>
@@ -252,7 +266,14 @@ export default function TransferConfirmationPage() {
 
       {showUpload ? (
         <Card>
-          <CardHeader title="Waiting for your proof of payment" subtitle="Upload a screenshot or PDF of your payment to continue." />
+          <CardHeader
+            title={tx.popPath ? 'Replace proof of payment' : 'Waiting for your proof of payment'}
+            subtitle={
+              tx.popPath
+                ? 'Your previous upload is on file. You can attach a new file if the transfer was interrupted or the file was wrong.'
+                : 'Upload a screenshot or PDF of your payment to continue.'
+            }
+          />
           <CardContent className="pt-0">
             {uploadError ? (
               <div style={{ marginBottom: 16 }}>
@@ -291,58 +312,66 @@ export default function TransferConfirmationPage() {
                 />
               </div>
               <Button type="submit" size="lg" loading={uploading} disabled={!file || uploading}>
-                Submit proof
+                {tx.popPath ? 'Submit new proof' : 'Submit proof'}
               </Button>
             </form>
           </CardContent>
         </Card>
       ) : null}
 
-      {isCompleted ? (
+      {showDeliveryProofToSender ? (
+        <Card style={{ marginBottom: 20 }}>
+          <CardHeader
+            title="Delivery proof"
+            subtitle={
+              isCompleted ? undefined : 'Your transfer is still being processed. You can download the document the team attached.'
+            }
+          />
+          <CardContent className="pt-0">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {deliveryProofIsImage ? (
+                <img
+                  src={deliveryProofUrl!}
+                  alt="Delivery proof"
+                  style={{
+                    width: '100%',
+                    maxHeight: 360,
+                    objectFit: 'contain',
+                    borderRadius: 'var(--radius-md)',
+                    border: '1px solid var(--color-border)',
+                    background: 'var(--color-surface)',
+                  }}
+                />
+              ) : null}
+              <div>
+                <Button asChild variant="secondary">
+                  <a href={deliveryProofUrl!} download={deliveryProofFileName || 'delivery-proof'}>
+                    Download delivery proof
+                  </a>
+                </Button>
+              </div>
+              {isCompleted && tx.deliveryNotes != null && String(tx.deliveryNotes).trim() !== '' ? (
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: 14,
+                    lineHeight: 1.5,
+                    color: 'var(--color-text-muted)',
+                  }}
+                >
+                  {tx.deliveryNotes}
+                </p>
+              ) : null}
+            </div>
+          </CardContent>
+        </Card>
+      ) : isCompleted ? (
         <Card style={{ marginBottom: 20 }}>
           <CardHeader title="Delivery proof" />
           <CardContent className="pt-0">
-            {deliveryProofUrl ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {deliveryProofIsImage ? (
-                  <img
-                    src={deliveryProofUrl}
-                    alt="Delivery proof"
-                    style={{
-                      width: '100%',
-                      maxHeight: 360,
-                      objectFit: 'contain',
-                      borderRadius: 'var(--radius-md)',
-                      border: '1px solid var(--color-border)',
-                      background: 'var(--color-surface)',
-                    }}
-                  />
-                ) : null}
-                <div>
-                  <Button asChild variant="secondary">
-                    <a href={deliveryProofUrl} download={deliveryProofFileName || 'delivery-proof'}>
-                      Download delivery proof
-                    </a>
-                  </Button>
-                </div>
-                {tx.deliveryNotes != null && String(tx.deliveryNotes).trim() !== '' ? (
-                  <p
-                    style={{
-                      margin: 0,
-                      fontSize: 14,
-                      lineHeight: 1.5,
-                      color: 'var(--color-text-muted)',
-                    }}
-                  >
-                    {tx.deliveryNotes}
-                  </p>
-                ) : null}
-              </div>
-            ) : (
-              <p style={{ fontSize: 14, color: 'var(--color-text-muted)' }}>
-                No delivery proof was attached for this transfer.
-              </p>
-            )}
+            <p style={{ fontSize: 14, color: 'var(--color-text-muted)' }}>
+              No delivery proof was attached for this transfer.
+            </p>
           </CardContent>
         </Card>
       ) : null}

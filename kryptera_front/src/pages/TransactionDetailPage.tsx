@@ -74,7 +74,8 @@ export default function TransactionDetailPage() {
   const deliveryProofUrl = deliveryProofPath ? mediaHref(deliveryProofPath) : null
   const deliveryProofIsImage = isImagePath(deliveryProofPath)
   const deliveryProofFileName = filenameFromPath(deliveryProofPath)
-  const showCompletedDelivery = tx.status === 'completed'
+  const isCompleted = tx.status === 'completed'
+  const showDeliveryProof = Boolean(deliveryProofUrl) && tx.status !== 'rejected'
 
   return (
     <Layout maxWidth={640}>
@@ -84,9 +85,14 @@ export default function TransactionDetailPage() {
         <TransactionSummaryCard tx={tx} />
       </div>
 
-      {showCompletedDelivery ? (
+      {showDeliveryProof ? (
         <Card style={{ marginBottom: 16 }}>
-          <CardHeader title="Delivery proof" />
+          <CardHeader
+            title="Delivery proof"
+            subtitle={
+              isCompleted ? undefined : 'Attached by the team — you can download anytime while this transfer is active.'
+            }
+          />
           {deliveryProofUrl ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div className="flex justify-center mb-2">
@@ -134,7 +140,7 @@ export default function TransactionDetailPage() {
                   </a>
                 </Button>
               </div>
-              {tx.deliveryNotes != null && String(tx.deliveryNotes).trim() !== '' ? (
+              {isCompleted && tx.deliveryNotes != null && String(tx.deliveryNotes).trim() !== '' ? (
                 <p
                   style={{
                     margin: 0,
@@ -152,6 +158,13 @@ export default function TransactionDetailPage() {
               No delivery proof was attached for this transfer.
             </p>
           )}
+        </Card>
+      ) : isCompleted ? (
+        <Card style={{ marginBottom: 16 }}>
+          <CardHeader title="Delivery proof" />
+          <p style={{ fontSize: 14, color: 'var(--color-text-muted)', margin: 0 }}>
+            No delivery proof was attached for this transfer.
+          </p>
         </Card>
       ) : null}
 

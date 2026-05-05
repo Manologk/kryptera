@@ -227,6 +227,53 @@ class TransactionAPITests(TestCase):
         self.assertTrue(tx.pop_file)
         self.assertEqual(tx.status, TransactionStatus.AWAITING_CONFIRMATION)
 
+    def test_pop_replace_allowed_before_receipt_confirmed(self):
+        self.client.force_authenticate(user=self.user)
+        create = self.client.post(
+            "/api/v1/transactions/",
+            {"mode": "russia-zambia", "input_amount": "1000"},
+            format="json",
+        )
+        tx_id = create.data["id"]
+        pop1 = SimpleUploadedFile("proof1.jpg", b"\xff\xd8\xff a", content_type="image/jpeg")
+        r1 = self.client.post(
+            f"/api/v1/transactions/{tx_id}/pop/",
+            {"pop_file": pop1},
+            format="multipart",
+        )
+        self.assertEqual(r1.status_code, status.HTTP_200_OK)
+        pop2 = SimpleUploadedFile("proof2.jpg", b"\xff\xd8\xff b", content_type="image/jpeg")
+        r2 = self.client.post(
+            f"/api/v1/transactions/{tx_id}/pop/",
+            {"pop_file": pop2},
+            format="multipart",
+        )
+        self.assertEqual(r2.status_code, status.HTTP_200_OK)
+        self.assertEqual(r2.data["status"], TransactionStatus.AWAITING_CONFIRMATION)
+        tx = Transaction.objects.get(pk=tx_id)
+        self.assertIn("proof2", tx.pop_file.name)
+
+    def test_pop_upload_blocked_after_receipt_confirmed(self):
+        self.client.force_authenticate(user=self.user)
+        create = self.client.post(
+            "/api/v1/transactions/",
+            {"mode": "russia-zambia", "input_amount": "1000"},
+            format="json",
+        )
+        tx_id = create.data["id"]
+        pop = SimpleUploadedFile("proof.jpg", b"\xff\xd8\xff x", content_type="image/jpeg")
+        self.client.post(f"/api/v1/transactions/{tx_id}/pop/", {"pop_file": pop}, format="multipart")
+        tx = Transaction.objects.get(pk=tx_id)
+        tx.receipt_confirmed = True
+        tx.save(update_fields=["receipt_confirmed"])
+        pop_new = SimpleUploadedFile("proof2.jpg", b"\xff\xd8\xff y", content_type="image/jpeg")
+        res = self.client.post(
+            f"/api/v1/transactions/{tx_id}/pop/",
+            {"pop_file": pop_new},
+            format="multipart",
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
     # ── Admin pending workflow (Phase 5) ────────────────────────────────────
 
     def _seed_pending_pair(self):

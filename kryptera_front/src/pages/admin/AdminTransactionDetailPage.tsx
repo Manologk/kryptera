@@ -113,6 +113,8 @@ export default function AdminTransactionDetailPage() {
   }
 
   const showPopSection =
+    tx.status === 'pending' ||
+    tx.status === 'pop_not_uploaded' ||
     tx.status === 'awaiting_confirmation' ||
     tx.status === 'pending_verification' ||
     tx.status === 'completed'
