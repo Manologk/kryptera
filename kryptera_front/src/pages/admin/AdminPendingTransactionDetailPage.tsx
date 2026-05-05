@@ -57,7 +57,7 @@ export default function AdminPendingTransactionDetailPage() {
   });
 
   const mutation = useMutation({
-    mutationFn: async (body: { status?: 'completed'; receipt_file?: File }) => {
+    mutationFn: async (body: Parameters<typeof patchAdminTransaction>[2]) => {
       if (!id) throw new Error('Missing transaction id');
       const res = await patchAdminTransaction(accessToken!, id, body);
       if (res.error) throw new Error(res.error.message);
@@ -74,33 +74,35 @@ export default function AdminPendingTransactionDetailPage() {
 
   const handleConfirmReceipt = () => {
     mutation.mutate(
-      { status: 'completed' },
+      { confirmReceipt: true },
       {
         onSuccess: () => {
-          toast.success('Transfer marked as completed.');
-          navigate(adminPendingPath);
+          toast.success('Receipt confirmed. Upload delivery proof when the payout is done.')
+          void txQuery.refetch()
         },
       },
-    );
-  };
+    )
+  }
 
   const handleSaveAndNotify = () => {
     if (!file) {
       toast.error('Choose a delivery proof file first.');
       return;
     }
-    mutation.mutate(
-      { status: 'completed', receipt_file: file },
-      {
-        onSuccess: () => {
-          toast.success('Delivery proof saved. Transfer marked as completed.');
-          setFile(null);
-          if (fileInputRef.current) fileInputRef.current.value = '';
-          navigate(adminPendingPath);
-        },
+    const body: Parameters<typeof patchAdminTransaction>[2] = {
+      status: 'completed',
+      delivery_proof: file,
+    }
+    if (!txQuery.data?.receiptConfirmed) body.confirmReceipt = true
+    mutation.mutate(body, {
+      onSuccess: () => {
+        toast.success('Delivery proof saved. Transfer marked as completed.')
+        setFile(null)
+        if (fileInputRef.current) fileInputRef.current.value = ''
+        navigate(adminPendingPath)
       },
-    );
-  };
+    })
+  }
 
   if (!accessToken) {
     return <p className="text-sm text-muted-foreground">Sign in as admin.</p>;
@@ -222,7 +224,8 @@ export default function AdminPendingTransactionDetailPage() {
             <div className="space-y-2">
               <p className="text-sm font-medium text-foreground">Confirm receipt</p>
               <p className="text-xs text-muted-foreground">
-                Marks the transfer as completed without attaching delivery proof.
+                Acknowledge that you have verified the client&apos;s proof of payment. You can then upload delivery
+                proof below to complete the transfer.
               </p>
               <Button
                 type="button"

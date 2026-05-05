@@ -7,7 +7,10 @@ const IMAGE_RX = /\.(jpe?g|png|gif|webp)(\?.*)?$/i
 export const mediaHref = (path: string): string => {
   if (!path) return ''
   if (path.startsWith('http://') || path.startsWith('https://')) return path
-  return path.startsWith('/') ? path : `/${path}`
+  if (path.startsWith('/media/')) return path
+  /** DRF sometimes returns storage-relative paths (e.g. pop/<uuid>/file.jpg) */
+  if (!path.startsWith('/')) return `/media/${path.replace(/^\/+/, '')}`
+  return path
 }
 
 export const isImagePath = (path: string | undefined): boolean => {

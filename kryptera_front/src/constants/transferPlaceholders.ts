@@ -39,7 +39,6 @@ export const KRYPTERA_PAY_MOBILE_MONEY = {
   instructions: [
     'Open your mobile money app and send only the amount shown on the next screen (when available).',
     `Use this number as the recipient: ${CONTACT_INFO.phone}.`,
-    'Include your transfer reference in the payment note if the app asks for one.',
     'Need help? Reach us on WhatsApp or email — see the contact block in the app footer.',
   ],
 } as const;
@@ -51,7 +50,6 @@ export const KRYPTERA_PAY_USDT = {
   instructions: [
     'Send only USDT on the network below. Wrong token or network can result in permanent loss.',
     'Double-check the address character by character before confirming in your wallet.',
-    'After the next phase goes live, you’ll see the exact amount and a memo reference here.',
   ],
 } as const;
 

@@ -112,17 +112,25 @@ export default function AdminTransactionDetailPage() {
     )
   }
 
-  const showPopSection = tx.status === 'awaiting_confirmation' || tx.status === 'completed'
+  const showPopSection =
+    tx.status === 'awaiting_confirmation' ||
+    tx.status === 'pending_verification' ||
+    tx.status === 'completed'
   const popPath = tx.popPath
   const popUrl = popPath ? mediaHref(popPath) : null
   const popIsImage = isImagePath(popPath)
   const popName = filenameFromPath(popPath)
 
   const showConfirmBox =
-    tx.status === 'awaiting_confirmation' && !tx.receiptConfirmed && !completedSuccess
+    (tx.status === 'awaiting_confirmation' || tx.status === 'pending_verification') &&
+    !tx.receiptConfirmed &&
+    !completedSuccess
 
   const showDeliverySection =
-    tx.receiptConfirmed && tx.status !== 'completed' && !completedSuccess
+    tx.receiptConfirmed &&
+    tx.status !== 'completed' &&
+    tx.status !== 'rejected' &&
+    !completedSuccess
 
   const showCompletedBanner = completedSuccess && tx.status === 'completed'
 

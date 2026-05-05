@@ -75,20 +75,31 @@ export default function Nav() {
   const { isAuthenticated, user, logout, loading } = useAuth();
   const { pathname } = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileAccountOpen, setMobileAccountOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const mobileAccountRef = useRef<HTMLDivElement>(null);
 
   const ini = initialsFromUser(user ?? null);
 
-  const transfersActive =
-    pathname === ROUTES.transfer || pathname.startsWith(`${ROUTES.transfer}/`);
-
   const accountTo = isAuthenticated ? ROUTES.activity : ROUTES.login;
 
+  const accountTabActive =
+    mobileAccountOpen ||
+    (isAuthenticated &&
+      (pathname === ROUTES.activity || pathname.startsWith(`${ROUTES.activity}/`))) ||
+    (!isAuthenticated && (pathname === ROUTES.login || pathname === ROUTES.register));
+
   useEffect(() => {
-    function handlePointerDown(e: MouseEvent | TouchEvent) {
-      if (!menuRef.current?.contains(e.target as Node)) setMenuOpen(false);
-    }
-    if (menuOpen) {
+    setMobileAccountOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    const handlePointerDown = (e: MouseEvent | TouchEvent) => {
+      const target = e.target as Node;
+      if (menuOpen && !menuRef.current?.contains(target)) setMenuOpen(false);
+      if (mobileAccountOpen && !mobileAccountRef.current?.contains(target)) setMobileAccountOpen(false);
+    };
+    if (menuOpen || mobileAccountOpen) {
       document.addEventListener('mousedown', handlePointerDown);
       document.addEventListener('touchstart', handlePointerDown);
     }
@@ -96,7 +107,7 @@ export default function Nav() {
       document.removeEventListener('mousedown', handlePointerDown);
       document.removeEventListener('touchstart', handlePointerDown);
     };
-  }, [menuOpen]);
+  }, [menuOpen, mobileAccountOpen]);
 
   const helpHref = `mailto:${CONTACT_INFO.email}`;
 
@@ -262,7 +273,7 @@ export default function Nav() {
       </header>
 
       <nav
-        className="fixed bottom-0 left-0 right-0 z-50 grid h-[60px] grid-cols-4 border-t border-[var(--kryptera-border)] bg-[var(--kryptera-card)] lg:hidden"
+        className="fixed bottom-0 left-0 right-0 z-50 grid h-[60px] grid-cols-4 overflow-visible border-t border-[var(--kryptera-border)] bg-[var(--kryptera-card)] pb-[env(safe-area-inset-bottom,0px)] lg:hidden"
         aria-label="Primary"
       >
         <NavLink
@@ -279,17 +290,18 @@ export default function Nav() {
           <span>Home</span>
         </NavLink>
 
-        <Link
-          to={ROUTES.transfer}
-          className={cn(
-            'flex flex-col items-center justify-center gap-0.5 border-t-2 pt-0.5 text-[10px] font-medium leading-tight',
-            transfersActive ? tabActive : tabInactive,
-          )}
-          aria-current={transfersActive ? 'page' : undefined}
+        <NavLink
+          to={ROUTES.activity}
+          className={({ isActive }) =>
+            cn(
+              'flex flex-col items-center justify-center gap-0.5 border-t-2 pt-0.5 text-[10px] font-medium leading-tight',
+              isActive ? tabActive : tabInactive,
+            )
+          }
         >
           <IconTransfers className="shrink-0" />
           <span>Transfers</span>
-        </Link>
+        </NavLink>
 
         <NavLink
           to={ROUTES.recipients}
@@ -304,25 +316,87 @@ export default function Nav() {
           <span>Recipients</span>
         </NavLink>
 
-        <NavLink
-          to={accountTo}
-          className={({ isActive }) =>
-            cn(
-              'flex flex-col items-center justify-center gap-0.5 border-t-2 pt-0.5 text-[10px] font-medium leading-tight',
-              isActive ? tabActive : tabInactive,
-            )
-          }
-        >
-          <span
+        <div ref={mobileAccountRef} className="relative flex min-h-0 min-w-0 justify-center overflow-visible">
+          <button
+            type="button"
             className={cn(
-              'flex shrink-0 items-center justify-center rounded-full bg-[var(--kryptera-green)] font-semibold text-[var(--kryptera-dark)]',
+              'flex w-full max-w-[100px] flex-col items-center justify-center gap-0.5 border-t-2 border-transparent pt-0.5 text-[10px] font-medium leading-tight transition-colors',
+              accountTabActive ? tabActive : tabInactive,
             )}
-            style={{ width: 20, height: 20, fontSize: 8, lineHeight: 1 }}
+            aria-expanded={mobileAccountOpen}
+            aria-haspopup="menu"
+            aria-label="Account menu"
+            onClick={() => setMobileAccountOpen(o => !o)}
           >
-            {ini}
-          </span>
-          <span>Account</span>
-        </NavLink>
+            <span
+              className={cn(
+                'flex shrink-0 items-center justify-center rounded-full bg-[var(--kryptera-green)] font-semibold text-[var(--kryptera-dark)]',
+              )}
+              style={{ width: 20, height: 20, fontSize: 8, lineHeight: 1 }}
+            >
+              {ini}
+            </span>
+            <span>Account</span>
+          </button>
+
+          {mobileAccountOpen ? (
+            <div
+              role="menu"
+              className="absolute bottom-full left-1/2 z-[60] mb-2 w-[min(calc(100vw-24px),280px)] -translate-x-1/2 rounded-[var(--radius-md)] border border-[var(--kryptera-border)] bg-[var(--kryptera-card)] py-1 shadow-lg animate-in fade-in zoom-in-95 slide-in-from-bottom-2 duration-200"
+            >
+              {isAuthenticated ? (
+                <>
+                  <Link
+                    role="menuitem"
+                    to={ROUTES.activity}
+                    className="block px-4 py-2.5 text-sm text-[var(--kryptera-dark)] hover:bg-[var(--kryptera-surface)]"
+                    onClick={() => setMobileAccountOpen(false)}
+                  >
+                    Profile
+                  </Link>
+                  <Link
+                    role="menuitem"
+                    to={ROUTES.recipients}
+                    className="block px-4 py-2.5 text-sm text-[var(--kryptera-dark)] hover:bg-[var(--kryptera-surface)]"
+                    onClick={() => setMobileAccountOpen(false)}
+                  >
+                    Settings
+                  </Link>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className="w-full px-4 py-2.5 text-left text-sm text-[var(--kryptera-dark)] hover:bg-[var(--kryptera-surface)]"
+                    onClick={() => {
+                      setMobileAccountOpen(false);
+                      logout();
+                    }}
+                  >
+                    Log out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    role="menuitem"
+                    to={ROUTES.login}
+                    className="block px-4 py-2.5 text-sm text-[var(--kryptera-dark)] hover:bg-[var(--kryptera-surface)]"
+                    onClick={() => setMobileAccountOpen(false)}
+                  >
+                    Sign in
+                  </Link>
+                  <Link
+                    role="menuitem"
+                    to={ROUTES.register}
+                    className="block px-4 py-2.5 text-sm text-[var(--kryptera-dark)] hover:bg-[var(--kryptera-surface)]"
+                    onClick={() => setMobileAccountOpen(false)}
+                  >
+                    Create account
+                  </Link>
+                </>
+              )}
+            </div>
+          ) : null}
+        </div>
       </nav>
     </>
   );

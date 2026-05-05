@@ -15,7 +15,7 @@ import { StatusBadge } from '@/components/ui/Badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
-const STATUS_IN = 'pending,awaiting_confirmation';
+const STATUS_IN = 'pending,awaiting_confirmation,pending_verification';
 
 const deliveryLabel = (id: string | undefined): string => {
   if (!id) return '—';

@@ -19,6 +19,8 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': { target: 'http://localhost:8000', changeOrigin: true },
+      /** Django FileField URLs are under MEDIA_URL (default /media/); same-origin as /api in dev */
+      '/media': { target: 'http://localhost:8000', changeOrigin: true },
     },
   },
 });
