@@ -4,10 +4,10 @@ import { ROUTES } from '@/constants/routes';
 import { useAuth } from '@/context/AuthContext';
 import { postAuthRedirectPath } from '@/lib/userRole';
 import Layout, { PageHeader } from '@/components/layout/Layout';
-import Card, { CardContent } from '@/components/ui/Card';
-import Input from '@/components/ui/Input';
-import Button from '@/components/ui/Button';
-import { Alert } from '@/components/ui/Badge';
+import Card, { CardContent } from '@/components/ui/card';
+import Input from '@/components/ui/input';
+import Button from '@/components/ui/button';
+import { Alert } from '@/components/ui/badge';
 
 export default function LoginPage() {
   const { login, user, isAuthenticated, loading: authLoading } = useAuth();

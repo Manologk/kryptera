@@ -16,7 +16,7 @@ import {
 } from '@/services/api';
 import type { ExchangeRates } from '@/types';
 import { Button } from '@/components/ui/button';
-import Card, { CardContent, CardDivider, CardHeader } from '@/components/ui/Card';
+import Card, { CardContent, CardDivider, CardHeader } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -26,7 +26,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Alert } from '@/components/ui/Badge';
+import { Alert } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 

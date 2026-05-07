@@ -1,4 +1,4 @@
-import { StatusBadge } from '@/components/ui/Badge'
+import { StatusBadge } from '@/components/ui/badge'
 import { transactionReferenceDisplay } from '@/features/transaction/transactionReference'
 import { formatMoneyAmount } from '@/features/transaction/utils'
 import type { Transaction } from '@/types'

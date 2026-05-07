@@ -15,9 +15,9 @@ import {
 import { formatMoneyAmount } from '@/features/transaction/utils'
 import { getAdminTransactions } from '@/services/api'
 import type { Transaction } from '@/types'
-import Button from '@/components/ui/Button'
-import { StatusBadge } from '@/components/ui/Badge'
-import Card, { CardContent, CardHeader } from '@/components/ui/Card'
+import Button from '@/components/ui/button'
+import { StatusBadge } from '@/components/ui/badge'
+import Card, { CardContent, CardHeader } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 

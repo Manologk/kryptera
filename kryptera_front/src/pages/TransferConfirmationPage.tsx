@@ -7,10 +7,10 @@ import { ROUTES, transferConfirmation } from '@/constants/routes';
 import { formatMoneyAmount } from '@/features/transaction/utils';
 import { filenameFromPath, isImagePath, mediaHref } from '@/lib/media';
 import type { Transaction, TransactionStatus } from '@/types';
-import Button from '@/components/ui/Button';
-import Card, { CardContent, CardHeader } from '@/components/ui/Card';
+import Button from '@/components/ui/button';
+import Card, { CardContent, CardHeader } from '@/components/ui/card';
 import Layout, { PageHeader } from '@/components/layout/Layout';
-import { Alert, StatusBadge } from '@/components/ui/Badge';
+import { Alert, StatusBadge } from '@/components/ui/badge';
 
 const POLL_INTERVAL_MS = 10_000;
 

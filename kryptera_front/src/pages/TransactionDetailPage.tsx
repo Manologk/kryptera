@@ -6,8 +6,8 @@ import { getTransaction } from '@/services/api'
 import TransactionSummaryCard from '@/features/transaction/TransactionSummaryCard'
 import { filenameFromPath, isImagePath, mediaHref } from '@/lib/media'
 import type { Transaction } from '@/types'
-import Button from '@/components/ui/Button'
-import Card, { CardHeader } from '@/components/ui/Card'
+import Button from '@/components/ui/button'
+import Card, { CardHeader } from '@/components/ui/card'
 import Layout, { PageHeader } from '@/components/layout/Layout'
 
 export default function TransactionDetailPage() {

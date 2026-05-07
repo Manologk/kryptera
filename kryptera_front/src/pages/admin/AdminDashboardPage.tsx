@@ -13,7 +13,7 @@ import { useAuth } from '@/context/AuthContext';
 import { adminKeys } from '@/features/admin/queryKeys';
 import { transactionStatusLabel } from '@/features/admin/transactionLabels';
 import { getAdminDashboardStats, getAdminDashboardTimeseries } from '@/services/api';
-import Card, { CardContent, CardHeader } from '@/components/ui/Card';
+import Card, { CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function AdminDashboardPage() {

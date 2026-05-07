@@ -10,8 +10,8 @@ import { formatMoneyAmount } from '@/features/transaction/utils';
 import { DELIVERY_OPTIONS, PAYMENT_OPTIONS } from '@/constants/transferPlaceholders';
 import { getAdminTransactions } from '@/services/api';
 import { Button } from '@/components/ui/button';
-import Card, { CardContent, CardHeader } from '@/components/ui/Card';
-import { StatusBadge } from '@/components/ui/Badge';
+import Card, { CardContent, CardHeader } from '@/components/ui/card';
+import { StatusBadge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 

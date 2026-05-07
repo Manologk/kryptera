@@ -7,12 +7,12 @@ import { useTransactions } from '@/features/transaction/hooks';
 import { transactionReferenceDisplay } from '@/features/transaction/transactionReference';
 import { RecipientStackedCell, TxRowDetailLink, TxTableCheckbox } from '@/features/transaction/TransactionTableUi';
 import { formatMoneyAmount } from '@/features/transaction/utils';
-import Card, { CardHeader } from '@/components/ui/Card';
+import Card, { CardHeader } from '@/components/ui/card';
 import Layout, { PageHeader } from '@/components/layout/Layout';
-import { StatusBadge } from '@/components/ui/Badge';
+import { StatusBadge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import type { Transaction, TransactionStatus } from '@/types';
-import Button from '@/components/ui/Button';
+import Button from '@/components/ui/button';
 
 function formatListDate(iso: string): string {
   const d = new Date(iso);

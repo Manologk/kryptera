@@ -7,8 +7,8 @@ import { useTransactions } from '@/features/transaction/hooks';
 import { useAuth } from '@/context/AuthContext';
 import { transferConfirmation } from '@/constants/routes';
 import Layout, { PageHeader } from '@/components/layout/Layout';
-import Button from '@/components/ui/Button';
-import Card from '@/components/ui/Card';
+import Button from '@/components/ui/button';
+import Card from '@/components/ui/card';
 import {
   DELIVERY_OPTIONS,
   KRYPTERA_PAY_MOBILE_MONEY,

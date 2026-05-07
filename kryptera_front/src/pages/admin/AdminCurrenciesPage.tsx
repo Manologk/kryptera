@@ -12,7 +12,7 @@ import {
 } from '@/services/api';
 import type { ApiCurrency } from '@/types';
 import { Button } from '@/components/ui/button';
-import Card, { CardContent, CardHeader } from '@/components/ui/Card';
+import Card, { CardContent, CardHeader } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,

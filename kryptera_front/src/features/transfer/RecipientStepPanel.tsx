@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Banknote, Building2, Smartphone } from 'lucide-react';
-import Card, { CardContent } from '@/components/ui/Card';
-import Input from '@/components/ui/Input';
+import Card, { CardContent } from '@/components/ui/card';
+import Input from '@/components/ui/input';
 import { DELIVERY_OPTIONS, type DeliveryOptionId } from '@/constants/transferPlaceholders';
 import ChoiceTile from './ChoiceTile';
 import type { Recipient } from '@/types';

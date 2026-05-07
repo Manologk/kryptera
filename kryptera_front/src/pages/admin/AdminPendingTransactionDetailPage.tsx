@@ -11,8 +11,8 @@ import { DELIVERY_OPTIONS, PAYMENT_OPTIONS } from '@/constants/transferPlacehold
 import { getAdminTransaction, patchAdminTransaction } from '@/services/api';
 import { filenameFromPath, isImagePath, mediaHref } from '@/lib/media';
 import { Button } from '@/components/ui/button';
-import Card, { CardContent, CardHeader } from '@/components/ui/Card';
-import { StatusBadge } from '@/components/ui/Badge';
+import Card, { CardContent, CardHeader } from '@/components/ui/card';
+import { StatusBadge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const adminPendingPath = ROUTES.adminPending;

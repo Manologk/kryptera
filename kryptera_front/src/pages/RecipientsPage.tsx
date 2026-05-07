@@ -9,11 +9,11 @@ import {
 } from '@/features/recipient/deliveryDetails';
 import { DELIVERY_OPTIONS, type DeliveryOptionId } from '@/constants/transferPlaceholders';
 import type { Recipient } from '@/types';
-import Card, { CardHeader } from '@/components/ui/Card';
-import Button from '@/components/ui/Button';
-import Input from '@/components/ui/Input';
+import Card, { CardHeader } from '@/components/ui/card';
+import Button from '@/components/ui/button';
+import Input from '@/components/ui/input';
 import Layout, { PageHeader } from '@/components/layout/Layout';
-import { Alert } from '@/components/ui/Badge';
+import { Alert } from '@/components/ui/badge';
 
 export default function RecipientsPage() {
   const { accessToken, isAuthenticated } = useAuth();

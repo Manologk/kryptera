@@ -6,7 +6,7 @@ import { ADMIN_PAGE_SIZE } from '@/constants';
 import { adminKeys } from '@/features/admin/queryKeys';
 import { getAdminUsers, patchAdminUser, type AdminUserRow } from '@/services/api';
 import { Button } from '@/components/ui/button';
-import Card, { CardContent, CardHeader } from '@/components/ui/Card';
+import Card, { CardContent, CardHeader } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/Badge';
+import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
