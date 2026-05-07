@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+
+  db:
+    image: postgres:16-alpine
+    container_name: krypteradb
+    restart: unless-stopped
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  django:
+    build:
+      context: ./kryptera_back
+      dockerfile: Dockerfile
+    container_name: krypterad_django
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - static_files:/app/staticfiles
+      - media_files:/app/mediafiles
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             gunicorn --bind 0.0.0.0:8000 --workers 3 config.wsgi:application"
+
+  nginx:
+    build:
+      context: ./kryptera_front
+      dockerfile: Dockerfile
+    container_name: kryptera_nginx
+    restart: unless-stopped
+    ports:
+     - "80:80"
+    volumes:
+      - static_files:/app/staticfiles:ro
+      - media_files:/app/mediafiles:ro
+    depends_on:
+      - django
+
+volumes:
+  postgres_data:
+  static_files:
+  media_files:

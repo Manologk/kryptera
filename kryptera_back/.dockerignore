@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Virtual environment — never copy this into Docker
+venv/
+env/
+ENV/
+.venv/
+
+# Environment files — we pass these separately
+.env
+.env.*
+
+# Django
+*.log
+db.sqlite3
+staticfiles/
+mediafiles/
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/

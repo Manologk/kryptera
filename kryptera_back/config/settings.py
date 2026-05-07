@@ -11,7 +11,7 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get("SECRET_KEY", "dev-insecure-key-change-in-production")
-DEBUG = os.environ.get("DEBUG", "True") == "True"
+DEBUG = os.environ.get("DEBUG", "False") == "True"
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
 INSTALLED_APPS = [
@@ -64,9 +64,12 @@ WSGI_APPLICATION = "config.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": 'django.db.backends.postgresql',
-        "NAME": 'krypteradb',
-        "USER": 'postgres',
-        "PASSWORD": 'Manolo29',
+        'NAME': os.environ.get('DATABASE_NAME'),
+        'USER': os.environ.get('DATABASE_USER'),
+        'PASSWORD': os.environ.get('DATABASE_PASSWORD'),
+        'HOST': os.environ.get('DATABASE_HOST', 'db'),
+        # 'db' is the PostgreSQL container name in Docker Compose
+        'PORT': os.environ.get('DATABASE_PORT', '5432'),
     }
 }
 
@@ -108,9 +111,9 @@ CORS_ALLOWED_ORIGINS = os.environ.get(
 CORS_ALLOW_CREDENTIALS = True
 
 STATIC_URL = "/static/"
-STATIC_ROOT = BASE_DIR / "staticfiles"
-MEDIA_URL = os.environ.get("MEDIA_URL", "/media/")
-MEDIA_ROOT = BASE_DIR / os.environ.get("MEDIA_ROOT", "media")
+STATIC_ROOT = "/app/staticfiles/"
+MEDIA_URL = "/media/"
+MEDIA_ROOT = "/app/mediafiles/"
 
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
