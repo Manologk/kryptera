@@ -72,6 +72,7 @@ const statusPill: Record<TransactionStatus, { wrap: string; dot: string }> = {
   pop_not_uploaded: { wrap: 'bg-[#F1EFE8] text-[#888]', dot: 'bg-[#CACACA]' },
   pending_verification: { wrap: 'bg-[#FFF8E1] text-[#F59E0B]', dot: 'bg-[#F59E0B]' },
   rejected: { wrap: 'bg-[#FDE8E8] text-[#E24B4A]', dot: 'bg-[#E24B4A]' },
+  canceled: { wrap: 'bg-[#ECEFF1] text-[#546E7A]', dot: 'bg-[#90A4AE]' },
 };
 
 const statusLabel: Record<TransactionStatus, string> = {
@@ -81,6 +82,7 @@ const statusLabel: Record<TransactionStatus, string> = {
   pending_verification: 'Pending verification',
   completed: 'Completed',
   rejected: 'Declined',
+  canceled: 'Canceled',
 };
 
 export function StatusBadge({ status }: { status: TransactionStatus }) {

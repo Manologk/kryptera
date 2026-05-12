@@ -27,6 +27,7 @@ const STATUS_FILTER_OPTIONS: { value: 'all' | TransactionStatus; label: string }
   { value: 'pending_verification', label: 'Pending verification' },
   { value: 'completed', label: 'Completed' },
   { value: 'rejected', label: 'Declined' },
+  { value: 'canceled', label: 'Canceled' },
 ];
 
 export default function ActivityPage() {

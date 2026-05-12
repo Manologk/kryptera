@@ -67,7 +67,7 @@ DATABASES = {
         'NAME': os.environ.get('DATABASE_NAME'),
         'USER': os.environ.get('DATABASE_USER'),
         'PASSWORD': os.environ.get('DATABASE_PASSWORD'),
-        'HOST': os.environ.get('DATABASE_HOST', 'db'),
+        'HOST': os.environ.get('DATABASE_HOST', 'localhost'),
         # 'db' is the PostgreSQL container name in Docker Compose
         'PORT': os.environ.get('DATABASE_PORT', '5432'),
     }
@@ -111,12 +111,24 @@ CORS_ALLOWED_ORIGINS = os.environ.get(
 CORS_ALLOW_CREDENTIALS = True
 
 STATIC_URL = "/static/"
-STATIC_ROOT = "/app/staticfiles/"
+STATIC_ROOT = str(Path(os.environ.get("STATIC_ROOT", BASE_DIR / "staticfiles")).resolve())
 MEDIA_URL = "/media/"
-MEDIA_ROOT = "/app/mediafiles/"
+MEDIA_ROOT = str(Path(os.environ.get("MEDIA_ROOT", BASE_DIR / "mediafiles")).resolve())
 
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Finish-later POP window length (minutes only — not hours). Default 1440 = 24 hours.
+TRANSACTION_PAYMENT_DEADLINE_MINUTES = int(
+    os.environ.get("TRANSACTION_PAYMENT_DEADLINE_MINUTES", "20"),
+)
+
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://127.0.0.1:6379/0")
+CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND", CELERY_BROKER_URL)
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = TIME_ZONE

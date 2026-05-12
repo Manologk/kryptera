@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import { getTransaction, uploadPop } from '@/services/api';
+import { getTransaction } from '@/services/api';
+import { PendingTransaction } from '@/features/transfer/PendingTransaction';
+import { ProofOfPaymentCard } from '@/features/transfer/ProofOfPaymentCard';
 import { DELIVERY_OPTIONS, PAYMENT_OPTIONS } from '@/constants/transferPlaceholders';
 import { ROUTES, transferConfirmation } from '@/constants/routes';
 import { formatMoneyAmount } from '@/features/transaction/utils';
@@ -13,8 +15,9 @@ import Layout, { PageHeader } from '@/components/layout/Layout';
 import { Alert, StatusBadge } from '@/components/ui/badge';
 
 const POLL_INTERVAL_MS = 10_000;
+const POLL_FAST_MS = 2_000;
 
-const TERMINAL_STATUSES: ReadonlySet<TransactionStatus> = new Set(['completed', 'rejected']);
+const TERMINAL_STATUSES: ReadonlySet<TransactionStatus> = new Set(['completed', 'rejected', 'canceled']);
 
 function deliveryLabel(id: string | undefined): string {
   if (!id) return '—';
@@ -44,9 +47,6 @@ export default function TransferConfirmationPage() {
   const { accessToken, isAuthenticated } = useAuth();
   const [tx, setTx] = useState<Transaction | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [file, setFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
   const cancelledRef = useRef(false);
 
   const fetchTx = useCallback(async () => {
@@ -71,14 +71,20 @@ export default function TransferConfirmationPage() {
 
   useEffect(() => {
     if (!tx || TERMINAL_STATUSES.has(tx.status)) return;
+    const useFastPoll =
+      Boolean(tx.proofDeadlineAt || tx.paymentDeadlineAt) &&
+      (tx.status === 'pending' || tx.status === 'pop_not_uploaded') &&
+      !tx.popPath;
+    const interval = useFastPoll ? POLL_FAST_MS : POLL_INTERVAL_MS;
     const handle = window.setInterval(() => {
       void fetchTx();
-    }, POLL_INTERVAL_MS);
+    }, interval);
     return () => window.clearInterval(handle);
-  }, [tx, fetchTx]);
+  }, [tx?.id, tx?.status, tx?.proofDeadlineAt, tx?.paymentDeadlineAt, tx?.popPath, fetchTx]);
 
   const status = tx?.status;
   const isCompleted = status === 'completed';
+  const isCanceled = status === 'canceled';
   const receiptLocked = Boolean(tx?.receiptConfirmed);
   const mayUploadOrReplacePop =
     !!tx &&
@@ -91,27 +97,13 @@ export default function TransferConfirmationPage() {
       status === 'awaiting_confirmation' ||
       status === 'pending_verification');
   const showUpload = mayUploadOrReplacePop;
+  const showPopPreviewCard =
+    Boolean(tx?.popPath) &&
+    (showUpload || status === 'awaiting_confirmation' || status === 'pending_verification');
   const showAwaitingMessage =
     (status === 'awaiting_confirmation' || status === 'pending_verification') &&
     Boolean(tx?.popPath) &&
     !showUpload;
-
-  async function handleSubmitProof(e: React.FormEvent) {
-    e.preventDefault();
-    if (!file || !accessToken || !txId) return;
-    setUploadError(null);
-    setUploading(true);
-    const res = await uploadPop(txId, file, accessToken);
-    setUploading(false);
-    if (res.error) {
-      setUploadError(res.error.message);
-      return;
-    }
-    if (res.data) {
-      setTx(res.data);
-      setFile(null);
-    }
-  }
 
   if (!isAuthenticated) {
     return (
@@ -173,6 +165,15 @@ export default function TransferConfirmationPage() {
           }}
         >
           ✓ Transfer complete
+        </div>
+      ) : null}
+
+      {isCanceled ? (
+        <div style={{ marginBottom: 20 }}>
+          <Alert
+            type="error"
+            message="This transfer was canceled because proof of payment was not uploaded before the deadline. Start a new transfer if you still need to send money."
+          />
         </div>
       ) : null}
 
@@ -264,59 +265,29 @@ export default function TransferConfirmationPage() {
         </div>
       ) : null}
 
-      {showUpload ? (
-        <Card>
-          <CardHeader
-            title={tx.popPath ? 'Replace proof of payment' : 'Waiting for your proof of payment'}
+      {showPopPreviewCard && !(showUpload && accessToken) ? (
+        <div style={{ marginBottom: 20 }}>
+          <ProofOfPaymentCard
+            transaction={tx}
+            accessToken={accessToken ?? undefined}
             subtitle={
-              tx.popPath
-                ? 'Your previous upload is on file. You can attach a new file if the transfer was interrupted or the file was wrong.'
-                : 'Upload a screenshot or PDF of your payment to continue.'
+              showUpload
+                ? 'You can open, download, or replace it with a new file below once you sign in.'
+                : 'Open or download the file you uploaded.'
             }
           />
-          <CardContent className="pt-0">
-            {uploadError ? (
-              <div style={{ marginBottom: 16 }}>
-                <Alert type="error" message={uploadError} onClose={() => setUploadError(null)} />
-              </div>
-            ) : null}
-            <form onSubmit={e => void handleSubmitProof(e)} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div>
-                <label
-                  htmlFor="pop-file"
-                  style={{
-                    display: 'block',
-                    fontSize: 12,
-                    fontWeight: 700,
-                    letterSpacing: '0.06em',
-                    textTransform: 'uppercase',
-                    color: 'var(--color-text-muted)',
-                    marginBottom: 8,
-                  }}
-                >
-                  File
-                </label>
-                <input
-                  id="pop-file"
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp,application/pdf"
-                  onChange={e => setFile(e.target.files?.[0] ?? null)}
-                  style={{
-                    width: '100%',
-                    fontSize: 14,
-                    padding: '10px 12px',
-                    borderRadius: 'var(--radius-md)',
-                    border: '1px solid var(--color-border)',
-                    background: 'var(--color-surface)',
-                  }}
-                />
-              </div>
-              <Button type="submit" size="lg" loading={uploading} disabled={!file || uploading}>
-                {tx.popPath ? 'Submit new proof' : 'Submit proof'}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+        </div>
+      ) : null}
+
+      {showUpload && accessToken ? (
+        <div style={{ marginBottom: 20 }}>
+          <PendingTransaction
+            transaction={tx}
+            accessToken={accessToken}
+            onTransactionUpdated={setTx}
+            onTimerExpired={() => void fetchTx()}
+          />
+        </div>
       ) : null}
 
       {showDeliveryProofToSender ? (

@@ -1,14 +1,29 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ROUTES } from '@/constants/routes'
 import { useAuth } from '@/context/AuthContext'
 import { getTransaction } from '@/services/api'
+import { PendingTransaction } from '@/features/transfer/PendingTransaction'
+import { ProofOfPaymentCard } from '@/features/transfer/ProofOfPaymentCard'
 import TransactionSummaryCard from '@/features/transaction/TransactionSummaryCard'
 import { filenameFromPath, isImagePath, mediaHref } from '@/lib/media'
-import type { Transaction } from '@/types'
+import type { Transaction, TransactionStatus } from '@/types'
 import Button from '@/components/ui/button'
 import Card, { CardHeader } from '@/components/ui/card'
 import Layout, { PageHeader } from '@/components/layout/Layout'
+
+const TERMINAL_STATUSES: ReadonlySet<TransactionStatus> = new Set(['completed', 'rejected', 'canceled'])
+
+const canShowPendingPopSection = (t: Transaction): boolean => {
+  if (TERMINAL_STATUSES.has(t.status)) return false
+  if (t.receiptConfirmed) return false
+  return (
+    t.status === 'pending' ||
+    t.status === 'pop_not_uploaded' ||
+    t.status === 'awaiting_confirmation' ||
+    t.status === 'pending_verification'
+  )
+}
 
 export default function TransactionDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -31,6 +46,12 @@ export default function TransactionDetailPage() {
     return () => {
       cancelled = true
     }
+  }, [id, accessToken])
+
+  const handleTimerExpired = useCallback(async () => {
+    if (!id || !accessToken) return
+    const res = await getTransaction(accessToken, id)
+    if (res.data) setTx(res.data)
   }, [id, accessToken])
 
   if (!isAuthenticated) {
@@ -84,6 +105,23 @@ export default function TransactionDetailPage() {
       <div style={{ marginBottom: 16 }}>
         <TransactionSummaryCard tx={tx} />
       </div>
+
+      {accessToken && canShowPendingPopSection(tx) ? (
+        <div style={{ marginBottom: 20 }}>
+          <PendingTransaction
+            transaction={tx}
+            accessToken={accessToken}
+            onTransactionUpdated={setTx}
+            onTimerExpired={handleTimerExpired}
+          />
+        </div>
+      ) : null}
+
+      {tx.popPath && !(accessToken && canShowPendingPopSection(tx)) ? (
+        <div style={{ marginBottom: 20 }}>
+          <ProofOfPaymentCard transaction={tx} accessToken={accessToken} />
+        </div>
+      ) : null}
 
       {showDeliveryProof ? (
         <Card style={{ marginBottom: 16 }}>

@@ -5,6 +5,7 @@ export const TRANSACTION_STATUS_FILTER_OPTIONS: { value: TransactionStatus; labe
   { value: 'pending_verification', label: 'Pending verification' },
   { value: 'completed', label: 'Completed' },
   { value: 'rejected', label: 'Declined' },
+  { value: 'canceled', label: 'Canceled' },
 ];
 
 const EXTRA_STATUS_LABELS: Record<string, string> = {

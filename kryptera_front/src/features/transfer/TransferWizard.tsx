@@ -1,14 +1,15 @@
-import { useCallback, useEffect, useState, type ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Banknote, Bitcoin, Building2, Smartphone } from 'lucide-react';
-import { clearTransferQuote, readTransferQuote } from '@/services/transferQuoteStorage';
-import { createRecipient, createTransaction, getRecipients } from '@/services/api';
-import { useTransactions } from '@/features/transaction/hooks';
-import { useAuth } from '@/context/AuthContext';
-import { transferConfirmation } from '@/constants/routes';
-import Layout, { PageHeader } from '@/components/layout/Layout';
-import Button from '@/components/ui/button';
-import Card from '@/components/ui/card';
+import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Banknote, Bitcoin, Building2, Smartphone } from 'lucide-react'
+import { clearTransferQuote, readTransferQuote } from '@/services/transferQuoteStorage'
+import { createRecipient, createTransaction, getRecipients, startPaymentWindow, uploadPop } from '@/services/api'
+import { useTransactions } from '@/features/transaction/hooks'
+import { useAuth } from '@/context/AuthContext'
+import { transferConfirmation } from '@/constants/routes'
+import Layout, { PageHeader } from '@/components/layout/Layout'
+import Button from '@/components/ui/button'
+import Card from '@/components/ui/card'
+import { Alert } from '@/components/ui/badge'
 import {
   DELIVERY_OPTIONS,
   KRYPTERA_PAY_MOBILE_MONEY,
@@ -16,172 +17,182 @@ import {
   PAYMENT_OPTIONS,
   type DeliveryOptionId,
   type PaymentOptionId,
-} from '@/constants/transferPlaceholders';
+} from '@/constants/transferPlaceholders'
 import {
   buildDeliveryDetailsPayload,
   emptyDeliveryDetailFields,
   validateDeliveryDetails,
   type DeliveryDetailFields,
-} from '@/features/recipient/deliveryDetails';
-import type { Recipient } from '@/types';
-import ChoiceTile from './ChoiceTile';
-import RecipientStepPanel from './RecipientStepPanel';
-import TransferStepIndicator from './TransferStepIndicator';
+} from '@/features/recipient/deliveryDetails'
+import type { Recipient } from '@/types'
+import ChoiceTile from './ChoiceTile'
+import RecipientStepPanel from './RecipientStepPanel'
+import TransferStepIndicator, { type TransferWizardStep } from './TransferStepIndicator'
 
-const STEP_SUBTITLES: Record<1 | 2 | 3, string> = {
+const POP_ACCEPT = 'image/jpeg,image/png,image/webp,application/pdf'
+const POP_FORM_ID = 'transfer-wizard-pop-form'
+
+const STEP_SUBTITLES: Record<TransferWizardStep, string> = {
   1: 'Who should receive this transfer?',
   2: 'How should they receive the money?',
   3: 'How would you like to pay?',
-};
+  4: 'Upload proof of payment',
+}
 
 const DELIVERY_ICONS: Record<DeliveryOptionId, ReactNode> = {
   bank_deposit: <Building2 className="h-5 w-5" aria-hidden />,
   mobile_money: <Smartphone className="h-5 w-5" aria-hidden />,
   cash_pickup: <Banknote className="h-5 w-5" aria-hidden />,
-};
+}
 
 const PAYMENT_ICONS: Record<PaymentOptionId, ReactNode> = {
   pay_mobile_money: <Smartphone className="h-5 w-5" aria-hidden />,
   pay_crypto_usdt: <Bitcoin className="h-5 w-5" aria-hidden />,
-};
+}
 
 export default function TransferWizard() {
-  const navigate = useNavigate();
-  const { accessToken } = useAuth();
-  const { refresh: refreshTransactions } = useTransactions();
+  const navigate = useNavigate()
+  const { accessToken } = useAuth()
+  const { refresh: refreshTransactions } = useTransactions()
 
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [step, setStep] = useState<TransferWizardStep>(1)
 
-  const [recipients, setRecipients] = useState<Recipient[]>([]);
-  const [recipientsLoading, setRecipientsLoading] = useState(true);
+  const [recipients, setRecipients] = useState<Recipient[]>([])
+  const [recipientsLoading, setRecipientsLoading] = useState(true)
 
-  const [sourceTab, setSourceTab] = useState<'saved' | 'new'>('saved');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedRecipientId, setSelectedRecipientId] = useState<number | null>(null);
+  const [sourceTab, setSourceTab] = useState<'saved' | 'new'>('saved')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedRecipientId, setSelectedRecipientId] = useState<number | null>(null)
 
-  const [newFullName, setNewFullName] = useState('');
-  const [newEmail, setNewEmail] = useState('');
-  const [newPhone, setNewPhone] = useState('');
-  const [newDeliveryMethod, setNewDeliveryMethod] = useState<DeliveryOptionId | null>(null);
-  const [deliveryDetailFields, setDeliveryDetailFields] = useState<DeliveryDetailFields>(emptyDeliveryDetailFields);
-  const [saveForLater, setSaveForLater] = useState(true);
+  const [newFullName, setNewFullName] = useState('')
+  const [newEmail, setNewEmail] = useState('')
+  const [newPhone, setNewPhone] = useState('')
+  const [newDeliveryMethod, setNewDeliveryMethod] = useState<DeliveryOptionId | null>(null)
+  const [deliveryDetailFields, setDeliveryDetailFields] = useState<DeliveryDetailFields>(emptyDeliveryDetailFields)
+  const [saveForLater, setSaveForLater] = useState(true)
 
-  const [step1Error, setStep1Error] = useState<string | null>(null);
-  const [step2Error, setStep2Error] = useState<string | null>(null);
-  const [step3Error, setStep3Error] = useState<string | null>(null);
+  const [step1Error, setStep1Error] = useState<string | null>(null)
+  const [step2Error, setStep2Error] = useState<string | null>(null)
+  const [step3Error, setStep3Error] = useState<string | null>(null)
 
-  const [continueBusy, setContinueBusy] = useState(false);
-  const [proceedBusy, setProceedBusy] = useState(false);
+  const [continueBusy, setContinueBusy] = useState(false)
+  const [proceedBusy, setProceedBusy] = useState(false)
 
-  const [deliveryMethod, setDeliveryMethod] = useState<DeliveryOptionId | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentOptionId | null>(null);
+  const [deliveryMethod, setDeliveryMethod] = useState<DeliveryOptionId | null>(null)
+  const [paymentMethod, setPaymentMethod] = useState<PaymentOptionId | null>(null)
+
+  const [createdTransactionId, setCreatedTransactionId] = useState<string | null>(null)
+  const [popFile, setPopFile] = useState<File | null>(null)
+  const [popUploadError, setPopUploadError] = useState<string | null>(null)
+  const [popUploadBusy, setPopUploadBusy] = useState(false)
+  const [finishLaterBusy, setFinishLaterBusy] = useState(false)
 
   const loadRecipients = useCallback(async () => {
     if (!accessToken) {
-      setRecipients([]);
-      setRecipientsLoading(false);
-      return;
+      setRecipients([])
+      setRecipientsLoading(false)
+      return
     }
-    setRecipientsLoading(true);
-    const res = await getRecipients(accessToken);
-    if (res.data) setRecipients(res.data);
-    setRecipientsLoading(false);
-  }, [accessToken]);
+    setRecipientsLoading(true)
+    const res = await getRecipients(accessToken)
+    if (res.data) setRecipients(res.data)
+    setRecipientsLoading(false)
+  }, [accessToken])
 
   useEffect(() => {
-    void loadRecipients();
-  }, [loadRecipients]);
+    void loadRecipients()
+  }, [loadRecipients])
 
-  async function handleContinueStep1() {
-    setStep1Error(null);
+  const handleContinueStep1 = async () => {
+    setStep1Error(null)
 
     if (sourceTab === 'saved') {
       if (selectedRecipientId == null) {
-        setStep1Error('Select a recipient from the list, or switch to “Someone new”.');
-        return;
+        setStep1Error('Select a recipient from the list, or switch to “Someone new”.')
+        return
       }
-      setStep(2);
-      return;
+      setStep(2)
+      return
     }
 
-    const name = newFullName.trim();
+    const name = newFullName.trim()
     if (!name) {
-      setStep1Error('Enter the recipient’s full name.');
-      return;
+      setStep1Error('Enter the recipient’s full name.')
+      return
     }
 
-    const deliveryErr = validateDeliveryDetails(newDeliveryMethod, deliveryDetailFields);
+    const deliveryErr = validateDeliveryDetails(newDeliveryMethod, deliveryDetailFields)
     if (deliveryErr) {
-      setStep1Error(deliveryErr);
-      return;
+      setStep1Error(deliveryErr)
+      return
     }
 
     if (saveForLater) {
       if (!accessToken) {
-        setStep1Error('You need to be signed in to save a recipient.');
-        return;
+        setStep1Error('You need to be signed in to save a recipient.')
+        return
       }
       if (newDeliveryMethod == null) {
-        setStep1Error('Choose how this contact receives funds.');
-        return;
+        setStep1Error('Choose how this contact receives funds.')
+        return
       }
-      setContinueBusy(true);
-      const detailsPayload = buildDeliveryDetailsPayload(newDeliveryMethod, deliveryDetailFields);
+      setContinueBusy(true)
+      const detailsPayload = buildDeliveryDetailsPayload(newDeliveryMethod, deliveryDetailFields)
       const res = await createRecipient(accessToken, {
         full_name: name,
         email: newEmail.trim() || undefined,
         phone_number: newPhone.trim() || undefined,
         delivery_method: newDeliveryMethod,
         delivery_details: detailsPayload,
-      });
-      setContinueBusy(false);
+      })
+      setContinueBusy(false)
       if (res.error) {
-        setStep1Error(res.error.message);
-        return;
+        setStep1Error(res.error.message)
+        return
       }
       if (res.data) {
         setRecipients(prev => {
-          const rest = prev.filter(r => r.id !== res.data!.id);
-          return [res.data!, ...rest];
-        });
-        setSelectedRecipientId(res.data.id);
-        setSourceTab('saved');
-        setStep(2);
-        return;
+          const rest = prev.filter(r => r.id !== res.data!.id)
+          return [res.data!, ...rest]
+        })
+        setSelectedRecipientId(res.data.id)
+        setSourceTab('saved')
+        setStep(2)
+        return
       }
     }
 
-    setStep(2);
+    setStep(2)
   }
 
-  function handleContinueStep2() {
-    setStep2Error(null);
+  const handleContinueStep2 = () => {
+    setStep2Error(null)
     if (deliveryMethod == null) {
-      setStep2Error('Choose how the recipient should receive the funds.');
-      return;
+      setStep2Error('Choose how the recipient should receive the funds.')
+      return
     }
-    setStep(3);
+    setStep(3)
   }
 
-  async function handleProceed() {
-    setStep3Error(null);
+  const handleProceed = async () => {
+    setStep3Error(null)
     if (paymentMethod == null) {
-      setStep3Error('Choose how you’d like to pay Kryptera.');
-      return;
+      setStep3Error('Choose how you’d like to pay Kryptera.')
+      return
     }
     if (!accessToken) {
-      setStep3Error('You must be signed in to submit this transfer.');
-      return;
+      setStep3Error('You must be signed in to submit this transfer.')
+      return
     }
-    const quote = readTransferQuote();
+    const quote = readTransferQuote()
     if (!quote) {
-      setStep3Error('Calculate an amount on the home page first, then tap Send to continue.');
-      return;
+      setStep3Error('Calculate an amount on the home page first, then tap Send to continue.')
+      return
     }
 
-    setProceedBusy(true);
+    setProceedBusy(true)
     const inlineDelivery =
-      newDeliveryMethod != null ? buildDeliveryDetailsPayload(newDeliveryMethod, deliveryDetailFields) : {};
+      newDeliveryMethod != null ? buildDeliveryDetailsPayload(newDeliveryMethod, deliveryDetailFields) : {}
     const res = await createTransaction(
       selectedRecipientId != null
         ? {
@@ -205,22 +216,55 @@ export default function TransferWizard() {
             paymentMethod: paymentMethod ?? undefined,
           },
       accessToken,
-    );
-    setProceedBusy(false);
+    )
+    setProceedBusy(false)
 
     if (res.error || !res.data) {
-      setStep3Error(res.error?.message ?? 'Could not create transfer.');
-      return;
+      setStep3Error(res.error?.message ?? 'Could not create transfer.')
+      return
     }
-    clearTransferQuote();
-    refreshTransactions();
-    navigate(transferConfirmation(res.data.id));
+    clearTransferQuote()
+    refreshTransactions()
+    setCreatedTransactionId(res.data.id)
+    setPopFile(null)
+    setPopUploadError(null)
+    setStep(4)
   }
 
-  function goBack() {
-    if (step === 2) setStep(1);
-    else if (step === 3) setStep(2);
+  const handleFinishLater = async () => {
+    if (!createdTransactionId || !accessToken) return
+    setPopUploadError(null)
+    setFinishLaterBusy(true)
+    const res = await startPaymentWindow(createdTransactionId, accessToken)
+    setFinishLaterBusy(false)
+    if (res.error) {
+      setPopUploadError(res.error.message)
+      return
+    }
+    navigate(transferConfirmation(createdTransactionId))
   }
+
+  const handleSubmitPopProof = async (e: FormEvent) => {
+    e.preventDefault()
+    if (!popFile || !accessToken || !createdTransactionId) return
+    setPopUploadError(null)
+    setPopUploadBusy(true)
+    const res = await uploadPop(createdTransactionId, popFile, accessToken)
+    setPopUploadBusy(false)
+    if (res.error) {
+      setPopUploadError(res.error.message)
+      return
+    }
+    refreshTransactions()
+    navigate(transferConfirmation(createdTransactionId))
+  }
+
+  const goBack = () => {
+    if (step === 2) setStep(1)
+    else if (step === 3) setStep(2)
+  }
+
+  const footerIsSplit = step > 1 && step < 4
 
   return (
     <Layout maxWidth={560}>
@@ -248,7 +292,7 @@ export default function TransferWizard() {
               onNewPhoneChange={setNewPhone}
               newDeliveryMethod={newDeliveryMethod}
               onNewDeliveryMethodChange={id => {
-                setNewDeliveryMethod(id);
+                setNewDeliveryMethod(id)
                 setDeliveryDetailFields(emptyDeliveryDetailFields())
               }}
               deliveryDetailFields={deliveryDetailFields}
@@ -346,6 +390,43 @@ export default function TransferWizard() {
               ) : null}
             </div>
           ) : null}
+
+          {step === 4 ? (
+            <form
+              id={POP_FORM_ID}
+              className="space-y-6 animate-fade-up"
+              onSubmit={e => void handleSubmitPopProof(e)}
+            >
+              <p className="text-sm text-muted-foreground">
+                Your transfer is created. Upload a screenshot or PDF of your payment so we can verify it. You can also
+                finish later and upload from your transfer page.
+              </p>
+              {popUploadError ? (
+                <div>
+                  <Alert type="error" message={popUploadError} onClose={() => setPopUploadError(null)} />
+                </div>
+              ) : null}
+              <div>
+                <label
+                  htmlFor="wizard-pop-file"
+                  className="mb-2 block text-xs font-bold uppercase tracking-wide text-muted-foreground"
+                >
+                  File
+                </label>
+                <input
+                  id="wizard-pop-file"
+                  type="file"
+                  accept={POP_ACCEPT}
+                  aria-label="Proof of payment file"
+                  className="w-full rounded-md border border-border bg-card px-3 py-2.5 text-sm file:mr-3 file:rounded file:border-0 file:bg-muted file:px-3 file:py-1 file:text-sm"
+                  onChange={e => {
+                    setPopFile(e.target.files?.[0] ?? null)
+                    setPopUploadError(null)
+                  }}
+                />
+              </div>
+            </form>
+          ) : null}
         </div>
 
         <div
@@ -355,7 +436,7 @@ export default function TransferWizard() {
               : 'flex flex-col gap-3 border-t border-border bg-muted/20 px-6 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-7'
           }
         >
-          {step > 1 ? (
+          {footerIsSplit ? (
             <Button type="button" variant="secondary" fullWidth={false} className="w-auto px-6" onClick={goBack}>
               Back
             </Button>
@@ -376,7 +457,8 @@ export default function TransferWizard() {
             >
               Continue
             </Button>
-          ) : (
+          ) : null}
+          {step === 3 ? (
             <Button
               type="button"
               size="lg"
@@ -389,9 +471,36 @@ export default function TransferWizard() {
             >
               Proceed
             </Button>
-          )}
+          ) : null}
+          {step === 4 ? (
+            <>
+              <Button
+                type="button"
+                variant="secondary"
+                fullWidth={false}
+                className="w-full sm:ml-0 sm:w-auto"
+                loading={finishLaterBusy}
+                disabled={popUploadBusy || finishLaterBusy}
+                onClick={() => void handleFinishLater()}
+              >
+                Finish later
+              </Button>
+              <Button
+                type="submit"
+                form={POP_FORM_ID}
+                size="lg"
+                variant="primary"
+                fullWidth={false}
+                className="min-w-[200px] w-full sm:ml-auto sm:w-auto"
+                loading={popUploadBusy}
+                disabled={!popFile || popUploadBusy || finishLaterBusy}
+              >
+                Submit proof
+              </Button>
+            </>
+          ) : null}
         </div>
       </Card>
     </Layout>
-  );
+  )
 }

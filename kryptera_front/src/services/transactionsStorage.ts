@@ -23,7 +23,10 @@ function isTransactionRow(o: unknown): o is Transaction {
     x === 'pop_not_uploaded' ||
     x === 'pending_verification' ||
     x === 'completed' ||
-    x === 'rejected';
+    x === 'rejected' ||
+    x === 'canceled' ||
+    x === 'pending' ||
+    x === 'awaiting_confirmation';
   return (
     typeof r.id === 'string' &&
     modeOk &&

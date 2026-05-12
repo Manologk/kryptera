@@ -77,7 +77,8 @@ export type TransactionStatus =
   | 'pop_not_uploaded'
   | 'pending_verification'
   | 'completed'
-  | 'rejected';
+  | 'rejected'
+  | 'canceled';
 
 export interface RateSnapshot {
   rubleToUsdBuying: string;
@@ -109,6 +110,13 @@ export interface Transaction {
   deliveryMethod?: string;
   paymentMethod?: string;
   status: TransactionStatus;
+  /** ISO — legacy short POP window when set. */
+  proofDeadlineAt?: string;
+  /** ISO — finish-later payment window from the server. */
+  paymentDeadlineAt?: string;
+  finishLater?: boolean;
+  /** Seconds left until payment_deadline (or legacy proof_deadline); from GET transaction. */
+  secondsRemaining?: number;
   popPath?: string;
   /** Delivery proof file path from API (legacy receipts may only populate receiptPath). */
   deliveryProofPath?: string;

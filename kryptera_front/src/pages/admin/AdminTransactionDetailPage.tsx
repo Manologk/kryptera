@@ -6,7 +6,7 @@ import { ROUTES } from '@/constants/routes'
 import { useAuth } from '@/context/AuthContext'
 import TransactionSummaryCard from '@/features/transaction/TransactionSummaryCard'
 import { adminKeys } from '@/features/admin/queryKeys'
-import { getAdminTransaction, patchAdminTransaction } from '@/services/api'
+import { getAdminTransaction, patchAdminTransaction, downloadTransactionPop } from '@/services/api'
 import { filenameFromPath, isImagePath, mediaHref } from '@/lib/media'
 import type { Transaction } from '@/types'
 import Button from '@/components/ui/button'
@@ -24,6 +24,7 @@ export default function AdminTransactionDetailPage() {
   const [deliveryFile, setDeliveryFile] = useState<File | null>(null)
   const [deliveryNotes, setDeliveryNotes] = useState('')
   const [completedSuccess, setCompletedSuccess] = useState(false)
+  const [popDownloading, setPopDownloading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const txQuery = useQuery({
@@ -123,6 +124,14 @@ export default function AdminTransactionDetailPage() {
   const popIsImage = isImagePath(popPath)
   const popName = filenameFromPath(popPath)
 
+  const handleDownloadPop = async () => {
+    if (!accessToken || !id) return
+    setPopDownloading(true)
+    const res = await downloadTransactionPop(id, accessToken, popName || 'proof-of-payment')
+    setPopDownloading(false)
+    if (res.error) toast.error(res.error.message)
+  }
+
   const showConfirmBox =
     (tx.status === 'awaiting_confirmation' || tx.status === 'pending_verification') &&
     !tx.receiptConfirmed &&
@@ -165,10 +174,14 @@ export default function AdminTransactionDetailPage() {
                     <p className="mt-1 text-xs text-muted-foreground">Preview not available for this file type.</p>
                   </div>
                 )}
-                <Button asChild variant="secondary">
-                  <a href={popUrl} download={popName || ''}>
-                    Download POP
-                  </a>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  disabled={popDownloading}
+                  aria-busy={popDownloading}
+                  onClick={() => void handleDownloadPop()}
+                >
+                  {popDownloading ? 'Downloading…' : 'Download POP'}
                 </Button>
               </>
             ) : (

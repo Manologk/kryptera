@@ -5,3 +5,5 @@ django-cors-headers==4.4.0
 Pillow==10.4.0
 python-dotenv==1.0.1
 psycopg2-binary
+celery[redis]==5.4.0
+redis==5.0.8

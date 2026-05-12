@@ -1,7 +1,9 @@
 from decimal import Decimal
+from datetime import timedelta
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APIClient
 
@@ -251,7 +253,7 @@ class TransactionAPITests(TestCase):
         self.assertEqual(r2.status_code, status.HTTP_200_OK)
         self.assertEqual(r2.data["status"], TransactionStatus.AWAITING_CONFIRMATION)
         tx = Transaction.objects.get(pk=tx_id)
-        self.assertIn("proof2", tx.pop_file.name)
+        self.assertRegex(str(tx.pop_file.name), r"pop/.+/pop_[a-f0-9]{32}\.jpg$")
 
     def test_pop_upload_blocked_after_receipt_confirmed(self):
         self.client.force_authenticate(user=self.user)
@@ -273,6 +275,72 @@ class TransactionAPITests(TestCase):
             format="multipart",
         )
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_pop_download_owner_streams_file(self):
+        self.client.force_authenticate(user=self.user)
+        create = self.client.post(
+            "/api/v1/transactions/",
+            {"mode": "russia-zambia", "input_amount": "1000"},
+            format="json",
+        )
+        self.assertEqual(create.status_code, status.HTTP_201_CREATED)
+        tx_id = create.data["id"]
+        body = b"\xff\xd8\xff download-bytes"
+        pop = SimpleUploadedFile("proof.jpg", body, content_type="image/jpeg")
+        up = self.client.post(
+            f"/api/v1/transactions/{tx_id}/pop/",
+            {"pop_file": pop},
+            format="multipart",
+        )
+        self.assertEqual(up.status_code, status.HTTP_200_OK)
+        dl = self.client.get(f"/api/v1/transactions/{tx_id}/pop/download/")
+        self.assertEqual(dl.status_code, status.HTTP_200_OK)
+        payload = b"".join(dl.streaming_content)
+        self.assertEqual(payload, body)
+        self.assertIn("attachment", dl["Content-Disposition"].lower())
+
+    def test_pop_download_404_when_no_pop(self):
+        self.client.force_authenticate(user=self.user)
+        create = self.client.post(
+            "/api/v1/transactions/",
+            {"mode": "russia-zambia", "input_amount": "1000"},
+            format="json",
+        )
+        self.assertEqual(create.status_code, status.HTTP_201_CREATED)
+        tx_id = create.data["id"]
+        dl = self.client.get(f"/api/v1/transactions/{tx_id}/pop/download/")
+        self.assertEqual(dl.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_pop_download_other_user_forbidden(self):
+        self.client.force_authenticate(user=self.user)
+        create = self.client.post(
+            "/api/v1/transactions/",
+            {"mode": "russia-zambia", "input_amount": "1000"},
+            format="json",
+        )
+        tx_id = create.data["id"]
+        pop = SimpleUploadedFile("proof.jpg", b"\xff\xd8\xff a", content_type="image/jpeg")
+        self.client.post(f"/api/v1/transactions/{tx_id}/pop/", {"pop_file": pop}, format="multipart")
+        self.client.force_authenticate(user=self.user2)
+        dl = self.client.get(f"/api/v1/transactions/{tx_id}/pop/download/")
+        self.assertEqual(dl.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_pop_download_admin_can_access_other_user(self):
+        self.client.force_authenticate(user=self.user)
+        create = self.client.post(
+            "/api/v1/transactions/",
+            {"mode": "russia-zambia", "input_amount": "1000"},
+            format="json",
+        )
+        tx_id = create.data["id"]
+        body = b"\xff\xd8\xff admin-read"
+        pop = SimpleUploadedFile("proof.jpg", body, content_type="image/jpeg")
+        self.client.post(f"/api/v1/transactions/{tx_id}/pop/", {"pop_file": pop}, format="multipart")
+        self.client.force_authenticate(user=self.admin)
+        dl = self.client.get(f"/api/v1/transactions/{tx_id}/pop/download/")
+        self.assertEqual(dl.status_code, status.HTTP_200_OK)
+        payload = b"".join(dl.streaming_content)
+        self.assertEqual(payload, body)
 
     # ── Admin pending workflow (Phase 5) ────────────────────────────────────
 
@@ -362,3 +430,97 @@ class TransactionAPITests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         tx = Transaction.objects.get(pk=awaiting_id)
         self.assertNotEqual(tx.status, TransactionStatus.COMPLETED)
+
+
+class PaymentWindowAndExpireTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(email="window@test.com", password="pass")
+        make_rates()
+
+    def test_payment_window_sets_deadline(self):
+        self.client.force_authenticate(user=self.user)
+        c = self.client.post(
+            "/api/v1/transactions/",
+            {"mode": "russia-zambia", "input_amount": "1000"},
+            format="json",
+        )
+        self.assertEqual(c.status_code, status.HTTP_201_CREATED)
+        tid = c.data["id"]
+        res = self.client.post(f"/api/v1/transactions/{tid}/payment-window/")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertTrue(res.data.get("finish_later"))
+        self.assertIsNotNone(res.data.get("payment_deadline"))
+        self.assertIsNotNone(res.data.get("seconds_remaining"))
+        tx = Transaction.objects.get(pk=tid)
+        self.assertTrue(tx.finish_later)
+        self.assertIsNotNone(tx.payment_deadline)
+
+    def test_payment_window_second_post_keeps_same_deadline(self):
+        self.client.force_authenticate(user=self.user)
+        c = self.client.post(
+            "/api/v1/transactions/",
+            {"mode": "russia-zambia", "input_amount": "1000"},
+            format="json",
+        )
+        tid = c.data["id"]
+        self.client.post(f"/api/v1/transactions/{tid}/payment-window/")
+        tx1 = Transaction.objects.get(pk=tid)
+        d1 = tx1.payment_deadline
+        self.client.post(f"/api/v1/transactions/{tid}/payment-window/")
+        tx2 = Transaction.objects.get(pk=tid)
+        self.assertEqual(tx1.payment_deadline, tx2.payment_deadline)
+        self.assertEqual(d1, tx2.payment_deadline)
+
+    def test_detail_get_expires_when_finish_later_payment_deadline_passed(self):
+        self.client.force_authenticate(user=self.user)
+        c = self.client.post(
+            "/api/v1/transactions/",
+            {"mode": "russia-zambia", "input_amount": "1000"},
+            format="json",
+        )
+        tid = c.data["id"]
+        tx = Transaction.objects.get(pk=tid)
+        tx.finish_later = True
+        tx.payment_deadline = timezone.now() - timedelta(minutes=1)
+        tx.save(update_fields=["finish_later", "payment_deadline", "updated_at"])
+
+        res = self.client.get(f"/api/v1/transactions/{tid}/")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data["status"], TransactionStatus.CANCELED)
+        tx.refresh_from_db()
+        self.assertEqual(tx.status, TransactionStatus.CANCELED)
+
+    def test_detail_get_expires_when_proof_deadline_passed(self):
+        self.client.force_authenticate(user=self.user)
+        c = self.client.post(
+            "/api/v1/transactions/",
+            {"mode": "russia-zambia", "input_amount": "1000"},
+            format="json",
+        )
+        tid = c.data["id"]
+        tx = Transaction.objects.get(pk=tid)
+        tx.proof_deadline_at = timezone.now() - timedelta(minutes=1)
+        tx.save(update_fields=["proof_deadline_at", "updated_at"])
+
+        res = self.client.get(f"/api/v1/transactions/{tid}/")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data["status"], TransactionStatus.CANCELED)
+        tx.refresh_from_db()
+        self.assertEqual(tx.status, TransactionStatus.CANCELED)
+
+    def test_pop_upload_blocked_when_canceled(self):
+        self.client.force_authenticate(user=self.user)
+        c = self.client.post(
+            "/api/v1/transactions/",
+            {"mode": "russia-zambia", "input_amount": "1000"},
+            format="json",
+        )
+        tid = c.data["id"]
+        tx = Transaction.objects.get(pk=tid)
+        tx.proof_deadline_at = timezone.now() - timedelta(minutes=1)
+        tx.save(update_fields=["proof_deadline_at", "updated_at"])
+
+        pop = SimpleUploadedFile("pop.jpg", b"\xff\xd8\xff fakejpeg", content_type="image/jpeg")
+        res = self.client.post(f"/api/v1/transactions/{tid}/pop/", {"pop_file": pop}, format="multipart")
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)

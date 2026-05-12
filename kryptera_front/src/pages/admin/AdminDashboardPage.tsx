@@ -91,7 +91,7 @@ export default function AdminDashboardPage() {
               </CardContent>
             </Card>
             <Card className="border border-border bg-muted/40 shadow-md">
-              <CardHeader title="Transactions" subtitle="All time" />
+              <CardHeader title="Transactions" subtitle="Completed transfers (all time)" />
               <CardContent>
                 <p className="font-mono text-2xl font-bold">{stats.transactionTotal}</p>
               </CardContent>

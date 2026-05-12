@@ -1,6 +1,7 @@
 """
 transactions/models.py
 """
+import os
 import uuid
 from django.db import models
 from users.models import User
@@ -18,6 +19,7 @@ class TransactionStatus(models.TextChoices):
     PENDING_VERIFICATION = "pending_verification", "Pending Verification"
     COMPLETED = "completed", "Completed"
     REJECTED = "rejected", "Rejected"
+    CANCELED = "canceled", "Canceled"
 
 
 class Currency(models.TextChoices):
@@ -27,7 +29,18 @@ class Currency(models.TextChoices):
 
 
 def pop_upload_path(instance, filename):
-    return f"pop/{instance.id}/{filename}"
+    """
+    Store POP under one folder per transaction with a unique on-disk name.
+
+    The browser often sends generic names (e.g. ``proof.jpg``, ``image.jpeg``). Using a UUID
+    avoids confusion in Explorer, collisions on replace-upload, and does not imply encryption—
+    files are written as uploaded, only the filename is normalized.
+    """
+    ext = os.path.splitext(filename)[1].lower()
+    allowed = {".jpg", ".jpeg", ".png", ".webp", ".pdf"}
+    if ext not in allowed:
+        ext = ".jpg"
+    return f"pop/{instance.id}/pop_{uuid.uuid4().hex}{ext}"
 
 
 def receipt_upload_path(instance, filename):
@@ -67,6 +80,20 @@ class Transaction(models.Model):
     )
     recipient_snapshot = models.JSONField(null=True, blank=True)
     rate_snapshot = models.JSONField(default=dict, blank=True)
+    proof_deadline_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="When set, POP must be uploaded before this time or the transfer is canceled.",
+    )
+    payment_deadline = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="When finish_later is true, POP must be uploaded before this time or the transfer is canceled.",
+    )
+    finish_later = models.BooleanField(
+        default=False,
+        help_text="User chose to complete payment later; payment_deadline applies.",
+    )
     created_at  = models.DateTimeField(auto_now_add=True)
     updated_at  = models.DateTimeField(auto_now=True)
 

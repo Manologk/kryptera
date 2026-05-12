@@ -1,8 +1,10 @@
 """
 transactions/serializers.py
 """
+from datetime import timedelta
 from decimal import Decimal, InvalidOperation
 
+from django.conf import settings
 from django.utils import timezone
 from rest_framework import serializers
 
@@ -131,6 +133,7 @@ class TransactionSerializer(serializers.ModelSerializer):
     conversion_breakdown = serializers.SerializerMethodField()
     delivery_proof = serializers.SerializerMethodField()
     delivery_notes = serializers.SerializerMethodField()
+    seconds_remaining = serializers.SerializerMethodField()
 
     class Meta:
         model = Transaction
@@ -163,6 +166,10 @@ class TransactionSerializer(serializers.ModelSerializer):
             "recipient",
             "recipient_snapshot",
             "rate_snapshot",
+            "proof_deadline_at",
+            "payment_deadline",
+            "finish_later",
+            "seconds_remaining",
             "conversion_breakdown",
             "created_at",
             "updated_at",
@@ -184,10 +191,22 @@ class TransactionSerializer(serializers.ModelSerializer):
             "recipient",
             "recipient_snapshot",
             "rate_snapshot",
+            "proof_deadline_at",
+            "payment_deadline",
+            "seconds_remaining",
             "conversion_breakdown",
             "created_at",
             "updated_at",
         ]
+
+    def get_seconds_remaining(self, obj: Transaction):
+        if obj.status != TransactionStatus.PENDING:
+            return None
+        deadline = obj.payment_deadline or obj.proof_deadline_at
+        if not deadline:
+            return None
+        delta = deadline - timezone.now()
+        return max(int(delta.total_seconds()), 0)
 
     def get_delivery_proof(self, obj: Transaction):
         f = obj.delivery_proof or obj.receipt_file
@@ -296,6 +315,9 @@ class TransactionSerializer(serializers.ModelSerializer):
         delivery/payment strings. Status defaults to pending on the model; timestamps auto-managed.
         """
         recipient = validated_data.pop("recipient", None)
+        minutes = int(getattr(settings, "TRANSACTION_PAYMENT_DEADLINE_MINUTES", 1440))
+        if validated_data.get("finish_later"):
+            validated_data["payment_deadline"] = timezone.now() + timedelta(minutes=minutes)
         return Transaction.objects.create(recipient=recipient, **validated_data)
 
 
@@ -318,6 +340,7 @@ class PopUploadSerializer(serializers.ModelSerializer):
         if instance.pop_file:
             instance.pop_file.delete(save=False)
         instance.pop_file = validated_data["pop_file"]
+        instance.proof_deadline_at = None
         instance.status = TransactionStatus.AWAITING_CONFIRMATION
         instance.save()
         return instance
@@ -367,6 +390,9 @@ class AdminTransactionSerializer(serializers.ModelSerializer):
             "recipient",
             "recipient_snapshot",
             "rate_snapshot",
+            "proof_deadline_at",
+            "payment_deadline",
+            "finish_later",
             "conversion_breakdown",
             "commission_amount_zmw",
             "confirm_receipt",
@@ -394,9 +420,13 @@ class AdminTransactionSerializer(serializers.ModelSerializer):
             "recipient",
             "recipient_snapshot",
             "rate_snapshot",
+            "proof_deadline_at",
+            "payment_deadline",
+            "finish_later",
             "conversion_breakdown",
             "commission_amount_zmw",
             "created_at",
+            "updated_at",
         ]
 
     def get_reference_code(self, obj: Transaction) -> str:

@@ -142,7 +142,8 @@ function transactionFromApi(row: Record<string, unknown>): Transaction {
     status === 'pop_not_uploaded' ||
     status === 'pending_verification' ||
     status === 'completed' ||
-    status === 'rejected'
+    status === 'rejected' ||
+    status === 'canceled'
       ? status
       : 'pending';
 
@@ -201,6 +202,21 @@ function transactionFromApi(row: Record<string, unknown>): Transaction {
       row.completed_at != null && String(row.completed_at) !== ''
         ? String(row.completed_at)
         : undefined,
+    proofDeadlineAt:
+      row.proof_deadline_at != null && String(row.proof_deadline_at) !== ''
+        ? String(row.proof_deadline_at)
+        : undefined,
+    paymentDeadlineAt:
+      row.payment_deadline != null && String(row.payment_deadline) !== ''
+        ? String(row.payment_deadline)
+        : undefined,
+    finishLater: row.finish_later != null ? Boolean(row.finish_later) : undefined,
+    secondsRemaining:
+      row.seconds_remaining != null && typeof row.seconds_remaining === 'number'
+        ? row.seconds_remaining
+        : row.seconds_remaining != null && Number.isFinite(Number(row.seconds_remaining))
+          ? Math.floor(Number(row.seconds_remaining))
+          : undefined,
     createdAt: String(row.created_at),
     updatedAt: String(row.updated_at),
     recipient: recipientThinFromApi(row.recipient as Record<string, unknown> | undefined),
@@ -658,6 +674,22 @@ export async function createTransaction(
   );
 }
 
+export async function startPaymentWindow(
+  transactionId: string,
+  token: string,
+): Promise<ApiResponse<Transaction>> {
+  return withTokenRetry(token, t =>
+    request<Record<string, unknown>>(`/transactions/${transactionId}/payment-window/`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${t}` },
+    }).then(res => {
+      if (res.error) return res;
+      if (res.data == null) return { error: { message: 'Empty response' } };
+      return { data: transactionFromApi(res.data) };
+    }),
+  );
+}
+
 export async function uploadPop(
   transactionId: string,
   file: File,
@@ -676,6 +708,57 @@ export async function uploadPop(
       return { data: transactionFromApi(res.data) };
     });
   });
+}
+
+/** Download proof-of-payment binary (JWT). Triggers a browser save via blob URL. */
+export async function downloadTransactionPop(
+  transactionId: string,
+  token: string,
+  suggestedFilename: string,
+): Promise<ApiResponse<true>> {
+  const path = `/transactions/${transactionId}/pop/download/`;
+  const url = `${API_BASE}${path}`;
+
+  const run = async (t: string): Promise<ApiResponse<true>> => {
+    try {
+      const res = await fetch(url, {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${t}` },
+      });
+      if (!res.ok) {
+        const text = await res.text();
+        let json: unknown = null;
+        if (text) {
+          try {
+            json = JSON.parse(text) as unknown;
+          } catch {
+            json = null;
+          }
+        }
+        return { error: formatApiError(json, res.status) };
+      }
+      const blob = await res.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = objectUrl;
+      a.download = suggestedFilename.trim() || 'proof-of-payment';
+      a.rel = 'noopener';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(objectUrl);
+      return { data: true };
+    } catch (err) {
+      return {
+        error: {
+          message: err instanceof Error ? err.message : 'Network error',
+          code: '0',
+        },
+      };
+    }
+  };
+
+  return withTokenRetry(token, t => run(t));
 }
 
 // ── Admin API ──────────────────────────────────────────────────────────────

@@ -37,6 +37,49 @@ services:
              python manage.py collectstatic --noinput &&
              gunicorn --bind 0.0.0.0:8000 --workers 3 config.wsgi:application"
 
+  redis:
+    image: redis:7-alpine
+    container_name: kryptera_redis
+    restart: unless-stopped
+
+  celery_worker:
+    build:
+      context: ./kryptera_back
+      dockerfile: Dockerfile
+    container_name: kryptera_celery_worker
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+    volumes:
+      - media_files:/app/mediafiles
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    command: celery -A config worker -l info
+
+  celery_beat:
+    build:
+      context: ./kryptera_back
+      dockerfile: Dockerfile
+    container_name: kryptera_celery_beat
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    command: celery -A config beat -l info
+
   nginx:
     build:
       context: ./kryptera_front

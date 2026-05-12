@@ -106,10 +106,11 @@ class AdminDashboardStatsView(APIView):
         from transactions.models import Transaction, TransactionStatus
         from users.models import User
 
-        tx = Transaction.objects.all()
-        by_status = dict(tx.values("status").annotate(c=Count("id")).values_list("status", "c"))
+        tx_all = Transaction.objects.all()
+        tx_completed = Transaction.objects.filter(status=TransactionStatus.COMPLETED)
+        by_status = dict(tx_all.values("status").annotate(c=Count("id")).values_list("status", "c"))
         total_commission_zmw = sum(
-            (commission_amount_zmw(t) for t in tx.iterator()),
+            (commission_amount_zmw(t) for t in tx_completed.iterator()),
             start=Decimal("0"),
         )
 
@@ -117,7 +118,7 @@ class AdminDashboardStatsView(APIView):
             {
                 "user_count": User.objects.filter(is_active=True).count(),
                 "admin_count": User.objects.filter(is_admin=True).count(),
-                "transaction_total": tx.count(),
+                "transaction_total": tx_completed.count(),
                 "transactions_by_status": by_status,
                 "total_commission_zmw": str(total_commission_zmw),
                 "pending_verification_count": by_status.get(TransactionStatus.PENDING_VERIFICATION, 0),
@@ -130,7 +131,7 @@ class AdminDashboardTransactionsByDayView(APIView):
     permission_classes = [IsAdminUser]
 
     def get(self, request):
-        from transactions.models import Currency, Transaction
+        from transactions.models import Currency, Transaction, TransactionStatus
 
         try:
             days = int(request.query_params.get("days", "30"))
@@ -140,7 +141,7 @@ class AdminDashboardTransactionsByDayView(APIView):
         since = timezone.now() - timedelta(days=days)
 
         rows = (
-            Transaction.objects.filter(created_at__gte=since)
+            Transaction.objects.filter(created_at__gte=since, status=TransactionStatus.COMPLETED)
             .annotate(d=TruncDate("created_at"))
             .values("d")
             .annotate(

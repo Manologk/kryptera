@@ -1,13 +1,17 @@
-import { Fragment } from 'react';
-import { cn } from '@/lib/utils';
+import { Fragment } from 'react'
+import { cn } from '@/lib/utils'
 
-const LABELS = ['Recipient', 'Delivery', 'Payment'] as const;
+const LABELS = ['Recipient', 'Delivery', 'Payment', 'Proof'] as const
 
-export default function TransferStepIndicator({ currentStep }: { currentStep: 1 | 2 | 3 }) {
+const STEPS = [1, 2, 3, 4] as const
+
+export type TransferWizardStep = (typeof STEPS)[number]
+
+export default function TransferStepIndicator({ currentStep }: { currentStep: TransferWizardStep }) {
   return (
     <nav className="mb-8 w-full" aria-label="Transfer steps">
-      <div className="flex items-center gap-2">
-        {([1, 2, 3] as const).map((n, i) => (
+      <div className="flex items-center gap-1 sm:gap-2">
+        {STEPS.map((n, i) => (
           <Fragment key={n}>
             <div
               className={cn(
@@ -20,31 +24,34 @@ export default function TransferStepIndicator({ currentStep }: { currentStep: 1 
             >
               {currentStep > n ? '✓' : n}
             </div>
-            {i < 2 ? (
+            {i < STEPS.length - 1 ? (
               <div
-                className={cn('h-[3px] min-w-[24px] flex-1 rounded-full transition-colors', currentStep > n ? 'bg-primary' : 'bg-border')}
+                className={cn(
+                  'h-[3px] min-w-[12px] flex-1 rounded-full transition-colors sm:min-w-[24px]',
+                  currentStep > n ? 'bg-primary' : 'bg-border',
+                )}
                 aria-hidden
               />
             ) : null}
           </Fragment>
         ))}
       </div>
-      <div className="mt-3 grid grid-cols-3 gap-2 text-center">
+      <div className="mt-3 grid grid-cols-4 gap-1 text-center sm:gap-2">
         {LABELS.map((label, i) => {
-          const step = (i + 1) as 1 | 2 | 3;
+          const stepNum = STEPS[i]
           return (
             <span
               key={label}
               className={cn(
-                'text-[11px] font-semibold uppercase tracking-wide',
-                currentStep === step ? 'text-foreground' : 'text-muted-foreground',
+                'text-[10px] font-semibold uppercase tracking-wide sm:text-[11px]',
+                currentStep === stepNum ? 'text-foreground' : 'text-muted-foreground',
               )}
             >
               {label}
             </span>
-          );
+          )
         })}
       </div>
     </nav>
-  );
+  )
 }

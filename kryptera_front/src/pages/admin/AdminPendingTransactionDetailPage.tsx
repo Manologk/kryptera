@@ -8,7 +8,7 @@ import { adminKeys } from '@/features/admin/queryKeys';
 import { recipientDisplay } from '@/features/admin/transactionLabels';
 import { formatMoneyAmount } from '@/features/transaction/utils';
 import { DELIVERY_OPTIONS, PAYMENT_OPTIONS } from '@/constants/transferPlaceholders';
-import { getAdminTransaction, patchAdminTransaction } from '@/services/api';
+import { getAdminTransaction, patchAdminTransaction, downloadTransactionPop } from '@/services/api';
 import { filenameFromPath, isImagePath, mediaHref } from '@/lib/media';
 import { Button } from '@/components/ui/button';
 import Card, { CardContent, CardHeader } from '@/components/ui/card';
@@ -42,6 +42,7 @@ export default function AdminPendingTransactionDetailPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [file, setFile] = useState<File | null>(null);
+  const [popDownloading, setPopDownloading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const txQuery = useQuery({
@@ -82,6 +83,17 @@ export default function AdminPendingTransactionDetailPage() {
         },
       },
     )
+  }
+
+  const handleDownloadPop = async () => {
+    if (!accessToken || !id) return
+    const path = txQuery.data?.popPath
+    if (!path) return
+    const name = filenameFromPath(path) || 'proof-of-payment'
+    setPopDownloading(true)
+    const res = await downloadTransactionPop(id, accessToken, name)
+    setPopDownloading(false)
+    if (res.error) toast.error(res.error.message)
   }
 
   const handleSaveAndNotify = () => {
@@ -204,10 +216,15 @@ export default function AdminPendingTransactionDetailPage() {
                     Open in new tab
                   </a>
                 </Button>
-                <Button asChild variant="outline" size="sm">
-                  <a href={popUrl} download={popName || ''}>
-                    Download
-                  </a>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={popDownloading}
+                  aria-busy={popDownloading}
+                  onClick={() => void handleDownloadPop()}
+                >
+                  {popDownloading ? 'Downloading…' : 'Download'}
                 </Button>
               </div>
             </div>
