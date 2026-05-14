@@ -1,6 +1,14 @@
-import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type FormEvent,
+  type ReactNode,
+} from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Banknote, Bitcoin, Building2, Smartphone } from 'lucide-react'
+import { Banknote, Bitcoin, Building2, Copy, Smartphone } from 'lucide-react'
+import { toast } from 'sonner'
 import { clearTransferQuote, readTransferQuote } from '@/services/transferQuoteStorage'
 import { createRecipient, createTransaction, getRecipients, uploadPop } from '@/services/api'
 import { useTransactions } from '@/features/transaction/hooks'
@@ -9,13 +17,15 @@ import { useTransactionCountdown } from '@/hooks/useTransactionCountdown'
 import { transferConfirmation } from '@/constants/routes'
 import Layout, { PageHeader } from '@/components/layout/Layout'
 import Button from '@/components/ui/button'
-import Card from '@/components/ui/card'
-import { Alert } from '@/components/ui/badge'
+import { Alert, StatusBadge } from '@/components/ui/badge'
 import {
-  DELIVERY_OPTIONS,
+  getDeliveryMethodTitle,
+  getDeliveryOptionsForCorridor,
+  getPaymentMethodTitle,
+  getPaymentOptionsForCorridor,
+  KRYPTERA_PAY_BANK_RU,
   KRYPTERA_PAY_MOBILE_MONEY,
   KRYPTERA_PAY_USDT,
-  PAYMENT_OPTIONS,
   type DeliveryOptionId,
   type PaymentOptionId,
 } from '@/constants/transferPlaceholders'
@@ -25,7 +35,9 @@ import {
   validateDeliveryDetails,
   type DeliveryDetailFields,
 } from '@/features/recipient/deliveryDetails'
-import type { Recipient } from '@/types'
+import { formatMoneyAmount } from '@/features/transaction/utils'
+import type { Recipient, Transaction } from '@/types'
+import Card, { CardContent, CardHeader } from '@/components/ui/card'
 import ChoiceTile from './ChoiceTile'
 import RecipientStepPanel from './RecipientStepPanel'
 import TransferStepIndicator, { type TransferWizardStep } from './TransferStepIndicator'
@@ -49,12 +61,51 @@ const DELIVERY_ICONS: Record<DeliveryOptionId, ReactNode> = {
 const PAYMENT_ICONS: Record<PaymentOptionId, ReactNode> = {
   pay_mobile_money: <Smartphone className="h-5 w-5" aria-hidden />,
   pay_crypto_usdt: <Bitcoin className="h-5 w-5" aria-hidden />,
+  pay_bank_ru: <Building2 className="h-5 w-5" aria-hidden />,
+}
+
+const corridorSummaryLabel = (mode: Transaction['mode']): string =>
+  mode === 'russia-zambia' ? 'Russia → Zambia' : 'Zambia → Russia'
+
+const recipientSummaryLine = (tx: Transaction): string => {
+  if (tx.recipient?.fullName) return tx.recipient.fullName
+  const s = tx.recipientSnapshot
+  if (!s) return '—'
+  return s.full_name || s.email || s.phone_number || s.phone || '—'
+}
+
+const parseBreakdownUsd = (tx: Transaction): number | null => {
+  const raw = tx.conversionBreakdown?.usd
+  if (raw == null || String(raw).trim() === '') return null
+  const n = Number(raw)
+  return Number.isFinite(n) ? n : null
+}
+
+type YouSendSummary = { primary: string; sub?: string }
+
+const getYouSendSummary = (tx: Transaction): YouSendSummary => {
+  const fiatLine = formatMoneyAmount(tx.inputAmount, tx.inputCurrency)
+  if (tx.paymentMethod === 'pay_crypto_usdt') {
+    const usd = parseBreakdownUsd(tx)
+    if (usd != null) {
+      return {
+        primary: formatMoneyAmount(usd, 'USD'),
+        sub: `Transfer amount: ${fiatLine}`,
+      }
+    }
+    return { primary: fiatLine }
+  }
+  return { primary: fiatLine }
 }
 
 export default function TransferWizard() {
   const navigate = useNavigate()
   const { accessToken } = useAuth()
   const { refresh: refreshTransactions } = useTransactions()
+
+  const corridorMode = readTransferQuote()?.mode ?? 'zambia-russia'
+  const deliveryOptionsForCorridor = useMemo(() => getDeliveryOptionsForCorridor(corridorMode), [corridorMode])
+  const paymentOptionsForCorridor = useMemo(() => getPaymentOptionsForCorridor(corridorMode), [corridorMode])
 
   const [step, setStep] = useState<TransferWizardStep>(1)
 
@@ -83,6 +134,7 @@ export default function TransferWizard() {
   const [paymentMethod, setPaymentMethod] = useState<PaymentOptionId | null>(null)
 
   const [createdTransactionId, setCreatedTransactionId] = useState<string | null>(null)
+  const [proofStepTransaction, setProofStepTransaction] = useState<Transaction | null>(null)
   const [popFile, setPopFile] = useState<File | null>(null)
   const [popUploadError, setPopUploadError] = useState<string | null>(null)
   const [popUploadBusy, setPopUploadBusy] = useState(false)
@@ -107,6 +159,18 @@ export default function TransferWizard() {
   useEffect(() => {
     void loadRecipients()
   }, [loadRecipients])
+
+  useEffect(() => {
+    const allowedDelivery: DeliveryOptionId =
+      corridorMode === 'russia-zambia' ? 'mobile_money' : 'bank_deposit'
+    setDeliveryMethod(allowedDelivery)
+    setNewDeliveryMethod(prev => (prev === allowedDelivery ? prev : allowedDelivery))
+  }, [corridorMode])
+
+  useEffect(() => {
+    const allowedIds = new Set(paymentOptionsForCorridor.map(o => o.id))
+    setPaymentMethod(prev => (prev != null && allowedIds.has(prev) ? prev : null))
+  }, [corridorMode, paymentOptionsForCorridor])
 
   const handleContinueStep1 = async () => {
     setStep1Error(null)
@@ -170,6 +234,15 @@ export default function TransferWizard() {
     setStep(2)
   }
 
+  const handleCopyUsdtAddress = async () => {
+    try {
+      await navigator.clipboard.writeText(KRYPTERA_PAY_USDT.address)
+      toast.success('Wallet address copied')
+    } catch {
+      toast.error('Could not copy. Select the address and copy manually.')
+    }
+  }
+
   const handleContinueStep2 = () => {
     setStep2Error(null)
     if (deliveryMethod == null) {
@@ -231,6 +304,7 @@ export default function TransferWizard() {
     clearTransferQuote()
     refreshTransactions()
     setCreatedTransactionId(res.data.id)
+    setProofStepTransaction(res.data)
     setPopFile(null)
     setPopUploadError(null)
     setStep(4)
@@ -258,6 +332,8 @@ export default function TransferWizard() {
 
   const footerIsSplit = step > 1 && step < 4
 
+  const step4YouSendSummary = proofStepTransaction ? getYouSendSummary(proofStepTransaction) : null
+
   return (
     <Layout maxWidth={560}>
       <PageHeader title="Send money" subtitle={STEP_SUBTITLES[step]} />
@@ -268,6 +344,7 @@ export default function TransferWizard() {
         <div className="p-6 sm:p-7">
           {step === 1 ? (
             <RecipientStepPanel
+              corridorMode={corridorMode}
               sourceTab={sourceTab}
               onSourceTabChange={setSourceTab}
               searchQuery={searchQuery}
@@ -308,7 +385,7 @@ export default function TransferWizard() {
                 </p>
               ) : null}
               <div className="flex flex-col gap-3" role="radiogroup" aria-label="Delivery method">
-                {DELIVERY_OPTIONS.map(opt => (
+                {deliveryOptionsForCorridor.map(opt => (
                   <ChoiceTile
                     key={opt.id}
                     name={`delivery-${opt.id}`}
@@ -335,7 +412,7 @@ export default function TransferWizard() {
               ) : null}
 
               <div className="flex flex-col gap-3" role="radiogroup" aria-label="Payment method">
-                {PAYMENT_OPTIONS.map(opt => (
+                {paymentOptionsForCorridor.map(opt => (
                   <ChoiceTile
                     key={opt.id}
                     name={`payment-${opt.id}`}
@@ -347,6 +424,34 @@ export default function TransferWizard() {
                   />
                 ))}
               </div>
+
+              {paymentMethod === 'pay_bank_ru' ? (
+                <div
+                  className="rounded-lg border border-border bg-muted/30 p-4 text-sm"
+                  style={{ animation: 'fadeUp 0.25s ease' }}
+                >
+                  <p className="font-semibold text-foreground">Pay by bank transfer (Russia)</p>
+                  <dl className="mt-3 space-y-3 text-foreground">
+                    <div>
+                      <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Phone</dt>
+                      <dd className="mt-1 font-mono text-base font-semibold">{KRYPTERA_PAY_BANK_RU.phone}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Recipient name</dt>
+                      <dd className="mt-1 font-medium">{KRYPTERA_PAY_BANK_RU.accountName}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Bank</dt>
+                      <dd className="mt-1 font-medium">{KRYPTERA_PAY_BANK_RU.bankName}</dd>
+                    </div>
+                  </dl>
+                  <ul className="mt-3 list-disc space-y-2 pl-5 text-muted-foreground">
+                    {KRYPTERA_PAY_BANK_RU.instructions.map(line => (
+                      <li key={line}>{line}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
 
               {paymentMethod === 'pay_mobile_money' ? (
                 <div
@@ -372,7 +477,17 @@ export default function TransferWizard() {
                   <p className="mt-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">Network</p>
                   <p className="font-medium text-foreground">{KRYPTERA_PAY_USDT.network}</p>
                   <p className="mt-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">Wallet address</p>
-                  <p className="break-all font-mono text-sm text-foreground">{KRYPTERA_PAY_USDT.address}</p>
+                  <div className="mt-1 flex items-start gap-2">
+                    <p className="min-w-0 flex-1 break-all font-mono text-sm text-foreground">{KRYPTERA_PAY_USDT.address}</p>
+                    <button
+                      type="button"
+                      onClick={() => void handleCopyUsdtAddress()}
+                      className="shrink-0 rounded-md border border-border bg-card p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      aria-label="Copy wallet address to clipboard"
+                    >
+                      <Copy className="h-4 w-4" aria-hidden />
+                    </button>
+                  </div>
                   <ul className="mt-3 list-disc space-y-2 pl-5 text-muted-foreground">
                     {KRYPTERA_PAY_USDT.instructions.map(line => (
                       <li key={line}>{line}</li>
@@ -392,6 +507,65 @@ export default function TransferWizard() {
               <p className="text-sm text-muted-foreground">
                 Your transfer is created. Upload a screenshot or PDF of your payment so we can verify it.
               </p>
+              {proofStepTransaction ? (
+                <div
+                  className="rounded-lg border border-border bg-card shadow-sm"
+                  role="region"
+                  aria-label="Transfer summary"
+                >
+                  <CardHeader title="Transfer summary" className="p-5 pb-2" />
+                  <CardContent className="space-y-0 p-5 pt-0">
+                    {step4YouSendSummary ? (
+                      <div className="mb-5 rounded-lg border border-primary/25 bg-primary/5 px-4 py-5 sm:px-5">
+                        <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Amount to send</p>
+                        <p
+                          className="mt-2 break-words font-mono text-3xl font-bold leading-none tracking-tight text-foreground sm:text-4xl"
+                          aria-label={`Amount to send: ${step4YouSendSummary.primary}`}
+                        >
+                          {step4YouSendSummary.primary}
+                        </p>
+                        {step4YouSendSummary.sub ? (
+                          <p className="mt-3 text-sm leading-snug text-muted-foreground">{step4YouSendSummary.sub}</p>
+                        ) : null}
+                      </div>
+                    ) : null}
+                    <div className="flex flex-wrap justify-between gap-2 border-b border-border py-2.5 text-sm">
+                      <span className="text-muted-foreground">Corridor</span>
+                      <span className="max-w-[min(100%,18rem)] text-right font-medium">
+                        {corridorSummaryLabel(proofStepTransaction.mode)}
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap justify-between gap-2 border-b border-border py-2.5 text-sm">
+                      <span className="text-muted-foreground">Recipient gets</span>
+                      <span className="font-mono font-semibold">
+                        {formatMoneyAmount(proofStepTransaction.resultAmount, proofStepTransaction.resultCurrency)}
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap justify-between gap-2 border-b border-border py-2.5 text-sm">
+                      <span className="text-muted-foreground">Recipient</span>
+                      <span className="max-w-[min(100%,18rem)] text-right font-medium">
+                        {recipientSummaryLine(proofStepTransaction)}
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap justify-between gap-2 border-b border-border py-2.5 text-sm">
+                      <span className="text-muted-foreground">Delivery</span>
+                      <span className="max-w-[min(100%,18rem)] text-right font-medium">
+                        {getDeliveryMethodTitle(proofStepTransaction.deliveryMethod)}
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap justify-between gap-2 border-b border-border py-2.5 text-sm">
+                      <span className="text-muted-foreground">Your payment</span>
+                      <span className="max-w-[min(100%,18rem)] text-right font-medium">
+                        {getPaymentMethodTitle(proofStepTransaction.paymentMethod)}
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap items-center justify-between gap-2 pt-2.5 text-sm">
+                      <span className="text-muted-foreground">Status</span>
+                      <StatusBadge status={proofStepTransaction.status} />
+                    </div>
+                  </CardContent>
+                </div>
+              ) : null}
               {countdownLoading ? (
                 <p className="text-sm text-muted-foreground" role="status">
                   Loading payment timer…

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type KeyboardEvent } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { TRANSACTION_TABLE_PAGE_SIZE } from '@/constants'
-import { PAYMENT_OPTIONS } from '@/constants/transferPlaceholders'
+import { getPaymentMethodTitle } from '@/constants/transferPlaceholders'
 import { adminTransactionDetail } from '@/constants/routes'
 import { useAuth } from '@/context/AuthContext'
 import { adminKeys } from '@/features/admin/queryKeys'
@@ -26,8 +26,7 @@ type TxTab = 'all' | 'awaiting_confirmation' | 'completed'
 type SortKey = 'recipient' | 'amount' | 'createdAt'
 
 function paymentLabel(id: string | undefined): string {
-  if (!id) return '—'
-  return PAYMENT_OPTIONS.find(o => o.id === id)?.title ?? id
+  return getPaymentMethodTitle(id)
 }
 
 function formatListDate(iso: string): string {

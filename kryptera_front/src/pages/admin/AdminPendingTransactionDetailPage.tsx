@@ -7,7 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import { adminKeys } from '@/features/admin/queryKeys';
 import { recipientDisplay } from '@/features/admin/transactionLabels';
 import { formatMoneyAmount } from '@/features/transaction/utils';
-import { DELIVERY_OPTIONS, PAYMENT_OPTIONS } from '@/constants/transferPlaceholders';
+import { DELIVERY_OPTIONS, getPaymentMethodTitle } from '@/constants/transferPlaceholders';
 import { getAdminTransaction, patchAdminTransaction, downloadTransactionPop } from '@/services/api';
 import { filenameFromPath, isImagePath, mediaHref } from '@/lib/media';
 import { Button } from '@/components/ui/button';
@@ -22,10 +22,7 @@ const deliveryLabel = (id: string | undefined): string => {
   return DELIVERY_OPTIONS.find(o => o.id === id)?.title ?? id;
 };
 
-const paymentLabel = (id: string | undefined): string => {
-  if (!id) return '—';
-  return PAYMENT_OPTIONS.find(o => o.id === id)?.title ?? id;
-};
+const paymentLabel = (id: string | undefined): string => getPaymentMethodTitle(id);
 
 function SummaryRow({ label, value, mono }: { label: string; value: React.ReactNode; mono?: boolean }) {
   return (

@@ -4,7 +4,7 @@ import { useAuth } from '@/context/AuthContext';
 import { getTransaction } from '@/services/api';
 import { PendingTransaction } from '@/features/transfer/PendingTransaction';
 import { ProofOfPaymentCard } from '@/features/transfer/ProofOfPaymentCard';
-import { DELIVERY_OPTIONS, PAYMENT_OPTIONS } from '@/constants/transferPlaceholders';
+import { getDeliveryMethodTitle, getPaymentMethodTitle } from '@/constants/transferPlaceholders';
 import { ROUTES, transferConfirmation } from '@/constants/routes';
 import { formatMoneyAmount } from '@/features/transaction/utils';
 import { filenameFromPath, isImagePath, mediaHref } from '@/lib/media';
@@ -20,13 +20,11 @@ const POLL_FAST_MS = 2_000;
 const TERMINAL_STATUSES: ReadonlySet<TransactionStatus> = new Set(['completed', 'rejected', 'canceled']);
 
 function deliveryLabel(id: string | undefined): string {
-  if (!id) return '—';
-  return DELIVERY_OPTIONS.find(o => o.id === id)?.title ?? id;
+  return getDeliveryMethodTitle(id);
 }
 
 function paymentLabel(id: string | undefined): string {
-  if (!id) return '—';
-  return PAYMENT_OPTIONS.find(o => o.id === id)?.title ?? id;
+  return getPaymentMethodTitle(id);
 }
 
 function recipientLine(tx: Transaction): string {

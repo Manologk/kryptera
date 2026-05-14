@@ -2,9 +2,9 @@ import { useMemo } from 'react';
 import { Banknote, Building2, Smartphone } from 'lucide-react';
 import Card, { CardContent } from '@/components/ui/card';
 import Input from '@/components/ui/input';
-import { DELIVERY_OPTIONS, type DeliveryOptionId } from '@/constants/transferPlaceholders';
+import { getDeliveryOptionsForCorridor, type DeliveryOptionId } from '@/constants/transferPlaceholders';
 import ChoiceTile from './ChoiceTile';
-import type { Recipient } from '@/types';
+import type { ConversionMode, Recipient } from '@/types';
 import type { DeliveryDetailFields } from '@/features/recipient/deliveryDetails';
 
 export type RecipientSourceTab = 'saved' | 'new';
@@ -16,6 +16,7 @@ const DELIVERY_ICONS: Record<DeliveryOptionId, React.ReactNode> = {
 };
 
 interface RecipientStepPanelProps {
+  corridorMode: ConversionMode;
   sourceTab: RecipientSourceTab;
   onSourceTabChange: (tab: RecipientSourceTab) => void;
   searchQuery: string;
@@ -40,6 +41,7 @@ interface RecipientStepPanelProps {
 }
 
 export default function RecipientStepPanel({
+  corridorMode,
   sourceTab,
   onSourceTabChange,
   searchQuery,
@@ -62,6 +64,8 @@ export default function RecipientStepPanel({
   onSaveForLaterChange,
   error,
 }: RecipientStepPanelProps) {
+  const recipientDeliveryOptions = useMemo(() => getDeliveryOptionsForCorridor(corridorMode), [corridorMode])
+
   const filtered = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     if (!q) return recipients;
@@ -199,7 +203,7 @@ export default function RecipientStepPanel({
             <div className="space-y-3">
               <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">How they receive funds</p>
               <div className="flex flex-col gap-3" role="radiogroup" aria-label="Recipient delivery method">
-                {DELIVERY_OPTIONS.map(opt => (
+                {recipientDeliveryOptions.map(opt => (
                   <ChoiceTile
                     key={opt.id}
                     name={`recipient-delivery-${opt.id}`}
