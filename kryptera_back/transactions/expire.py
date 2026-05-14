@@ -9,16 +9,18 @@ from .models import Transaction, TransactionStatus
 
 def cancel_expired_finish_later_transactions() -> int:
     """
-    Mark pending finish-later transfers as canceled when payment_deadline has passed.
+    Mark pending transfers as canceled when payment_deadline has passed without a POP upload.
     Returns the number of rows updated.
     """
     now = timezone.now()
     return Transaction.objects.filter(
         status=TransactionStatus.PENDING,
-        finish_later=True,
         payment_deadline__isnull=False,
         payment_deadline__lt=now,
-    ).update(status=TransactionStatus.CANCELED, updated_at=now)
+    ).filter(Q(pop_file__isnull=True) | Q(pop_file="")).update(
+        status=TransactionStatus.CANCELED,
+        updated_at=now,
+    )
 
 
 def expire_transaction_if_due(tx: Transaction) -> bool:
@@ -32,12 +34,7 @@ def expire_transaction_if_due(tx: Transaction) -> bool:
         return False
     now = timezone.now()
 
-    if (
-        tx.status == TransactionStatus.PENDING
-        and tx.finish_later
-        and tx.payment_deadline is not None
-        and tx.payment_deadline <= now
-    ):
+    if tx.payment_deadline is not None and tx.payment_deadline <= now:
         tx.status = TransactionStatus.CANCELED
         tx.save(update_fields=["status", "updated_at"])
         return True
@@ -57,9 +54,10 @@ def expire_stale_transactions_for_user(user_id) -> None:
     cancel_expired_finish_later_transactions()
     Transaction.objects.filter(
         user_id=user_id,
-        proof_deadline_at__isnull=False,
-        proof_deadline_at__lte=now,
         status__in=(TransactionStatus.PENDING, TransactionStatus.POP_NOT_UPLOADED),
+    ).filter(
+        Q(proof_deadline_at__isnull=False, proof_deadline_at__lte=now)
+        | Q(payment_deadline__isnull=False, payment_deadline__lte=now)
     ).filter(Q(pop_file__isnull=True) | Q(pop_file="")).update(
         status=TransactionStatus.CANCELED,
         updated_at=now,

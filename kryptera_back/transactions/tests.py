@@ -438,6 +438,20 @@ class PaymentWindowAndExpireTests(TestCase):
         self.user = User.objects.create_user(email="window@test.com", password="pass")
         make_rates()
 
+    def test_create_sets_payment_deadline(self):
+        self.client.force_authenticate(user=self.user)
+        c = self.client.post(
+            "/api/v1/transactions/",
+            {"mode": "russia-zambia", "input_amount": "1000"},
+            format="json",
+        )
+        self.assertEqual(c.status_code, status.HTTP_201_CREATED)
+        self.assertIsNotNone(c.data.get("payment_deadline"))
+        self.assertIsNotNone(c.data.get("seconds_remaining"))
+        tx = Transaction.objects.get(pk=c.data["id"])
+        self.assertIsNotNone(tx.payment_deadline)
+        self.assertFalse(tx.finish_later)
+
     def test_payment_window_sets_deadline(self):
         self.client.force_authenticate(user=self.user)
         c = self.client.post(

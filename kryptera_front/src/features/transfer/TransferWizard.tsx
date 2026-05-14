@@ -2,9 +2,10 @@ import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from
 import { useNavigate } from 'react-router-dom'
 import { Banknote, Bitcoin, Building2, Smartphone } from 'lucide-react'
 import { clearTransferQuote, readTransferQuote } from '@/services/transferQuoteStorage'
-import { createRecipient, createTransaction, getRecipients, startPaymentWindow, uploadPop } from '@/services/api'
+import { createRecipient, createTransaction, getRecipients, uploadPop } from '@/services/api'
 import { useTransactions } from '@/features/transaction/hooks'
 import { useAuth } from '@/context/AuthContext'
+import { useTransactionCountdown } from '@/hooks/useTransactionCountdown'
 import { transferConfirmation } from '@/constants/routes'
 import Layout, { PageHeader } from '@/components/layout/Layout'
 import Button from '@/components/ui/button'
@@ -85,7 +86,11 @@ export default function TransferWizard() {
   const [popFile, setPopFile] = useState<File | null>(null)
   const [popUploadError, setPopUploadError] = useState<string | null>(null)
   const [popUploadBusy, setPopUploadBusy] = useState(false)
-  const [finishLaterBusy, setFinishLaterBusy] = useState(false)
+
+  const { isExpired, isLoading: countdownLoading, loadError: countdownError, formattedRemaining } =
+    useTransactionCountdown(createdTransactionId ?? undefined, {
+      status: 'pending',
+    })
 
   const loadRecipients = useCallback(async () => {
     if (!accessToken) {
@@ -231,22 +236,9 @@ export default function TransferWizard() {
     setStep(4)
   }
 
-  const handleFinishLater = async () => {
-    if (!createdTransactionId || !accessToken) return
-    setPopUploadError(null)
-    setFinishLaterBusy(true)
-    const res = await startPaymentWindow(createdTransactionId, accessToken)
-    setFinishLaterBusy(false)
-    if (res.error) {
-      setPopUploadError(res.error.message)
-      return
-    }
-    navigate(transferConfirmation(createdTransactionId))
-  }
-
   const handleSubmitPopProof = async (e: FormEvent) => {
     e.preventDefault()
-    if (!popFile || !accessToken || !createdTransactionId) return
+    if (!popFile || !accessToken || !createdTransactionId || isExpired) return
     setPopUploadError(null)
     setPopUploadBusy(true)
     const res = await uploadPop(createdTransactionId, popFile, accessToken)
@@ -398,9 +390,41 @@ export default function TransferWizard() {
               onSubmit={e => void handleSubmitPopProof(e)}
             >
               <p className="text-sm text-muted-foreground">
-                Your transfer is created. Upload a screenshot or PDF of your payment so we can verify it. You can also
-                finish later and upload from your transfer page.
+                Your transfer is created. Upload a screenshot or PDF of your payment so we can verify it.
               </p>
+              {countdownLoading ? (
+                <p className="text-sm text-muted-foreground" role="status">
+                  Loading payment timer…
+                </p>
+              ) : null}
+              {countdownError ? (
+                <div>
+                  <Alert type="error" message={countdownError} />
+                </div>
+              ) : null}
+              {isExpired ? (
+                <div
+                  role="alert"
+                  className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm font-medium text-destructive"
+                >
+                  Transaction expired — proof of payment was not uploaded before the deadline. Start a new transfer if
+                  you still need to send money.
+                </div>
+              ) : null}
+              {!isExpired && formattedRemaining ? (
+                <div
+                  role="timer"
+                  aria-live="polite"
+                  aria-atomic="true"
+                  aria-label={`Time remaining to upload proof of payment: ${formattedRemaining}`}
+                  className="rounded-lg border border-border bg-muted/50 px-4 py-3 text-sm font-medium text-foreground"
+                >
+                  <p className="m-0">
+                    Upload proof of payment within{' '}
+                    <span className="font-mono text-base font-bold tabular-nums">{formattedRemaining}</span>
+                  </p>
+                </div>
+              ) : null}
               {popUploadError ? (
                 <div>
                   <Alert type="error" message={popUploadError} onClose={() => setPopUploadError(null)} />
@@ -418,7 +442,8 @@ export default function TransferWizard() {
                   type="file"
                   accept={POP_ACCEPT}
                   aria-label="Proof of payment file"
-                  className="w-full rounded-md border border-border bg-card px-3 py-2.5 text-sm file:mr-3 file:rounded file:border-0 file:bg-muted file:px-3 file:py-1 file:text-sm"
+                  disabled={isExpired || countdownLoading}
+                  className="w-full rounded-md border border-border bg-card px-3 py-2.5 text-sm file:mr-3 file:rounded file:border-0 file:bg-muted file:px-3 file:py-1 file:text-sm disabled:cursor-not-allowed disabled:opacity-60"
                   onChange={e => {
                     setPopFile(e.target.files?.[0] ?? null)
                     setPopUploadError(null)
@@ -473,31 +498,18 @@ export default function TransferWizard() {
             </Button>
           ) : null}
           {step === 4 ? (
-            <>
-              <Button
-                type="button"
-                variant="secondary"
-                fullWidth={false}
-                className="w-full sm:ml-0 sm:w-auto"
-                loading={finishLaterBusy}
-                disabled={popUploadBusy || finishLaterBusy}
-                onClick={() => void handleFinishLater()}
-              >
-                Finish later
-              </Button>
-              <Button
-                type="submit"
-                form={POP_FORM_ID}
-                size="lg"
-                variant="primary"
-                fullWidth={false}
-                className="min-w-[200px] w-full sm:ml-auto sm:w-auto"
-                loading={popUploadBusy}
-                disabled={!popFile || popUploadBusy || finishLaterBusy}
-              >
-                Submit proof
-              </Button>
-            </>
+            <Button
+              type="submit"
+              form={POP_FORM_ID}
+              size="lg"
+              variant="primary"
+              fullWidth={false}
+              className="min-w-[200px] w-full sm:ml-auto sm:w-auto"
+              loading={popUploadBusy}
+              disabled={!popFile || popUploadBusy || isExpired || countdownLoading}
+            >
+              Submit proof
+            </Button>
           ) : null}
         </div>
       </Card>

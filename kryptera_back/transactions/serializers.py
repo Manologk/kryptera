@@ -315,9 +315,9 @@ class TransactionSerializer(serializers.ModelSerializer):
         delivery/payment strings. Status defaults to pending on the model; timestamps auto-managed.
         """
         recipient = validated_data.pop("recipient", None)
+        validated_data.pop("finish_later", None)
         minutes = int(getattr(settings, "TRANSACTION_PAYMENT_DEADLINE_MINUTES", 1440))
-        if validated_data.get("finish_later"):
-            validated_data["payment_deadline"] = timezone.now() + timedelta(minutes=minutes)
+        validated_data["payment_deadline"] = timezone.now() + timedelta(minutes=minutes)
         return Transaction.objects.create(recipient=recipient, **validated_data)
 
 
@@ -341,6 +341,7 @@ class PopUploadSerializer(serializers.ModelSerializer):
             instance.pop_file.delete(save=False)
         instance.pop_file = validated_data["pop_file"]
         instance.proof_deadline_at = None
+        instance.payment_deadline = None
         instance.status = TransactionStatus.AWAITING_CONFIRMATION
         instance.save()
         return instance
