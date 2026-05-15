@@ -46,7 +46,11 @@ export default function RecipientsPage() {
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
-    if (!accessToken || !fullName.trim() || !deliveryMethod) return;
+    if (!accessToken || !fullName.trim()) return;
+    if (!deliveryMethod) {
+      setMsg({ type: 'error', text: 'Choose a delivery method for this recipient.' });
+      return;
+    }
     setMsg(null);
     const details = buildDeliveryDetailsPayload(deliveryMethod, detailFields);
     const res = await createRecipient(accessToken, {
@@ -70,7 +74,11 @@ export default function RecipientsPage() {
 
   async function handleUpdate(e: React.FormEvent) {
     e.preventDefault();
-    if (!accessToken || !editing || !deliveryMethod) return;
+    if (!accessToken || !editing || !fullName.trim()) return;
+    if (!deliveryMethod) {
+      setMsg({ type: 'error', text: 'Choose a delivery method for this recipient.' });
+      return;
+    }
     setMsg(null);
     const details = buildDeliveryDetailsPayload(deliveryMethod, detailFields);
     const res = await updateRecipient(accessToken, editing.id, {
@@ -168,7 +176,7 @@ export default function RecipientsPage() {
                   marginBottom: 8,
                 }}
               >
-                Delivery method
+                Delivery method <span style={{ color: 'var(--color-error)' }} aria-hidden>*</span>
               </label>
               <select
                 id="rcp-delivery"
@@ -226,7 +234,12 @@ export default function RecipientsPage() {
             ) : null}
           </div>
           <div className="mt-[18px] flex flex-wrap gap-3">
-            <Button type="submit" fullWidth={false} className="min-w-[160px] flex-1">
+            <Button
+              type="submit"
+              fullWidth={false}
+              className="min-w-[160px] flex-1"
+              disabled={!fullName.trim() || !deliveryMethod}
+            >
               {editing ? 'Save changes' : 'Add recipient'}
             </Button>
             {editing ? (

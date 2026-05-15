@@ -1,3 +1,4 @@
+import { LogOut } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { ROUTES } from '@/constants/routes';
 import { adminKeys } from '@/features/admin/queryKeys';
@@ -121,21 +122,31 @@ export default function AdminShell() {
               admin
             </span>
           </Link>
-          <div className="flex shrink-0 items-center gap-3">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             <span
-              className="max-w-[120px] truncate text-xs font-medium"
+              className="max-w-[72px] truncate text-xs font-medium sm:max-w-[120px]"
               style={{ color: 'var(--kryptera-pending)' }}
               title={awaitingLabel}
             >
               {statsQuery.isLoading ? '…' : awaitingLabel}
             </span>
+            <button
+              type="button"
+              onClick={() => void logout()}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border text-[#ccc] transition-colors hover:border-[#666] hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kryptera-green)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d0d0d]"
+              style={{ borderColor: ADMIN_BORDER }}
+              aria-label="Log out"
+            >
+              <LogOut className="h-4 w-4" strokeWidth={2} aria-hidden />
+            </button>
             <span
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[13px] font-semibold"
               style={{
                 background: 'var(--kryptera-green)',
                 color: 'var(--kryptera-dark)',
               }}
-              aria-hidden
+              title={user?.email}
+              aria-label={user?.email ? `Signed in as ${user.email}` : 'Account'}
             >
               {ini}
             </span>

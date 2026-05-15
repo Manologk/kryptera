@@ -13,7 +13,7 @@ class Recipient(models.Model):
     full_name = models.CharField(max_length=255)
     email = models.EmailField(blank=True)
     phone_number = models.CharField(max_length=50, blank=True)
-    delivery_method = models.CharField(max_length=48, blank=True)
+    delivery_method = models.CharField(max_length=48)
     delivery_details = models.JSONField(default=dict, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

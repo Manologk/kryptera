@@ -22,8 +22,16 @@ class RecipientSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         if self.instance is None:
             dm = (attrs.get("delivery_method") or "").strip()
-            if not dm:
-                raise serializers.ValidationError({"delivery_method": "This field is required when creating a recipient."})
+        else:
+            raw = attrs["delivery_method"] if "delivery_method" in attrs else self.instance.delivery_method
+            dm = (raw or "").strip()
+        if not dm:
+            raise serializers.ValidationError(
+                {
+                    "delivery_method": "Every recipient must have a delivery method (e.g. bank deposit or mobile money).",
+                }
+            )
+        attrs["delivery_method"] = dm[:48]
         return attrs
 
 

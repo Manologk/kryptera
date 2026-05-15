@@ -201,7 +201,9 @@ export default function RecipientStepPanel({
             <Input label="Email (optional)" type="email" value={newEmail} onChange={e => onNewEmailChange(e.target.value)} />
 
             <div className="space-y-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">How they receive funds</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                How they receive funds <span className="text-destructive" aria-hidden>*</span>
+              </p>
               <div className="flex flex-col gap-3" role="radiogroup" aria-label="Recipient delivery method">
                 {recipientDeliveryOptions.map(opt => (
                   <ChoiceTile
