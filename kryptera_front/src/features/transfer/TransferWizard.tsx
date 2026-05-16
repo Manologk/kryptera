@@ -98,6 +98,70 @@ const getYouSendSummary = (tx: Transaction): YouSendSummary => {
   return { primary: fiatLine }
 }
 
+type SummaryKrypteraReceiveProps = {
+  paymentMethod?: string
+  onCopyUsdtAddress?: () => void
+}
+
+const SummaryKrypteraReceiveAccount = ({ paymentMethod, onCopyUsdtAddress }: SummaryKrypteraReceiveProps) => {
+  if (!paymentMethod) return null
+
+  return (
+    <div className="border-b border-border py-3 text-sm">
+      <p className="font-medium text-muted-foreground">Where you send</p>
+      <p className="mt-0.5 text-xs text-muted-foreground">Kryptera receiving account</p>
+      <div className="mt-3 rounded-lg border border-border bg-muted/30 p-3 text-foreground">
+        {paymentMethod === 'pay_bank_ru' ? (
+          <dl className="space-y-2.5">
+            <div>
+              <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Phone</dt>
+              <dd className="mt-0.5 font-mono text-base font-semibold">{KRYPTERA_PAY_BANK_RU.phone}</dd>
+            </div>
+            <div>
+              <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Recipient name</dt>
+              <dd className="mt-0.5 font-medium">{KRYPTERA_PAY_BANK_RU.accountName}</dd>
+            </div>
+            <div>
+              <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Bank</dt>
+              <dd className="mt-0.5 font-medium">{KRYPTERA_PAY_BANK_RU.bankName}</dd>
+            </div>
+          </dl>
+        ) : null}
+        {paymentMethod === 'pay_mobile_money' ? (
+          <div>
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Mobile money number</p>
+            <p className="mt-1 font-mono text-base font-semibold">{KRYPTERA_PAY_MOBILE_MONEY.displayNumber}</p>
+          </div>
+        ) : null}
+        {paymentMethod === 'pay_crypto_usdt' ? (
+          <div className="space-y-2.5">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Network</p>
+              <p className="mt-0.5 font-medium">{KRYPTERA_PAY_USDT.network}</p>
+            </div>
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Wallet address</p>
+              <div className="mt-1 flex items-start gap-2">
+                <p className="min-w-0 flex-1 break-all font-mono text-sm font-medium">{KRYPTERA_PAY_USDT.address}</p>
+                {onCopyUsdtAddress ? (
+                  <button
+                    type="button"
+                    onClick={() => onCopyUsdtAddress()}
+                    className="shrink-0 rounded-md border border-border bg-card p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    aria-label="Copy wallet address to clipboard"
+                  >
+                    <Copy className="h-4 w-4" strokeWidth={2} aria-hidden />
+                  </button>
+                ) : null}
+              </div>
+            </div>
+          </div>
+        ) : null}
+      </div>
+    </div>
+  )
+}
+
 export default function TransferWizard() {
   const navigate = useNavigate()
   const { accessToken } = useAuth()
@@ -559,6 +623,10 @@ export default function TransferWizard() {
                         {getPaymentMethodTitle(proofStepTransaction.paymentMethod)}
                       </span>
                     </div>
+                    <SummaryKrypteraReceiveAccount
+                      paymentMethod={proofStepTransaction.paymentMethod}
+                      onCopyUsdtAddress={() => void handleCopyUsdtAddress()}
+                    />
                     <div className="flex flex-wrap items-center justify-between gap-2 pt-2.5 text-sm">
                       <span className="text-muted-foreground">Status</span>
                       <StatusBadge status={proofStepTransaction.status} />
