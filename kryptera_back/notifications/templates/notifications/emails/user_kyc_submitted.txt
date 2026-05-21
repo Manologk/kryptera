@@ -1,0 +1,9 @@
+Hello {{ user_name }},
+
+We have received your identity verification documents. Our team will review them shortly.
+
+You can check your verification status here:
+{{ kyc_url }}
+
+Thank you,
+Kryptera

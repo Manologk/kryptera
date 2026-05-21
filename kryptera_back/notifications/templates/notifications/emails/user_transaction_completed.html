@@ -1,0 +1,8 @@
+<p>Hello {{ user_name }},</p>
+<p>Your transfer <strong>{{ reference }}</strong> has been completed.</p>
+<p>{{ input_amount }} {{ input_currency }} → {{ result_amount }} {{ result_currency }}<br>
+Recipient: {{ recipient_name }}</p>
+{% if admin_notes %}<p><strong>Note from our team:</strong><br>{{ admin_notes }}</p>{% endif %}
+<p><a href="{{ activity_url }}">View transfer details</a></p>
+{% if attachment_note %}<p><em>{{ attachment_note }}</em></p>{% else %}<p>Proof of delivery is attached when available.</p>{% endif %}
+<p>Thank you,<br>Kryptera</p>

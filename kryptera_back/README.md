@@ -226,6 +226,29 @@ In `src/services/api.ts`, uncomment the `request(...)` calls and remove the loca
 
 ---
 
+## Email notifications
+
+Outbound mail uses **SMTP** (required). Configure in `.env`:
+
+| Variable | Description |
+|----------|-------------|
+| `EMAIL_HOST` | SMTP server hostname |
+| `EMAIL_PORT` | Port (default `587`) |
+| `EMAIL_HOST_USER` | SMTP username (if required) |
+| `EMAIL_HOST_PASSWORD` | SMTP password (if required) |
+| `EMAIL_USE_TLS` | `True` / `False` (default `True`) |
+| `EMAIL_USE_SSL` | `True` / `False` (default `False`) |
+| `DEFAULT_FROM_EMAIL` | From address (default `noreply@kryptera.com`) |
+| `REPLY_TO_EMAIL` | Reply-To header (default `support@kryptera.com`) |
+| `ADMIN_NOTIFICATION_EMAILS` | Comma-separated admin inboxes for KYC/POP alerts |
+| `FRONTEND_URL` | Public app URL for links in emails |
+
+**Celery worker** must be running so notification tasks send after API requests commit.
+
+Events: user KYC submit (user ack + admin alert with doc), KYC approve/reject (user), POP upload (admin with file), transaction completed (user with delivery proof).
+
+---
+
 ## Production Checklist
 
 - [ ] Set a real `SECRET_KEY` in `.env`
@@ -243,5 +266,5 @@ In `src/services/api.ts`, uncomment the `request(...)` calls and remove the loca
 
 - **KYC** — `User.kyc_status` + `kyc_doc` fields ready; add upload endpoint
 - **Receipt generation** — `Transaction.receipt_file` field ready
-- **Email notifications** — hook into transaction status changes
+- **Email notifications** — implemented via `notifications` app + Celery
 - **WebSocket rates** — swap polling for live push via Django Channels

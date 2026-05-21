@@ -1,0 +1,8 @@
+Hello {{ user_name }},
+
+Your identity verification has been approved. You can now send transfers on Kryptera.
+
+Start a transfer: {{ home_url }}
+
+Thank you,
+Kryptera

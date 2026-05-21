@@ -1,0 +1,12 @@
+<p>A user submitted <strong>KYC</strong> for review.</p>
+<ul>
+  <li>Account email: {{ user_email }}</li>
+  <li>Profile name: {{ user_full_name }}</li>
+  <li>Phone: {{ user_phone }}</li>
+  <li>Legal name: {{ kyc_legal_name }}</li>
+  <li>ID number: {{ kyc_id_number }}</li>
+  <li>Country: {{ kyc_country }}</li>
+  <li>Submitted at: {{ kyc_submitted_at }}</li>
+</ul>
+<p><a href="{{ admin_users_url }}">Review in admin</a></p>
+{% if attachment_note %}<p><em>{{ attachment_note }}</em></p>{% endif %}

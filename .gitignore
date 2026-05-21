@@ -44,6 +44,7 @@ db.sqlite3-journal
 # Media & static (optional depending on setup)
 media/
 staticfiles/
+mediafiles/
 
 # Virtual environments
 venv/

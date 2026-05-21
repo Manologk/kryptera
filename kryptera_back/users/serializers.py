@@ -137,6 +137,13 @@ class KycSubmitSerializer(serializers.Serializer):
                 "updated_at",
             ]
         )
+        from notifications.dispatch import (
+            notify_admins_kyc_submitted,
+            notify_user_kyc_submitted,
+        )
+
+        notify_user_kyc_submitted(user.id)
+        notify_admins_kyc_submitted(user.id)
         return user
 
 
@@ -199,6 +206,18 @@ class AdminUserSerializer(serializers.ModelSerializer):
             elif new_status == KycStatus.VERIFIED:
                 attrs["kyc_rejection_reason"] = ""
         return attrs
+
+    def update(self, instance, validated_data):
+        previous_status = instance.kyc_status
+        user = super().update(instance, validated_data)
+        if user.kyc_status != previous_status and user.kyc_status in (
+            KycStatus.VERIFIED,
+            KycStatus.REJECTED,
+        ):
+            from notifications.dispatch import notify_user_kyc_decision
+
+            notify_user_kyc_decision(user.id, user.kyc_status)
+        return user
 
 
 class TokenPairSerializer(serializers.Serializer):

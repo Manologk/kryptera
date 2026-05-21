@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     "rates",
     "recipients",
     "transactions",
+    "notifications",
 ]
 
 MIDDLEWARE = [
@@ -132,3 +133,25 @@ CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = TIME_ZONE
+
+# Email (SMTP required for outbound notifications)
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "")
+EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "587"))
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
+EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "True") == "True"
+EMAIL_USE_SSL = os.environ.get("EMAIL_USE_SSL", "False") == "True"
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "noreply@kryptera.com")
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+REPLY_TO_EMAIL = os.environ.get("REPLY_TO_EMAIL", "support@kryptera.com")
+
+ADMIN_NOTIFICATION_EMAILS = [
+    e.strip()
+    for e in os.environ.get("ADMIN_NOTIFICATION_EMAILS", "").split(",")
+    if e.strip()
+]
+
+FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost").rstrip("/")
+
+NOTIFICATION_MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024

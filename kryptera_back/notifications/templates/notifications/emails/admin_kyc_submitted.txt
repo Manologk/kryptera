@@ -1,0 +1,16 @@
+A user submitted KYC for review.
+
+Account email: {{ user_email }}
+Profile name: {{ user_full_name }}
+Phone: {{ user_phone }}
+
+Legal name: {{ kyc_legal_name }}
+ID number: {{ kyc_id_number }}
+Country: {{ kyc_country }}
+Submitted at: {{ kyc_submitted_at }}
+
+Review in admin: {{ admin_users_url }}
+{% if attachment_note %}
+
+Note: {{ attachment_note }}
+{% endif %}

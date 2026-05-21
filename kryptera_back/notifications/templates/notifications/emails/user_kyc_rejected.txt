@@ -1,0 +1,12 @@
+Hello {{ user_name }},
+
+We could not approve your identity verification at this time.
+
+Reason:
+{{ rejection_reason }}
+
+Please resubmit your documents here:
+{{ kyc_url }}
+
+Thank you,
+Kryptera

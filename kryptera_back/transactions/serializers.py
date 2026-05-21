@@ -380,6 +380,9 @@ class PopUploadSerializer(serializers.ModelSerializer):
         instance.payment_deadline = None
         instance.status = TransactionStatus.AWAITING_CONFIRMATION
         instance.save()
+        from notifications.dispatch import notify_admins_pop_uploaded
+
+        notify_admins_pop_uploaded(instance.pk)
         return instance
 
 
@@ -490,6 +493,7 @@ class AdminTransactionSerializer(serializers.ModelSerializer):
         )
 
     def update(self, instance: Transaction, validated_data):
+        previous_status = instance.status
         confirm = validated_data.pop("confirm_receipt", False)
         if confirm:
             if instance.status not in (
@@ -520,4 +524,12 @@ class AdminTransactionSerializer(serializers.ModelSerializer):
                 )
             validated_data.setdefault("completed_at", timezone.now())
 
-        return super().update(instance, validated_data)
+        updated = super().update(instance, validated_data)
+        if (
+            updated.status == TransactionStatus.COMPLETED
+            and previous_status != TransactionStatus.COMPLETED
+        ):
+            from notifications.dispatch import notify_user_transaction_completed
+
+            notify_user_transaction_completed(updated.pk)
+        return updated

@@ -1,16 +1,25 @@
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase
+from django.test import TransactionTestCase, override_settings
 from rest_framework import status
 from rest_framework.test import APIClient
 
 from .models import KycStatus, User
+
+KYC_TEST_EMAIL_SETTINGS = {
+    "EMAIL_BACKEND": "django.core.mail.backends.locmem.EmailBackend",
+    "EMAIL_HOST": "smtp.test.example",
+    "ADMIN_NOTIFICATION_EMAILS": ["admin-kyc@test.com"],
+    "CELERY_TASK_ALWAYS_EAGER": True,
+    "CELERY_TASK_EAGER_PROPAGATES": True,
+}
 
 
 def kyc_file(name="id.jpg", body=b"\xff\xd8\xff fakejpeg"):
     return SimpleUploadedFile(name, body, content_type="image/jpeg")
 
 
-class KycTests(TestCase):
+@override_settings(**KYC_TEST_EMAIL_SETTINGS)
+class KycTests(TransactionTestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = User.objects.create_user(

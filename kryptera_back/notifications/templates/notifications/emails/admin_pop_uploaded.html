@@ -1,0 +1,12 @@
+<p>Proof of payment uploaded for transaction <strong>{{ reference }}</strong>.</p>
+<ul>
+  <li>Sender: {{ user_full_name }} ({{ user_email }})</li>
+  <li>Phone: {{ user_phone }}</li>
+  <li>Mode: {{ mode }}</li>
+  <li>Amount: {{ input_amount }} {{ input_currency }} → {{ result_amount }} {{ result_currency }}</li>
+  <li>Purpose: {{ purpose }}</li>
+  <li>Recipient: {{ recipient_name }}</li>
+  <li>Status: {{ status }}</li>
+</ul>
+<p><a href="{{ admin_pending_url }}">Review transaction</a></p>
+{% if attachment_note %}<p><em>{{ attachment_note }}</em></p>{% endif %}
