@@ -2,6 +2,9 @@
 users/models.py — Custom User model
 Extends AbstractBaseUser for email-based auth.
 """
+import os
+import uuid
+
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
 
@@ -30,6 +33,14 @@ class KycStatus(models.TextChoices):
     REJECTED      = "rejected",      "Rejected"
 
 
+def kyc_doc_upload_path(instance, filename):
+    ext = os.path.splitext(filename)[1].lower()
+    allowed = {".jpg", ".jpeg", ".png", ".webp", ".pdf"}
+    if ext not in allowed:
+        ext = ".jpg"
+    return f"kyc/{instance.id}/kyc_{uuid.uuid4().hex}{ext}"
+
+
 class User(AbstractBaseUser, PermissionsMixin):
     email      = models.EmailField(unique=True)
     full_name  = models.CharField(max_length=255, blank=True)
@@ -44,7 +55,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     kyc_status = models.CharField(
         max_length=20, choices=KycStatus.choices, default=KycStatus.NOT_SUBMITTED
     )
-    kyc_doc = models.FileField(upload_to="kyc/", null=True, blank=True)
+    kyc_doc = models.FileField(upload_to=kyc_doc_upload_path, null=True, blank=True)
+    kyc_legal_name = models.CharField(max_length=255, blank=True)
+    kyc_id_number = models.CharField(max_length=64, blank=True)
+    kyc_country = models.CharField(max_length=64, blank=True)
+    kyc_submitted_at = models.DateTimeField(null=True, blank=True)
+    kyc_rejection_reason = models.TextField(blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

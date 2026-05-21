@@ -1,6 +1,5 @@
 import { useRates } from '@/context/RatesContext';
 import Card, { CardContent } from '@/components/ui/card';
-import Button from '@/components/ui/button';
 import Input from '@/components/ui/input';
 import type { ConversionMode } from '@/types';
 
@@ -132,27 +131,32 @@ function RateSummary({ mode }: { mode: ConversionMode }) {
 
 export interface TransferFormProps {
   mode: ConversionMode;
-  amount: string;
-  inputLabel: string;
-  inputPrefix: string;
+  sendAmount: string;
+  receiveAmount: string;
   commissionOnTop: boolean;
+  commissionOnTopDisabled?: boolean;
   onCommissionOnTopChange: (v: boolean) => void;
   onModeChange: (m: ConversionMode) => void;
-  onAmountChange: (v: string) => void;
-  onCalculate: () => void;
+  onSendAmountChange: (v: string) => void;
+  onReceiveAmountChange: (v: string) => void;
 }
 
 export default function TransferForm({
   mode,
-  amount,
-  inputLabel,
-  inputPrefix,
+  sendAmount,
+  receiveAmount,
   commissionOnTop,
+  commissionOnTopDisabled = false,
   onCommissionOnTopChange,
   onModeChange,
-  onAmountChange,
-  onCalculate,
+  onSendAmountChange,
+  onReceiveAmountChange,
 }: TransferFormProps) {
+  const isRZ = mode === 'russia-zambia'
+  const sendPrefix = isRZ ? '₽' : 'K'
+  const receivePrefix = isRZ ? 'K' : '₽'
+  const receiveLabel = isRZ ? 'The recipient gets' : 'You receive'
+
   return (
     <>
       <ModeToggle value={mode} onChange={onModeChange} />
@@ -161,21 +165,34 @@ export default function TransferForm({
       <Card style={{ marginBottom: 16 }}>
         <CardContent className='pt-5'>
           <Input
-            label={inputLabel}
+            label="You send"
             type="number"
             min="0"
             step="0.01"
             placeholder="0.00"
-            value={amount}
-            onChange={e => onAmountChange(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && onCalculate()}
-            prefix={inputPrefix}
+            value={sendAmount}
+            onChange={e => onSendAmountChange(e.target.value)}
+            prefix={sendPrefix}
             mono
             hint={
               commissionOnTop
-                ? 'Full amount converts; commission is added on top of this amount'
-                : '4.5% commission is deducted from this amount before conversion'
+                ? 'This full amount is converted; commission is charged on top (see breakdown)'
+                : 'Total amount debited from you (commission is taken from this)'
             }
+          />
+
+          <Input
+            label={receiveLabel}
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="0.00"
+            value={receiveAmount}
+            onChange={e => onReceiveAmountChange(e.target.value)}
+            prefix={receivePrefix}
+            mono
+            wrapperClassName="mt-4"
+            hint="Enter how much should arrive after conversion; we calculate what you need to send"
           />
 
           <label
@@ -184,30 +201,35 @@ export default function TransferForm({
               alignItems: 'flex-start',
               gap: 10,
               marginTop: 16,
-              cursor: 'pointer',
+              cursor: commissionOnTopDisabled ? 'not-allowed' : 'pointer',
               fontSize: 14,
-              color: 'var(--color-text)',
+              color: commissionOnTopDisabled ? 'var(--color-text-muted)' : 'var(--color-text)',
               lineHeight: 1.45,
+              opacity: commissionOnTopDisabled ? 0.65 : 1,
             }}
           >
             <input
               type="checkbox"
               checked={commissionOnTop}
+              disabled={commissionOnTopDisabled}
               onChange={e => onCommissionOnTopChange(e.target.checked)}
-              style={{ marginTop: 3, width: 18, height: 18, flexShrink: 0, cursor: 'pointer' }}
+              style={{
+                marginTop: 3,
+                width: 18,
+                height: 18,
+                flexShrink: 0,
+                cursor: commissionOnTopDisabled ? 'not-allowed' : 'pointer',
+              }}
             />
             <span>
               <strong>Add commission on top</strong>
               <span style={{ display: 'block', fontSize: 13, color: 'var(--color-text-muted)', marginTop: 4 }}>
-                When checked, the amount above is converted in full and the fee is charged separately. When
-                unchecked, the fee is taken out of the amount you enter.
+                {commissionOnTopDisabled
+                  ? 'Not available when you enter the amount the recipient should receive. Edit “You send” to use this option.'
+                  : 'When checked, the amount above is converted in full and the fee is charged separately. When unchecked, the fee is taken out of the amount you enter.'}
               </span>
             </span>
           </label>
-
-          <Button fullWidth size="lg" onClick={onCalculate} className="mt-4">
-            Calculate
-          </Button>
         </CardContent>
       </Card>
     </>

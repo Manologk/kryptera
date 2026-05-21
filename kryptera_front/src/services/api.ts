@@ -3,7 +3,11 @@
  */
 
 import { API_BASE } from '@/constants';
+import { formatMoneyForApi } from '@/lib/money';
 import { getAuthBridge } from '@/services/authBridge';
+import { handleTokenAuthFailure, isTokenRelatedError } from '@/services/authSession';
+
+export { isTokenRelatedError } from '@/services/authSession';
 import type {
   AdminDashboardStats,
   AdminTransactionsByDayResponse,
@@ -64,6 +68,26 @@ function userFromApi(row: Record<string, unknown>): User {
     phone: row.phone != null && row.phone !== '' ? String(row.phone) : undefined,
     isAdmin: Boolean(row.is_admin),
     kycStatus: kycOk,
+    kycLegalName:
+      row.kyc_legal_name != null && String(row.kyc_legal_name) !== ''
+        ? String(row.kyc_legal_name)
+        : undefined,
+    kycIdNumber:
+      row.kyc_id_number != null && String(row.kyc_id_number) !== ''
+        ? String(row.kyc_id_number)
+        : undefined,
+    kycCountry:
+      row.kyc_country != null && String(row.kyc_country) !== ''
+        ? String(row.kyc_country)
+        : undefined,
+    kycSubmittedAt:
+      row.kyc_submitted_at != null && String(row.kyc_submitted_at) !== ''
+        ? String(row.kyc_submitted_at)
+        : undefined,
+    kycRejectionReason:
+      row.kyc_rejection_reason != null && String(row.kyc_rejection_reason) !== ''
+        ? String(row.kyc_rejection_reason)
+        : undefined,
     createdAt: String(row.created_at),
     suspendedUntil:
       row.suspended_until != null && String(row.suspended_until) !== ''
@@ -353,14 +377,27 @@ async function withTokenRetry<T>(
   fn: (t: string) => Promise<ApiResponse<T>>,
 ): Promise<ApiResponse<T>> {
   const r = await fn(accessToken);
-  if (r.error?.code !== '401') return r;
+  if (!isTokenRelatedError(r.error)) return r;
+
   const b = getAuthBridge();
   const refTok = b?.getRefresh();
-  if (!refTok) return r;
+  if (!refTok) {
+    handleTokenAuthFailure(r.error);
+    return r;
+  }
+
   const ref = await refreshToken(refTok);
-  if (!ref.data?.access) return r;
+  if (!ref.data?.access || isTokenRelatedError(ref.error)) {
+    handleTokenAuthFailure(ref.error ?? r.error);
+    return r;
+  }
+
   b.setAccess(ref.data.access);
-  return fn(ref.data.access);
+  const retry = await fn(ref.data.access);
+  if (isTokenRelatedError(retry.error)) {
+    handleTokenAuthFailure(retry.error);
+  }
+  return retry;
 }
 
 // ── Rates ──────────────────────────────────────────────────────────────────
@@ -501,6 +538,65 @@ export async function getMe(token: string): Promise<ApiResponse<User>> {
   );
 }
 
+const KYC_DOC_ACCEPT = 'image/jpeg,image/png,image/webp,application/pdf';
+
+export type KycSubmitInput = {
+  legalName: string;
+  idNumber: string;
+  country: string;
+  file: File;
+};
+
+export async function submitKyc(
+  token: string,
+  input: KycSubmitInput,
+): Promise<ApiResponse<User>> {
+  return withTokenRetry(token, t => {
+    const form = new FormData();
+    form.append('kyc_doc', input.file);
+    form.append('kyc_legal_name', input.legalName.trim());
+    form.append('kyc_id_number', input.idNumber.trim());
+    form.append('kyc_country', input.country.trim());
+    return request<Record<string, unknown>>('/auth/kyc/', {
+      method: 'POST',
+      body: form,
+      headers: { Authorization: `Bearer ${t}` },
+    }).then(res => {
+      if (res.error) return res;
+      if (res.data == null) return { error: { message: 'Empty response' } };
+      return { data: userFromApi(res.data) };
+    });
+  });
+}
+
+export { KYC_DOC_ACCEPT };
+
+async function fetchBlobWithAuth(path: string, token: string): Promise<Blob | null> {
+  const res = await fetch(`${API_BASE}${path}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) return null;
+  return res.blob();
+}
+
+export async function downloadAdminKycDocument(
+  token: string,
+  userId: number,
+): Promise<boolean> {
+  const blob = await fetchBlobWithAuth(`/admin/users/${userId}/kyc/document/`, token);
+  if (!blob) return false;
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `kyc-user-${userId}`;
+  a.rel = 'noopener';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  return true;
+}
+
 // ── Recipients ─────────────────────────────────────────────────────────────
 
 export async function getRecipients(token: string): Promise<ApiResponse<Recipient[]>> {
@@ -631,7 +727,7 @@ export async function createTransaction(
 ): Promise<ApiResponse<Transaction>> {
   const body: Record<string, unknown> = {
     mode: payload.mode,
-    input_amount: String(payload.inputAmount),
+    input_amount: formatMoneyForApi(payload.inputAmount),
     purpose: payload.purpose?.trim() ?? '',
   };
   if (payload.commissionOnTop === true) {

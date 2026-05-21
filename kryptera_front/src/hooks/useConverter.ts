@@ -1,123 +1,115 @@
-import { useCallback, useState } from 'react';
-import type { ConversionBreakdown, ConversionMode, ExchangeRates } from '@/types';
+import { useCallback, useState } from 'react'
+import type { ConversionBreakdown, ConversionMode, ExchangeRates } from '@/types'
+import {
+  breakdownForMode,
+  commissionFraction,
+  formatConverterAmount,
+  principalFromFinal,
+  principalFromSendAmount,
+  sendAmountFromBreakdown,
+} from '@/lib/conversionMath'
+import { roundMoney } from '@/lib/money'
 
-function commissionFraction(rates: ExchangeRates): number {
-  const c = rates.commissionRate;
-  if (c != null && Number.isFinite(c) && c > 0 && c < 1) return c;
-  return 0.045;
-}
-
-function calcRussiaToZambia(
-  amount: number,
-  rates: ExchangeRates,
-  commissionOnTop: boolean,
-  cr: number,
-): ConversionBreakdown {
-  const principal = amount;
-  const commission = principal * cr;
-  // Match backend calculate_conversion: within = principal × (1 − rate); on top = full principal converts.
-  const afterCommission = commissionOnTop ? principal : principal * (1 - cr);
-  const usd = afterCommission / rates.rubleToUsdBuying;
-  const final = usd * rates.usdToKwachaSelling;
-  const totalDebited = commissionOnTop ? principal + commission : principal;
-  return {
-    input: principal,
-    inputCurrency: 'RUB',
-    commission,
-    afterCommission,
-    usd,
-    final,
-    outputCurrency: 'ZMW',
-    commissionOnTop,
-    totalDebited,
-    commissionRate: cr,
-  };
-}
-
-function calcZambiaToRussia(
-  amount: number,
-  rates: ExchangeRates,
-  commissionOnTop: boolean,
-  cr: number,
-): ConversionBreakdown {
-  const principal = amount;
-  const commission = principal * cr;
-  const afterCommission = commissionOnTop ? principal : principal * (1 - cr);
-  const usd = afterCommission / rates.kwachaToUsdBuying;
-  const final = usd * rates.usdToRubleSelling;
-  const totalDebited = commissionOnTop ? principal + commission : principal;
-  return {
-    input: principal,
-    inputCurrency: 'ZMW',
-    commission,
-    afterCommission,
-    usd,
-    final,
-    outputCurrency: 'RUB',
-    commissionOnTop,
-    totalDebited,
-    commissionRate: cr,
-  };
-}
+export type AmountEditSource = 'send' | 'receive'
 
 interface UseConverterReturn {
-  mode: ConversionMode;
-  setMode: (mode: ConversionMode) => void;
-  amount: string;
-  setAmount: (v: string) => void;
-  commissionOnTop: boolean;
-  setCommissionOnTop: (v: boolean) => void;
-  result: ConversionBreakdown | null;
-  calculate: (rates: ExchangeRates) => void;
-  reset: () => void;
+  mode: ConversionMode
+  setMode: (mode: ConversionMode) => void
+  sendAmount: string
+  receiveAmount: string
+  editSource: AmountEditSource
+  setSendAmount: (v: string) => void
+  setReceiveAmount: (v: string) => void
+  commissionOnTop: boolean
+  setCommissionOnTop: (v: boolean) => void
+  result: ConversionBreakdown | null
+  recalculate: (rates: ExchangeRates) => void
+  reset: () => void
 }
 
 export function useConverter(): UseConverterReturn {
-  const [mode, setModeState] = useState<ConversionMode>('russia-zambia');
-  const [amount, setAmount] = useState('');
-  const [commissionOnTop, setCommissionOnTopState] = useState(false);
-  const [result, setResult] = useState<ConversionBreakdown | null>(null);
+  const [mode, setModeState] = useState<ConversionMode>('russia-zambia')
+  const [sendAmount, setSendAmountState] = useState('')
+  const [receiveAmount, setReceiveAmountState] = useState('')
+  const [editSource, setEditSource] = useState<AmountEditSource>('send')
+  const [commissionOnTop, setCommissionOnTopState] = useState(false)
+  const [result, setResult] = useState<ConversionBreakdown | null>(null)
 
   const setCommissionOnTop = useCallback((v: boolean) => {
-    setCommissionOnTopState(v);
-    setResult(null);
-  }, []);
+    setCommissionOnTopState(v)
+  }, [])
 
   const setMode = useCallback((m: ConversionMode) => {
-    setModeState(m);
-    setResult(null);
-    setAmount('');
-    setCommissionOnTopState(false);
-  }, []);
+    setModeState(m)
+    setResult(null)
+    setSendAmountState('')
+    setReceiveAmountState('')
+    setEditSource('send')
+    setCommissionOnTopState(false)
+  }, [])
 
-  const calculate = useCallback(
+  const setSendAmount = useCallback((v: string) => {
+    setEditSource('send')
+    setSendAmountState(v)
+  }, [])
+
+  const setReceiveAmount = useCallback((v: string) => {
+    setEditSource('receive')
+    setReceiveAmountState(v)
+    setCommissionOnTopState(false)
+  }, [])
+
+  const recalculate = useCallback(
     (rates: ExchangeRates) => {
-      const n = parseFloat(amount);
-      if (!n || n <= 0) return;
-      const cr = commissionFraction(rates);
-      const breakdown =
-        mode === 'russia-zambia'
-          ? calcRussiaToZambia(n, rates, commissionOnTop, cr)
-          : calcZambiaToRussia(n, rates, commissionOnTop, cr);
-      setResult(breakdown);
+      const cr = commissionFraction(rates)
+
+      if (editSource === 'receive') {
+        const final = roundMoney(parseFloat(receiveAmount))
+        if (!final || final <= 0) {
+          setSendAmountState('')
+          setResult(null)
+          return
+        }
+        const principal = principalFromFinal(mode, final, rates, false, cr)
+        const breakdown = breakdownForMode(mode, principal, rates, false, cr)
+        setResult(breakdown)
+        setSendAmountState(formatConverterAmount(sendAmountFromBreakdown(breakdown)))
+        return
+      }
+
+      const send = roundMoney(parseFloat(sendAmount))
+      if (!send || send <= 0) {
+        setReceiveAmountState('')
+        setResult(null)
+        return
+      }
+      const principal = principalFromSendAmount(send)
+      const breakdown = breakdownForMode(mode, principal, rates, commissionOnTop, cr)
+      setResult(breakdown)
+      setReceiveAmountState(formatConverterAmount(breakdown.final))
     },
-    [amount, mode, commissionOnTop],
-  );
+    [sendAmount, receiveAmount, editSource, mode, commissionOnTop],
+  )
 
   const reset = useCallback(() => {
-    setAmount('');
-    setResult(null);
-  }, []);
+    setSendAmountState('')
+    setReceiveAmountState('')
+    setResult(null)
+    setEditSource('send')
+  }, [])
 
   return {
     mode,
     setMode,
-    amount,
-    setAmount,
+    sendAmount,
+    receiveAmount,
+    editSource,
+    setSendAmount,
+    setReceiveAmount,
     commissionOnTop,
     setCommissionOnTop,
     result,
-    calculate,
+    recalculate,
     reset,
-  };
+  }
 }

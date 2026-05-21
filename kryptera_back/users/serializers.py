@@ -6,7 +6,10 @@ from django.utils import timezone
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import User
+from django.utils import timezone
+
+from .kyc import validate_kyc_doc_file
+from .models import KycStatus, User
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -52,13 +55,89 @@ class UserSerializer(serializers.ModelSerializer):
         model  = User
         fields = [
             "id", "email", "full_name", "phone",
-            "is_admin", "kyc_status", "created_at",
+            "is_admin", "kyc_status",
+            "kyc_legal_name", "kyc_id_number", "kyc_country",
+            "kyc_submitted_at", "kyc_rejection_reason",
+            "created_at",
             "suspended_until", "suspension_reason",
         ]
         read_only_fields = [
-            "id", "is_admin", "kyc_status", "created_at",
+            "id", "is_admin", "kyc_status",
+            "kyc_legal_name", "kyc_id_number", "kyc_country",
+            "kyc_submitted_at", "kyc_rejection_reason",
+            "created_at",
             "suspended_until", "suspension_reason",
         ]
+
+
+class KycSubmitSerializer(serializers.Serializer):
+    kyc_doc = serializers.FileField()
+    kyc_legal_name = serializers.CharField(max_length=255)
+    kyc_id_number = serializers.CharField(max_length=64)
+    kyc_country = serializers.CharField(max_length=64)
+
+    def validate_kyc_doc(self, value):
+        return validate_kyc_doc_file(value)
+
+    def validate_kyc_legal_name(self, value):
+        value = (value or "").strip()
+        if not value:
+            raise serializers.ValidationError("Legal name is required.")
+        return value
+
+    def validate_kyc_id_number(self, value):
+        value = (value or "").strip()
+        if not value:
+            raise serializers.ValidationError("ID number is required.")
+        return value
+
+    def validate_kyc_country(self, value):
+        value = (value or "").strip()
+        if not value:
+            raise serializers.ValidationError("Country is required.")
+        if len(value) > 64:
+            raise serializers.ValidationError("Country must be at most 64 characters.")
+        return value
+
+    def validate(self, attrs):
+        user = self.context["request"].user
+        if user.kyc_status == KycStatus.PENDING:
+            raise serializers.ValidationError(
+                {"detail": "Your verification is already under review."}
+            )
+        if user.kyc_status == KycStatus.VERIFIED:
+            raise serializers.ValidationError(
+                {"detail": "Your identity is already verified."}
+            )
+        if user.kyc_status not in (KycStatus.NOT_SUBMITTED, KycStatus.REJECTED):
+            raise serializers.ValidationError({"detail": "Cannot submit KYC at this time."})
+        return attrs
+
+    def save(self):
+        user = self.context["request"].user
+        data = self.validated_data
+        if user.kyc_doc:
+            user.kyc_doc.delete(save=False)
+        user.kyc_doc = data["kyc_doc"]
+        user.kyc_legal_name = data["kyc_legal_name"]
+        user.kyc_id_number = data["kyc_id_number"]
+        user.kyc_country = data["kyc_country"]
+        user.kyc_status = KycStatus.PENDING
+        user.kyc_submitted_at = timezone.now()
+        user.kyc_rejection_reason = ""
+        user.save(
+            update_fields=[
+                "kyc_doc",
+                "kyc_legal_name",
+                "kyc_id_number",
+                "kyc_country",
+                "kyc_status",
+                "kyc_submitted_at",
+                "kyc_rejection_reason",
+                "updated_at",
+            ]
+        )
+        return user
 
 
 class AdminUserSerializer(serializers.ModelSerializer):
@@ -73,12 +152,53 @@ class AdminUserSerializer(serializers.ModelSerializer):
             "is_active",
             "is_staff",
             "kyc_status",
+            "kyc_legal_name",
+            "kyc_id_number",
+            "kyc_country",
+            "kyc_submitted_at",
+            "kyc_rejection_reason",
             "suspended_until",
             "suspension_reason",
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["id", "email", "is_admin", "is_staff", "created_at", "updated_at"]
+        read_only_fields = [
+            "id",
+            "email",
+            "is_admin",
+            "is_staff",
+            "kyc_legal_name",
+            "kyc_id_number",
+            "kyc_country",
+            "kyc_submitted_at",
+            "created_at",
+            "updated_at",
+        ]
+
+    def validate(self, attrs):
+        instance = self.instance
+        if instance is None:
+            return attrs
+        new_status = attrs.get("kyc_status", instance.kyc_status)
+        if "kyc_status" in attrs and new_status != instance.kyc_status:
+            if instance.kyc_status != KycStatus.PENDING:
+                raise serializers.ValidationError(
+                    {"kyc_status": "KYC status can only be changed while pending review."}
+                )
+            if new_status not in (KycStatus.VERIFIED, KycStatus.REJECTED):
+                raise serializers.ValidationError(
+                    {"kyc_status": "Admins may only set verified or rejected."}
+                )
+            if new_status == KycStatus.REJECTED:
+                reason = (attrs.get("kyc_rejection_reason") or "").strip()
+                if not reason:
+                    attrs.setdefault(
+                        "kyc_rejection_reason",
+                        "Verification could not be completed. Please resubmit with clearer documents.",
+                    )
+            elif new_status == KycStatus.VERIFIED:
+                attrs["kyc_rejection_reason"] = ""
+        return attrs
 
 
 class TokenPairSerializer(serializers.Serializer):

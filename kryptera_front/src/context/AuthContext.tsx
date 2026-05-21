@@ -6,9 +6,12 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AUTH_STORAGE_KEY } from '@/constants';
+import { ROUTES } from '@/constants/routes';
 import { getMe, login as apiLogin, register as apiRegister } from '@/services/api';
-import { setAuthBridge } from '@/services/authBridge';
+import { isTokenRelatedError } from '@/services/authSession';
+import { resetAuthFailureGuard, setAuthBridge } from '@/services/authBridge';
 import type { User } from '@/types';
 
 interface AuthState {
@@ -67,8 +70,25 @@ function persistSession(state: AuthState | null) {
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const navigate = useNavigate();
   const [session, setSession] = useState<AuthState | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const clearSession = useCallback(() => {
+    setSession(null);
+    persistSession(null);
+  }, []);
+
+  const redirectToLogin = useCallback(() => {
+    const { pathname, search } = window.location;
+    if (pathname === ROUTES.login || pathname === ROUTES.register) return;
+    navigate(ROUTES.login, { replace: true, state: { from: `${pathname}${search}` } });
+  }, [navigate]);
+
+  const handleAuthFailure = useCallback(() => {
+    clearSession();
+    redirectToLogin();
+  }, [clearSession, redirectToLogin]);
 
   useEffect(() => {
     let cancelled = false;
@@ -87,6 +107,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const next: AuthState = { ...stored, user: res.data };
         setSession(next);
         persistSession(next);
+      } else if (isTokenRelatedError(res.error)) {
+        clearSession();
+        redirectToLogin();
       } else {
         setSession(stored);
       }
@@ -96,7 +119,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [clearSession, redirectToLogin]);
 
   useEffect(() => {
     setAuthBridge({
@@ -110,14 +133,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return next;
         });
       },
+      onAuthFailure: handleAuthFailure,
     });
     return () => setAuthBridge(null);
-  }, [session]);
+  }, [session, handleAuthFailure]);
 
   const logout = useCallback(() => {
-    setSession(null);
-    persistSession(null);
-  }, []);
+    clearSession();
+    resetAuthFailureGuard();
+  }, [clearSession]);
 
   const login = useCallback(
     async (email: string, password: string): Promise<LoginResult> => {
@@ -129,6 +153,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const next: AuthState = { access, refresh, user };
       setSession(next);
       persistSession(next);
+      resetAuthFailureGuard();
       return { ok: true, user };
     },
     [],
@@ -150,6 +175,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const next: AuthState = { access, refresh, user };
       setSession(next);
       persistSession(next);
+      resetAuthFailureGuard();
       return { ok: true, user };
     },
     [],
@@ -158,11 +184,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const refreshProfile = useCallback(async () => {
     if (!session?.access) return;
     const res = await getMe(session.access);
+    if (isTokenRelatedError(res.error)) {
+      handleAuthFailure();
+      return;
+    }
     if (res.error || !res.data) return;
     const next: AuthState = { ...session, user: res.data };
     setSession(next);
     persistSession(next);
-  }, [session]);
+  }, [session, handleAuthFailure]);
 
   const value = useMemo<AuthContextValue>(
     () => ({

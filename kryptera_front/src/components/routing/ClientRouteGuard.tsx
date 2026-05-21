@@ -1,6 +1,7 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { ROUTES } from '@/constants/routes';
 import { useAuth } from '@/context/AuthContext';
+import { isKycVerified, pathRequiresKyc } from '@/lib/kyc';
 import { postAuthRedirectPath, userRole } from '@/lib/userRole';
 
 function isPublicClientPath(pathname: string): boolean {
@@ -40,6 +41,10 @@ export default function ClientRouteGuard() {
 
   if (admin) {
     return <Navigate to={ROUTES.admin} replace />;
+  }
+
+  if (!isKycVerified(user) && pathRequiresKyc(path) && path !== ROUTES.kyc) {
+    return <Navigate to={ROUTES.kyc} replace state={{ from: `${location.pathname}${location.search}` }} />;
   }
 
   return <Outlet />;

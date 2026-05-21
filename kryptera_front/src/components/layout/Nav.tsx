@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom';
 import { ROUTES } from '@/constants/routes';
 import { CONTACT_INFO } from '@/constants';
 import { useAuth } from '@/context/AuthContext';
+import { isKycVerified } from '@/lib/kyc';
 import type { User } from '@/types';
 import { cn } from '@/lib/utils';
 
@@ -80,6 +81,7 @@ export default function Nav() {
   const mobileAccountRef = useRef<HTMLDivElement>(null);
 
   const ini = initialsFromUser(user ?? null);
+  const showKycLink = isAuthenticated && user && !user.isAdmin && !isKycVerified(user);
 
   const accountTo = isAuthenticated ? ROUTES.activity : ROUTES.login;
 
@@ -167,6 +169,21 @@ export default function Nav() {
               >
                 Recipients
               </NavLink>
+              {showKycLink ? (
+                <NavLink
+                  to={ROUTES.kyc}
+                  className={({ isActive }) =>
+                    cn(
+                      'shrink-0 text-[13px] font-normal transition-colors',
+                      isActive
+                        ? 'text-[var(--kryptera-green)] underline decoration-2 underline-offset-8'
+                        : 'text-amber-200 hover:text-amber-100',
+                    )
+                  }
+                >
+                  Verification
+                </NavLink>
+              ) : null}
               <a
                 href={helpHref}
                 className="shrink-0 text-[13px] font-normal text-white hover:text-white/90"
@@ -231,6 +248,16 @@ export default function Nav() {
                           >
                             Settings
                           </Link>
+                          {showKycLink ? (
+                            <Link
+                              role="menuitem"
+                              to={ROUTES.kyc}
+                              className="block px-4 py-2.5 text-sm text-[var(--kryptera-dark)] hover:bg-[var(--kryptera-surface)]"
+                              onClick={() => setMenuOpen(false)}
+                            >
+                              Verification
+                            </Link>
+                          ) : null}
                           <button
                             type="button"
                             role="menuitem"
@@ -362,6 +389,16 @@ export default function Nav() {
                   >
                     Settings
                   </Link>
+                  {showKycLink ? (
+                    <Link
+                      role="menuitem"
+                      to={ROUTES.kyc}
+                      className="block px-4 py-2.5 text-sm text-[var(--kryptera-dark)] hover:bg-[var(--kryptera-surface)]"
+                      onClick={() => setMobileAccountOpen(false)}
+                    >
+                      Verification
+                    </Link>
+                  ) : null}
                   <button
                     type="button"
                     role="menuitem"

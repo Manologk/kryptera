@@ -13,7 +13,10 @@ class UserAdmin(BaseUserAdmin):
     fieldsets = (
         (None,          {"fields": ("email", "password")}),
         ("Profile",     {"fields": ("full_name", "phone")}),
-        ("KYC",         {"fields": ("kyc_status", "kyc_doc")}),
+        ("KYC",         {"fields": (
+            "kyc_status", "kyc_legal_name", "kyc_id_number", "kyc_country",
+            "kyc_submitted_at", "kyc_rejection_reason", "kyc_doc",
+        )}),
         ("Permissions", {"fields": ("is_admin", "is_staff", "is_active", "is_superuser", "groups", "user_permissions")}),
         ("Dates",       {"fields": ("last_login",)}),
     )

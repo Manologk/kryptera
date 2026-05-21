@@ -4,7 +4,9 @@ import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
 import { ADMIN_PAGE_SIZE } from '@/constants';
 import { adminKeys } from '@/features/admin/queryKeys';
-import { getAdminUsers, patchAdminUser, type AdminUserRow } from '@/services/api';
+import { kycBadgeClass, kycStatusLabel } from '@/lib/kyc';
+import { downloadAdminKycDocument, getAdminUsers, patchAdminUser, type AdminUserRow } from '@/services/api';
+import type { KycStatus } from '@/types';
 import { Button } from '@/components/ui/button';
 import Card, { CardContent, CardHeader } from '@/components/ui/card';
 import {
@@ -33,7 +35,9 @@ export default function AdminUsersPage() {
   const [appliedSearch, setAppliedSearch] = useState('');
   const [page, setPage] = useState(1);
   const [suspendUser, setSuspendUser] = useState<AdminUserRow | null>(null);
+  const [rejectUser, setRejectUser] = useState<AdminUserRow | null>(null);
   const [reason, setReason] = useState('');
+  const [rejectReason, setRejectReason] = useState('');
 
   const listQuery = useQuery({
     queryKey: adminKeys.users(page, appliedSearch),
@@ -69,6 +73,29 @@ export default function AdminUsersPage() {
   function openSuspend(u: AdminUserRow) {
     setSuspendUser(u);
     setReason('');
+  }
+
+  async function handleViewKycDoc(u: AdminUserRow) {
+    if (!accessToken) return;
+    const ok = await downloadAdminKycDocument(accessToken, u.id);
+    if (!ok) toast.error('Could not download KYC document.');
+  }
+
+  function confirmKyc(u: AdminUserRow, status: KycStatus, rejectionReason?: string) {
+    const body: Record<string, unknown> = { kyc_status: status };
+    if (status === 'rejected' && rejectionReason?.trim()) {
+      body.kyc_rejection_reason = rejectionReason.trim();
+    }
+    patchMutation.mutate(
+      { id: u.id, body },
+      {
+        onSuccess: () => {
+          toast.success(status === 'verified' ? 'KYC approved' : 'KYC rejected');
+          setRejectUser(null);
+          setRejectReason('');
+        },
+      },
+    );
   }
 
   function confirmSuspend(days: number | null) {
@@ -149,7 +176,9 @@ export default function AdminUsersPage() {
                     <TableCell className="text-muted-foreground">
                       <span className="text-foreground">{u.fullName ?? '—'}</span>
                       <span className="mx-1">·</span>
-                      KYC {u.kycStatus}
+                      <Badge variant="outline" className={kycBadgeClass(u.kycStatus)}>
+                        {kycStatusLabel(u.kycStatus)}
+                      </Badge>
                       {u.isAdmin ? (
                         <>
                           <span className="mx-1">·</span>
@@ -174,6 +203,39 @@ export default function AdminUsersPage() {
                       <div className="flex flex-wrap justify-end gap-2">
                         {!u.isAdmin ? (
                           <>
+                            {u.kycStatus === 'pending' ? (
+                              <>
+                                <Button
+                                  type="button"
+                                  variant="secondary"
+                                  size="sm"
+                                  disabled={patchMutation.isPending}
+                                  onClick={() => handleViewKycDoc(u)}
+                                >
+                                  View doc
+                                </Button>
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  disabled={patchMutation.isPending}
+                                  onClick={() => confirmKyc(u, 'verified')}
+                                >
+                                  Approve
+                                </Button>
+                                <Button
+                                  type="button"
+                                  variant="destructive"
+                                  size="sm"
+                                  disabled={patchMutation.isPending}
+                                  onClick={() => {
+                                    setRejectUser(u);
+                                    setRejectReason('');
+                                  }}
+                                >
+                                  Reject
+                                </Button>
+                              </>
+                            ) : null}
                             <Button
                               type="button"
                               variant="secondary"
@@ -239,6 +301,36 @@ export default function AdminUsersPage() {
           ) : null}
         </CardContent>
       </Card>
+
+      <Dialog open={!!rejectUser} onOpenChange={open => !open && setRejectUser(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reject KYC</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            {rejectUser?.email} — optional reason shown to the user when they resubmit.
+          </p>
+          <div className="space-y-2">
+            <Label htmlFor="reject-reason">Reason (optional)</Label>
+            <Input
+              id="reject-reason"
+              value={rejectReason}
+              onChange={e => setRejectReason(e.target.value)}
+              placeholder="e.g. Document is blurry or expired"
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={patchMutation.isPending}
+              onClick={() => rejectUser && confirmKyc(rejectUser, 'rejected', rejectReason)}
+            >
+              Reject verification
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={!!suspendUser} onOpenChange={open => !open && setSuspendUser(null)}>
         <DialogContent>

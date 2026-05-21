@@ -15,6 +15,7 @@ export const ROUTES = {
   adminPending: '/admin/pending',
   login: '/login',
   register: '/register',
+  kyc: '/kyc',
 } as const;
 
 export function activityTransaction(id: string): string {

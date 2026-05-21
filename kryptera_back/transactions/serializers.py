@@ -2,7 +2,7 @@
 transactions/serializers.py
 """
 from datetime import timedelta
-from decimal import Decimal, InvalidOperation
+from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 
 from django.conf import settings
 from django.utils import timezone
@@ -12,11 +12,18 @@ from rates.models import ExchangeRate
 from rates.services import get_commission_rate
 from recipients.models import Recipient
 from recipients.serializers import RecipientThinSerializer
+from users.models import KycStatus
 
 from .models import Transaction, TransactionStatus
 
 # Fallback for unit tests and legacy calls; live API uses get_commission_rate() + stored snapshot.
 DEFAULT_COMMISSION_DECIMAL = Decimal("0.045000")
+MONEY_QUANTIZE = Decimal("0.01")
+
+
+def quantize_money(value: Decimal) -> Decimal:
+    """Book fiat amounts to 2 decimal places."""
+    return value.quantize(MONEY_QUANTIZE, rounding=ROUND_HALF_UP)
 
 
 def _commission_rate_for_breakdown(obj: Transaction, snap: dict) -> Decimal:
@@ -28,6 +35,26 @@ def _commission_rate_for_breakdown(obj: Transaction, snap: dict) -> Decimal:
         except InvalidOperation:
             pass
     return obj.commission_rate
+
+
+def principal_from_target_amount(
+    mode: str,
+    final_amount: Decimal,
+    rates: ExchangeRate,
+    *,
+    commission_on_top: bool = False,
+    commission_rate: Decimal = DEFAULT_COMMISSION_DECIMAL,
+) -> Decimal:
+    """Inverse of calculate_conversion — principal to book for a desired output."""
+    if mode == "russia-zambia":
+        usd = final_amount / rates.usd_to_kwacha_selling
+        after_commission = usd * rates.ruble_to_usd_buying
+    else:
+        usd = final_amount / rates.usd_to_ruble_selling
+        after_commission = usd * rates.kwacha_to_usd_buying
+    if commission_on_top:
+        return after_commission
+    return after_commission / (1 - commission_rate)
 
 
 def calculate_conversion(
@@ -237,9 +264,16 @@ class TransactionSerializer(serializers.ModelSerializer):
     def validate_input_amount(self, value):
         if value <= 0:
             raise serializers.ValidationError("Amount must be positive.")
-        return value
+        return quantize_money(value)
 
     def validate(self, data):
+        user = self.context["request"].user
+        if user.kyc_status != KycStatus.VERIFIED:
+            raise serializers.ValidationError({
+                "detail": "Identity verification is required before starting a transfer.",
+                "kyc_status": user.kyc_status,
+            })
+
         mode = data.get("mode")
         if mode not in ("russia-zambia", "zambia-russia"):
             raise serializers.ValidationError({"mode": "Invalid mode."})
@@ -255,12 +289,14 @@ class TransactionSerializer(serializers.ModelSerializer):
 
         commission_on_top = bool(data.pop("commission_on_top", False))
         cr = get_commission_rate()
-        data["result_amount"] = calculate_conversion(
-            mode,
-            data["input_amount"],
-            rates,
-            commission_on_top=commission_on_top,
-            commission_rate=cr,
+        data["result_amount"] = quantize_money(
+            calculate_conversion(
+                mode,
+                data["input_amount"],
+                rates,
+                commission_on_top=commission_on_top,
+                commission_rate=cr,
+            )
         )
         data["commission_rate"] = cr
 

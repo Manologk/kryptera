@@ -19,6 +19,7 @@ import LoginPage from '@/pages/LoginPage';
 import RegisterPage from '@/pages/RegisterPage';
 import TransferPage from '@/pages/TransferPage';
 import TransferConfirmationPage from '@/pages/TransferConfirmationPage';
+import KycPage from '@/pages/KycPage';
 import { ROUTES } from '@/constants/routes';
 
 export default function App() {
@@ -34,6 +35,7 @@ export default function App() {
               <Route path={ROUTES.activity} element={<ActivityPage />} />
               <Route path="/activity/:id" element={<TransactionDetailPage />} />
               <Route path={ROUTES.recipients} element={<RecipientsPage />} />
+              <Route path={ROUTES.kyc} element={<KycPage />} />
               <Route path={ROUTES.login} element={<LoginPage />} />
               <Route path={ROUTES.register} element={<RegisterPage />} />
             </Route>

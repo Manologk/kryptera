@@ -1,3 +1,4 @@
+import { roundMoney } from '@/lib/money';
 import type { ConversionMode } from '@/types';
 
 const KEY = 'Kryptera_transfer_quote_v1';
@@ -14,7 +15,8 @@ function isFinitePositive(n: number): boolean {
 
 export function saveTransferQuote(quote: PersistedTransferQuote): void {
   try {
-    sessionStorage.setItem(KEY, JSON.stringify(quote));
+    const normalized = { ...quote, inputAmount: roundMoney(quote.inputAmount) };
+    sessionStorage.setItem(KEY, JSON.stringify(normalized));
   } catch {
     /* quota / private mode */
   }
@@ -29,7 +31,7 @@ export function readTransferQuote(): PersistedTransferQuote | null {
     const inputAmount = typeof p.inputAmount === 'number' ? p.inputAmount : Number(p.inputAmount);
     const commissionOnTop = Boolean(p.commissionOnTop);
     if (!isFinitePositive(inputAmount)) return null;
-    return { mode, inputAmount, commissionOnTop };
+    return { mode, inputAmount: roundMoney(inputAmount), commissionOnTop };
   } catch {
     return null;
   }

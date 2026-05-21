@@ -1,11 +1,22 @@
 """
 users/views.py
 """
+from django.http import FileResponse
 from rest_framework import generics, permissions, status
+from rest_framework.exceptions import NotFound
+from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .serializers import LoginSerializer, RegisterSerializer, TokenPairSerializer, UserSerializer
+from .kyc import kyc_content_type, kyc_download_filename
+from .models import User
+from .serializers import (
+    KycSubmitSerializer,
+    LoginSerializer,
+    RegisterSerializer,
+    TokenPairSerializer,
+    UserSerializer,
+)
 
 
 class RegisterView(generics.CreateAPIView):
@@ -39,3 +50,46 @@ class MeView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class KycSubmitView(APIView):
+    """POST /api/v1/auth/kyc/ — submit identity document and metadata."""
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request):
+        serializer = KycSubmitSerializer(data=request.data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
+
+
+class KycDocumentDownloadView(APIView):
+    """GET /api/v1/auth/kyc/document/ — download own KYC document."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        if not user.kyc_doc or not str(user.kyc_doc).strip():
+            raise NotFound("No identity document on file.")
+        name = kyc_download_filename(user)
+        fh = user.kyc_doc.open("rb")
+        return FileResponse(
+            fh,
+            as_attachment=True,
+            filename=name,
+            content_type=kyc_content_type(name),
+        )
+
+
+def stream_user_kyc_document(user: User) -> FileResponse:
+    if not user.kyc_doc or not str(user.kyc_doc).strip():
+        raise NotFound("No identity document on file.")
+    name = kyc_download_filename(user)
+    fh = user.kyc_doc.open("rb")
+    return FileResponse(
+        fh,
+        as_attachment=True,
+        filename=name,
+        content_type=kyc_content_type(name),
+    )

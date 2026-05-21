@@ -1,58 +1,59 @@
-import { useNavigate } from 'react-router-dom';
-import { ROUTES } from '@/constants/routes';
-import { saveTransferQuote } from '@/services/transferQuoteStorage';
-import { useAuth } from '@/context/AuthContext';
-import { useRates } from '@/context/RatesContext';
-import { useConverter } from '@/hooks/useConverter';
-import TransferForm from '@/features/transaction/components/TransferForm';
-import SummaryCard from '@/features/transaction/components/SummaryCard';
-import Layout, { PageHeader } from '@/components/layout/Layout';
+import { useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { ROUTES } from '@/constants/routes'
+import { saveTransferQuote } from '@/services/transferQuoteStorage'
+import { useAuth } from '@/context/AuthContext'
+import { isKycVerified } from '@/lib/kyc'
+import { useRates } from '@/context/RatesContext'
+import { useConverter } from '@/hooks/useConverter'
+import { roundMoney } from '@/lib/money'
+import TransferForm from '@/features/transaction/components/TransferForm'
+import SummaryCard from '@/features/transaction/components/SummaryCard'
+import Layout, { PageHeader } from '@/components/layout/Layout'
 
 export default function ConverterPage() {
-  const navigate = useNavigate();
-  const { isAuthenticated, loading: authLoading } = useAuth();
-  const { rates } = useRates();
+  const navigate = useNavigate()
+  const { user, isAuthenticated, loading: authLoading } = useAuth()
+  const needsKyc = isAuthenticated && user && !isKycVerified(user)
+  const { rates } = useRates()
   const {
     mode,
     setMode,
-    amount,
-    setAmount,
+    sendAmount,
+    receiveAmount,
+    editSource,
+    setSendAmount,
+    setReceiveAmount,
     commissionOnTop,
     setCommissionOnTop,
     result,
-    calculate,
+    recalculate,
     reset,
-  } = useConverter();
+  } = useConverter()
 
-  const isRZ = mode === 'russia-zambia';
-  const inputLabel = isRZ ? 'Amount in Rubles (₽)' : 'Amount in Kwacha (ZMW)';
-  const inputPrefix = isRZ ? '₽' : 'K';
+  const isRZ = mode === 'russia-zambia'
+  const hasRates = rates.rubleToUsdBuying > 0
+  const hasAmountInput = sendAmount.trim() !== '' || receiveAmount.trim() !== ''
 
-  function handleCalculate() {
-    if (!rates.rubleToUsdBuying) {
-      alert('Exchange rates not configured. Please visit the Admin page.');
-      return;
-    }
-    calculate(rates);
-  }
+  useEffect(() => {
+    if (!hasRates || !hasAmountInput) return
+    recalculate(rates)
+  }, [sendAmount, receiveAmount, commissionOnTop, mode, rates, hasRates, hasAmountInput, recalculate])
 
   function handleSend() {
-    if (authLoading) return;
+    if (authLoading) return
     if (result) {
-      const raw = parseFloat(String(amount).replace(/,/g, ''));
-      if (Number.isFinite(raw) && raw > 0) {
-        saveTransferQuote({
-          mode,
-          inputAmount: raw,
-          commissionOnTop,
-        });
-      }
+      saveTransferQuote({
+        mode,
+        inputAmount: roundMoney(result.input),
+        commissionOnTop,
+      })
     }
     if (isAuthenticated) {
-      navigate(ROUTES.transfer);
-      return;
+      navigate(needsKyc ? ROUTES.kyc : ROUTES.transfer)
+      return
     }
-    navigate(ROUTES.login, { state: { from: ROUTES.transfer } });
+    navigate(ROUTES.login, { state: { from: ROUTES.transfer } })
   }
 
   return (
@@ -62,19 +63,31 @@ export default function ConverterPage() {
         subtitle={isRZ ? 'Russia → Zambia · ₽ to ZMW' : 'Zambia → Russia · ZMW to ₽'}
       />
 
+      {needsKyc ? (
+        <div
+          className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950"
+          role="status"
+        >
+          Verify your identity before sending money.{' '}
+          <Link to={ROUTES.kyc} className="font-medium underline underline-offset-2">
+            Complete verification
+          </Link>
+        </div>
+      ) : null}
+
       <TransferForm
         mode={mode}
-        amount={amount}
-        inputLabel={inputLabel}
-        inputPrefix={inputPrefix}
+        sendAmount={sendAmount}
+        receiveAmount={receiveAmount}
         commissionOnTop={commissionOnTop}
+        commissionOnTopDisabled={editSource === 'receive'}
         onCommissionOnTopChange={setCommissionOnTop}
         onModeChange={m => {
-          setMode(m);
-          reset();
+          setMode(m)
+          reset()
         }}
-        onAmountChange={setAmount}
-        onCalculate={handleCalculate}
+        onSendAmountChange={setSendAmount}
+        onReceiveAmountChange={setReceiveAmount}
       />
 
       {result && (
@@ -86,5 +99,5 @@ export default function ConverterPage() {
         />
       )}
     </Layout>
-  );
+  )
 }

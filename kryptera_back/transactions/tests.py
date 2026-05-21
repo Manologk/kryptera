@@ -8,12 +8,12 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from recipients.models import Recipient
-from users.models import User
+from users.models import KycStatus, User
 from rates.models import ExchangeRate
 from rates.services import sync_quotes_from_singleton
 
 from .models import Transaction, TransactionStatus
-from .serializers import calculate_conversion
+from .serializers import calculate_conversion, principal_from_target_amount
 
 
 def make_rates():
@@ -56,6 +56,22 @@ class ConversionMathTests(TestCase):
         )
         self.assertAlmostEqual(float(result), float(expected), places=4)
 
+    def test_principal_from_target_roundtrip_russia_zambia(self):
+        principal = Decimal("10000")
+        final = calculate_conversion("russia-zambia", principal, self.rates)
+        back = principal_from_target_amount("russia-zambia", final, self.rates)
+        self.assertAlmostEqual(float(back), float(principal), places=2)
+
+    def test_principal_from_target_roundtrip_commission_on_top(self):
+        principal = Decimal("10000")
+        final = calculate_conversion(
+            "russia-zambia", principal, self.rates, commission_on_top=True
+        )
+        back = principal_from_target_amount(
+            "russia-zambia", final, self.rates, commission_on_top=True
+        )
+        self.assertAlmostEqual(float(back), float(principal), places=2)
+
 
 class TransactionAPITests(TestCase):
     def setUp(self):
@@ -65,6 +81,9 @@ class TransactionAPITests(TestCase):
         self.admin = User.objects.create_user(
             email="admin@test.com", password="pass", is_admin=True
         )
+        for u in (self.user, self.user2):
+            u.kyc_status = KycStatus.VERIFIED
+            u.save(update_fields=["kyc_status", "updated_at"])
         make_rates()
 
     def test_create_transaction(self):
@@ -97,6 +116,31 @@ class TransactionAPITests(TestCase):
         expected = Decimal("10000") / Decimal("95.5") * Decimal("27.5")
         self.assertAlmostEqual(float(res.data["result_amount"]), float(expected), places=2)
         self.assertTrue(res.data["rate_snapshot"].get("commission_on_top"))
+
+    def test_create_transaction_requires_verified_kyc(self):
+        self.user.kyc_status = KycStatus.NOT_SUBMITTED
+        self.user.save(update_fields=["kyc_status", "updated_at"])
+        self.client.force_authenticate(user=self.user)
+        res = self.client.post("/api/v1/transactions/", {
+            "mode": "russia-zambia",
+            "input_amount": "10000",
+            "purpose": "Test",
+        }, format="json")
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("kyc_status", res.data)
+
+    def test_create_transaction_after_kyc_verified(self):
+        self.user.kyc_status = KycStatus.PENDING
+        self.user.save(update_fields=["kyc_status", "updated_at"])
+        self.user.kyc_status = KycStatus.VERIFIED
+        self.user.save(update_fields=["kyc_status", "updated_at"])
+        self.client.force_authenticate(user=self.user)
+        res = self.client.post("/api/v1/transactions/", {
+            "mode": "russia-zambia",
+            "input_amount": "10000",
+            "purpose": "Test",
+        }, format="json")
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
     def test_create_transaction_unauthenticated(self):
         res = self.client.post("/api/v1/transactions/", {

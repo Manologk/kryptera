@@ -154,6 +154,11 @@ export interface User {
   phone?: string;
   isAdmin: boolean;
   kycStatus: KycStatus;
+  kycLegalName?: string;
+  kycIdNumber?: string;
+  kycCountry?: string;
+  kycSubmittedAt?: string;
+  kycRejectionReason?: string;
   createdAt: string;
   suspendedUntil?: string;
   suspensionReason?: string;

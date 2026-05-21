@@ -14,7 +14,7 @@ import { createRecipient, createTransaction, getRecipients, uploadPop } from '@/
 import { useTransactions } from '@/features/transaction/hooks'
 import { useAuth } from '@/context/AuthContext'
 import { useTransactionCountdown } from '@/hooks/useTransactionCountdown'
-import { transferConfirmation } from '@/constants/routes'
+import { ROUTES, transferConfirmation } from '@/constants/routes'
 import Layout, { PageHeader } from '@/components/layout/Layout'
 import Button from '@/components/ui/button'
 import { Alert, StatusBadge } from '@/components/ui/badge'
@@ -362,7 +362,12 @@ export default function TransferWizard() {
     setProceedBusy(false)
 
     if (res.error || !res.data) {
-      setStep3Error(res.error?.message ?? 'Could not create transfer.')
+      const msg = res.error?.message ?? 'Could not create transfer.'
+      setStep3Error(msg)
+      if (msg.toLowerCase().includes('verification')) {
+        toast.error('Complete identity verification before sending.')
+        navigate(ROUTES.kyc)
+      }
       return
     }
     clearTransferQuote()
