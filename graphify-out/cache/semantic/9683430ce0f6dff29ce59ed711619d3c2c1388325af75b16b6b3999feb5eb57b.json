@@ -1,0 +1,1 @@
+{"nodes": [{"id": "emails_admin_pop_uploaded_txt", "label": "Admin POP Uploaded Email Template (TXT)", "file_type": "document", "source_file": "kryptera_back/notifications/templates/notifications/emails/admin_pop_uploaded.txt", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}], "edges": [], "hyperedges": []}

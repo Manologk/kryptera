@@ -1,0 +1,2816 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {
+    "hyperedges": [
+      {
+        "id": "kyc_email_notification_flow",
+        "label": "KYC Notification Flow: User submits KYC -> user ack email + admin alert email",
+        "nodes": [
+          "back_readme_kyc_status",
+          "emails_user_kyc_submitted_html",
+          "emails_admin_kyc_submitted_html",
+          "back_readme_notifications_app"
+        ],
+        "relation": "participate_in",
+        "confidence": "EXTRACTED",
+        "confidence_score": 0.95,
+        "source_file": "kryptera_back/README.md"
+      },
+      {
+        "id": "transaction_completion_flow",
+        "label": "Transaction Completion Flow: POP upload -> admin review -> completed email",
+        "nodes": [
+          "back_readme_pop_upload",
+          "emails_admin_pop_uploaded_html",
+          "emails_user_transaction_completed_html",
+          "back_readme_transaction_status_flow"
+        ],
+        "relation": "implement",
+        "confidence": "INFERRED",
+        "confidence_score": 0.85,
+        "source_file": "kryptera_back/README.md"
+      },
+      {
+        "id": "docker_celery_async_stack",
+        "label": "Async Processing Stack: Redis broker + Celery worker + Celery beat",
+        "nodes": [
+          "docker_compose_redis_service",
+          "docker_compose_celery_worker_service",
+          "docker_compose_celery_beat_service"
+        ],
+        "relation": "form",
+        "confidence": "EXTRACTED",
+        "confidence_score": 1.0,
+        "source_file": "docker-compose.yml"
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "label": "Layout",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/components/layout/Layout.tsx",
+      "source_location": "L9",
+      "id": "layout_layout_layout",
+      "community": 25,
+      "norm_label": "layout"
+    },
+    {
+      "label": "PublicLayout",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/components/layout/PublicLayout.tsx",
+      "source_location": "L6",
+      "id": "layout_publiclayout_publiclayout",
+      "community": 26,
+      "norm_label": "publiclayout"
+    },
+    {
+      "label": "ClientRouteGuard",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/components/routing/ClientRouteGuard.tsx",
+      "source_location": "L15",
+      "id": "routing_clientrouteguard_clientrouteguard",
+      "community": 50,
+      "norm_label": "clientrouteguard"
+    },
+    {
+      "label": "BadgeProps",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/components/ui/badge.tsx",
+      "source_location": "L24",
+      "id": "ui_badge_badgeprops",
+      "community": 133,
+      "norm_label": "badgeprops"
+    },
+    {
+      "label": "AlertProps",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/components/ui/badge.tsx",
+      "source_location": "L30",
+      "id": "ui_badge_alertprops",
+      "community": 132,
+      "norm_label": "alertprops"
+    },
+    {
+      "label": "ButtonVariantName",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/components/ui/button.tsx",
+      "source_location": "L7",
+      "id": "ui_button_buttonvariantname",
+      "community": 135,
+      "norm_label": "buttonvariantname"
+    },
+    {
+      "label": "ButtonProps",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/components/ui/button.tsx",
+      "source_location": "L77",
+      "id": "ui_button_buttonprops",
+      "community": 134,
+      "norm_label": "buttonprops"
+    },
+    {
+      "label": "CardProps",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/components/ui/card.tsx",
+      "source_location": "L5",
+      "id": "ui_card_cardprops",
+      "community": 137,
+      "norm_label": "cardprops"
+    },
+    {
+      "label": "CardHeaderProps",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/components/ui/card.tsx",
+      "source_location": "L40",
+      "id": "ui_card_cardheaderprops",
+      "community": 136,
+      "norm_label": "cardheaderprops"
+    },
+    {
+      "label": "InputProps",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/components/ui/input.tsx",
+      "source_location": "L5",
+      "id": "ui_input_inputprops",
+      "community": 138,
+      "norm_label": "inputprops"
+    },
+    {
+      "label": "activityTransaction",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/constants/routes.ts",
+      "source_location": "L21",
+      "id": "constants_routes_activitytransaction",
+      "community": 11,
+      "norm_label": "activitytransaction"
+    },
+    {
+      "label": "transferConfirmation",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/constants/routes.ts",
+      "source_location": "L26",
+      "id": "constants_routes_transferconfirmation",
+      "community": 15,
+      "norm_label": "transferconfirmation"
+    },
+    {
+      "label": "adminPendingDetail",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/constants/routes.ts",
+      "source_location": "L31",
+      "id": "constants_routes_adminpendingdetail",
+      "community": 12,
+      "norm_label": "adminpendingdetail"
+    },
+    {
+      "label": "adminTransactionDetail",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/constants/routes.ts",
+      "source_location": "L36",
+      "id": "constants_routes_admintransactiondetail",
+      "community": 13,
+      "norm_label": "admintransactiondetail"
+    },
+    {
+      "label": "RoutePath",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/constants/routes.ts",
+      "source_location": "L40",
+      "id": "constants_routes_routepath",
+      "community": 14,
+      "norm_label": "routepath"
+    },
+    {
+      "label": "DeliveryOptionId",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/constants/transferPlaceholders.ts",
+      "source_location": "L62",
+      "id": "constants_transferplaceholders_deliveryoptionid",
+      "community": 16,
+      "norm_label": "deliveryoptionid"
+    },
+    {
+      "label": "PaymentOptionId",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/constants/transferPlaceholders.ts",
+      "source_location": "L63",
+      "id": "constants_transferplaceholders_paymentoptionid",
+      "community": 17,
+      "norm_label": "paymentoptionid"
+    },
+    {
+      "label": "AuthProvider",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/context/AuthContext.tsx",
+      "source_location": "L72",
+      "id": "context_authcontext_authprovider",
+      "community": 18,
+      "norm_label": "authprovider"
+    },
+    {
+      "label": "RatesProvider",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/context/RatesContext.tsx",
+      "source_location": "L16",
+      "id": "context_ratescontext_ratesprovider",
+      "community": 19,
+      "norm_label": "ratesprovider"
+    },
+    {
+      "label": "useRates",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/context/RatesContext.tsx",
+      "source_location": "L50",
+      "id": "context_ratescontext_userates",
+      "community": 20,
+      "norm_label": "userates"
+    },
+    {
+      "label": "rateSlugDisplay",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/features/admin/rateSlugLabels.ts",
+      "source_location": "L9",
+      "id": "admin_ratesluglabels_rateslugdisplay",
+      "community": 6,
+      "norm_label": "rateslugdisplay"
+    },
+    {
+      "label": "transactionStatusLabel",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/features/admin/transactionLabels.ts",
+      "source_location": "L16",
+      "id": "admin_transactionlabels_transactionstatuslabel",
+      "community": 10,
+      "norm_label": "transactionstatuslabel"
+    },
+    {
+      "label": "recipientDisplay",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/features/admin/transactionLabels.ts",
+      "source_location": "L24",
+      "id": "admin_transactionlabels_recipientdisplay",
+      "community": 8,
+      "norm_label": "recipientdisplay"
+    },
+    {
+      "label": "recipientPhoneLine",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/features/admin/transactionLabels.ts",
+      "source_location": "L37",
+      "id": "admin_transactionlabels_recipientphoneline",
+      "community": 9,
+      "norm_label": "recipientphoneline"
+    },
+    {
+      "label": "DeliveryDetailFields",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/features/recipient/deliveryDetails.ts",
+      "source_location": "L3",
+      "id": "recipient_deliverydetails_deliverydetailfields",
+      "community": 46,
+      "norm_label": "deliverydetailfields"
+    },
+    {
+      "label": "buildDeliveryDetailsPayload",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/features/recipient/deliveryDetails.ts",
+      "source_location": "L18",
+      "id": "recipient_deliverydetails_builddeliverydetailspayload",
+      "community": 45,
+      "norm_label": "builddeliverydetailspayload"
+    },
+    {
+      "label": "validateDeliveryDetails",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/features/recipient/deliveryDetails.ts",
+      "source_location": "L38",
+      "id": "recipient_deliverydetails_validatedeliverydetails",
+      "community": 48,
+      "norm_label": "validatedeliverydetails"
+    },
+    {
+      "label": "fieldsFromStoredDetails",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/features/recipient/deliveryDetails.ts",
+      "source_location": "L60",
+      "id": "recipient_deliverydetails_fieldsfromstoreddetails",
+      "community": 47,
+      "norm_label": "fieldsfromstoreddetails"
+    },
+    {
+      "label": "useTransactions",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/features/transaction/hooks.ts",
+      "source_location": "L7",
+      "id": "transaction_hooks_usetransactions",
+      "community": 103,
+      "norm_label": "usetransactions"
+    },
+    {
+      "label": "transactionReferenceDisplay",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/features/transaction/transactionReference.ts",
+      "source_location": "L2",
+      "id": "transaction_transactionreference_transactionreferencedisplay",
+      "community": 104,
+      "norm_label": "transactionreferencedisplay"
+    },
+    {
+      "label": "formatMoneyAmount",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/features/transaction/utils.ts",
+      "source_location": "L6",
+      "id": "transaction_utils_formatmoneyamount",
+      "community": 105,
+      "norm_label": "formatmoneyamount"
+    },
+    {
+      "label": "ChoiceTile",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/features/transfer/ChoiceTile.tsx",
+      "source_location": "L13",
+      "id": "transfer_choicetile_choicetile",
+      "community": 106,
+      "norm_label": "choicetile"
+    },
+    {
+      "label": "PaymentDeadlineBannerProps",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/features/transfer/PaymentDeadlineBanner.tsx",
+      "source_location": "L4",
+      "id": "transfer_paymentdeadlinebanner_paymentdeadlinebannerprops",
+      "community": 107,
+      "norm_label": "paymentdeadlinebannerprops"
+    },
+    {
+      "label": "PendingTransactionProps",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/features/transfer/PendingTransaction.tsx",
+      "source_location": "L10",
+      "id": "transfer_pendingtransaction_pendingtransactionprops",
+      "community": 108,
+      "norm_label": "pendingtransactionprops"
+    },
+    {
+      "label": "ProofOfPaymentCardProps",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/features/transfer/ProofOfPaymentCard.tsx",
+      "source_location": "L13",
+      "id": "transfer_proofofpaymentcard_proofofpaymentcardprops",
+      "community": 109,
+      "norm_label": "proofofpaymentcardprops"
+    },
+    {
+      "label": "RecipientSourceTab",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/features/transfer/RecipientStepPanel.tsx",
+      "source_location": "L10",
+      "id": "transfer_recipientsteppanel_recipientsourcetab",
+      "community": 110,
+      "norm_label": "recipientsourcetab"
+    },
+    {
+      "label": "TransferWizardStep",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/features/transfer/TransferStepIndicator.tsx",
+      "source_location": "L8",
+      "id": "transfer_transferstepindicator_transferwizardstep",
+      "community": 111,
+      "norm_label": "transferwizardstep"
+    },
+    {
+      "label": "AmountEditSource",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/hooks/useConverter.ts",
+      "source_location": "L13",
+      "id": "hooks_useconverter_amounteditsource",
+      "community": 21,
+      "norm_label": "amounteditsource"
+    },
+    {
+      "label": "useConverter",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/hooks/useConverter.ts",
+      "source_location": "L30",
+      "id": "hooks_useconverter_useconverter",
+      "community": 22,
+      "norm_label": "useconverter"
+    },
+    {
+      "label": "TransactionCountdownSync",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/hooks/useTransactionCountdown.ts",
+      "source_location": "L10",
+      "id": "hooks_usetransactioncountdown_transactioncountdownsync",
+      "community": 23,
+      "norm_label": "transactioncountdownsync"
+    },
+    {
+      "label": "UseTransactionCountdownResult",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/hooks/useTransactionCountdown.ts",
+      "source_location": "L23",
+      "id": "hooks_usetransactioncountdown_usetransactioncountdownresult",
+      "community": 24,
+      "norm_label": "usetransactioncountdownresult"
+    },
+    {
+      "label": "commissionFraction",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/lib/conversionMath.ts",
+      "source_location": "L4",
+      "id": "lib_conversionmath_commissionfraction",
+      "community": 30,
+      "norm_label": "commissionfraction"
+    },
+    {
+      "label": "calcRussiaToZambia",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/lib/conversionMath.ts",
+      "source_location": "L22",
+      "id": "lib_conversionmath_calcrussiatozambia",
+      "community": 28,
+      "norm_label": "calcrussiatozambia"
+    },
+    {
+      "label": "calcZambiaToRussia",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/lib/conversionMath.ts",
+      "source_location": "L48",
+      "id": "lib_conversionmath_calczambiatorussia",
+      "community": 29,
+      "norm_label": "calczambiatorussia"
+    },
+    {
+      "label": "principalFromFinal",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/lib/conversionMath.ts",
+      "source_location": "L75",
+      "id": "lib_conversionmath_principalfromfinal",
+      "community": 32,
+      "norm_label": "principalfromfinal"
+    },
+    {
+      "label": "principalFromSendAmount",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/lib/conversionMath.ts",
+      "source_location": "L99",
+      "id": "lib_conversionmath_principalfromsendamount",
+      "community": 33,
+      "norm_label": "principalfromsendamount"
+    },
+    {
+      "label": "sendAmountFromBreakdown",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/lib/conversionMath.ts",
+      "source_location": "L104",
+      "id": "lib_conversionmath_sendamountfrombreakdown",
+      "community": 34,
+      "norm_label": "sendamountfrombreakdown"
+    },
+    {
+      "label": "formatConverterAmount",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/lib/conversionMath.ts",
+      "source_location": "L108",
+      "id": "lib_conversionmath_formatconverteramount",
+      "community": 31,
+      "norm_label": "formatconverteramount"
+    },
+    {
+      "label": "breakdownForMode",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/lib/conversionMath.ts",
+      "source_location": "L113",
+      "id": "lib_conversionmath_breakdownformode",
+      "community": 27,
+      "norm_label": "breakdownformode"
+    },
+    {
+      "label": "isKycVerified",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/lib/kyc.ts",
+      "source_location": "L4",
+      "id": "lib_kyc_iskycverified",
+      "community": 35,
+      "norm_label": "iskycverified"
+    },
+    {
+      "label": "pathRequiresKyc",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/lib/kyc.ts",
+      "source_location": "L8",
+      "id": "lib_kyc_pathrequireskyc",
+      "community": 38,
+      "norm_label": "pathrequireskyc"
+    },
+    {
+      "label": "kycBadgeClass",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/lib/kyc.ts",
+      "source_location": "L14",
+      "id": "lib_kyc_kycbadgeclass",
+      "community": 36,
+      "norm_label": "kycbadgeclass"
+    },
+    {
+      "label": "kycStatusLabel",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/lib/kyc.ts",
+      "source_location": "L27",
+      "id": "lib_kyc_kycstatuslabel",
+      "community": 37,
+      "norm_label": "kycstatuslabel"
+    },
+    {
+      "label": "roundMoney",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/lib/money.ts",
+      "source_location": "L4",
+      "id": "lib_money_roundmoney",
+      "community": 40,
+      "norm_label": "roundmoney"
+    },
+    {
+      "label": "formatMoneyForApi",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/lib/money.ts",
+      "source_location": "L11",
+      "id": "lib_money_formatmoneyforapi",
+      "community": 39,
+      "norm_label": "formatmoneyforapi"
+    },
+    {
+      "label": "userRole",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/lib/userRole.ts",
+      "source_location": "L6",
+      "id": "lib_userrole_userrole",
+      "community": 42,
+      "norm_label": "userrole"
+    },
+    {
+      "label": "postAuthRedirectPath",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/lib/userRole.ts",
+      "source_location": "L12",
+      "id": "lib_userrole_postauthredirectpath",
+      "community": 41,
+      "norm_label": "postauthredirectpath"
+    },
+    {
+      "label": "cn",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/lib/utils.ts",
+      "source_location": "L4",
+      "id": "lib_utils_cn",
+      "community": 43,
+      "norm_label": "cn"
+    },
+    {
+      "label": "RequireAdmin",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/pages/admin/RequireAdmin.tsx",
+      "source_location": "L7",
+      "id": "admin_requireadmin_requireadmin",
+      "community": 7,
+      "norm_label": "requireadmin"
+    },
+    {
+      "label": "QueryProvider",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/providers/QueryProvider.tsx",
+      "source_location": "L4",
+      "id": "providers_queryprovider_queryprovider",
+      "community": 44,
+      "norm_label": "queryprovider"
+    },
+    {
+      "label": "getRates",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L405",
+      "id": "services_api_getrates",
+      "community": 72,
+      "norm_label": "getrates"
+    },
+    {
+      "label": "getCurrencies",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L412",
+      "id": "services_api_getcurrencies",
+      "community": 70,
+      "norm_label": "getcurrencies"
+    },
+    {
+      "label": "updateRates",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L425",
+      "id": "services_api_updaterates",
+      "community": 87,
+      "norm_label": "updaterates"
+    },
+    {
+      "label": "patchPlatformCommission",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L443",
+      "id": "services_api_patchplatformcommission",
+      "community": 82,
+      "norm_label": "patchplatformcommission"
+    },
+    {
+      "label": "login",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L484",
+      "id": "services_api_login",
+      "community": 77,
+      "norm_label": "login"
+    },
+    {
+      "label": "register",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L500",
+      "id": "services_api_register",
+      "community": 84,
+      "norm_label": "register"
+    },
+    {
+      "label": "refreshToken",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L522",
+      "id": "services_api_refreshtoken",
+      "community": 83,
+      "norm_label": "refreshtoken"
+    },
+    {
+      "label": "getMe",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L529",
+      "id": "services_api_getme",
+      "community": 71,
+      "norm_label": "getme"
+    },
+    {
+      "label": "KycSubmitInput",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L543",
+      "id": "services_api_kycsubmitinput",
+      "community": 76,
+      "norm_label": "kycsubmitinput"
+    },
+    {
+      "label": "submitKyc",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L550",
+      "id": "services_api_submitkyc",
+      "community": 86,
+      "norm_label": "submitkyc"
+    },
+    {
+      "label": "downloadAdminKycDocument",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L582",
+      "id": "services_api_downloadadminkycdocument",
+      "community": 60,
+      "norm_label": "downloadadminkycdocument"
+    },
+    {
+      "label": "getRecipients",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L602",
+      "id": "services_api_getrecipients",
+      "community": 73,
+      "norm_label": "getrecipients"
+    },
+    {
+      "label": "createRecipient",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L620",
+      "id": "services_api_createrecipient",
+      "community": 55,
+      "norm_label": "createrecipient"
+    },
+    {
+      "label": "updateRecipient",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L643",
+      "id": "services_api_updaterecipient",
+      "community": 88,
+      "norm_label": "updaterecipient"
+    },
+    {
+      "label": "deleteRecipient",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L667",
+      "id": "services_api_deleterecipient",
+      "community": 59,
+      "norm_label": "deleterecipient"
+    },
+    {
+      "label": "getTransactions",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L681",
+      "id": "services_api_gettransactions",
+      "community": 75,
+      "norm_label": "gettransactions"
+    },
+    {
+      "label": "getTransaction",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L699",
+      "id": "services_api_gettransaction",
+      "community": 74,
+      "norm_label": "gettransaction"
+    },
+    {
+      "label": "createTransaction",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L711",
+      "id": "services_api_createtransaction",
+      "community": 56,
+      "norm_label": "createtransaction"
+    },
+    {
+      "label": "startPaymentWindow",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L773",
+      "id": "services_api_startpaymentwindow",
+      "community": 85,
+      "norm_label": "startpaymentwindow"
+    },
+    {
+      "label": "uploadPop",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L789",
+      "id": "services_api_uploadpop",
+      "community": 89,
+      "norm_label": "uploadpop"
+    },
+    {
+      "label": "downloadTransactionPop",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L810",
+      "id": "services_api_downloadtransactionpop",
+      "community": 61,
+      "norm_label": "downloadtransactionpop"
+    },
+    {
+      "label": "getAdminDashboardStats",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L876",
+      "id": "services_api_getadmindashboardstats",
+      "community": 63,
+      "norm_label": "getadmindashboardstats"
+    },
+    {
+      "label": "getAdminDashboardTimeseries",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L888",
+      "id": "services_api_getadmindashboardtimeseries",
+      "community": 64,
+      "norm_label": "getadmindashboardtimeseries"
+    },
+    {
+      "label": "getAdminTransactions",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L918",
+      "id": "services_api_getadmintransactions",
+      "community": 67,
+      "norm_label": "getadmintransactions"
+    },
+    {
+      "label": "getAdminTransaction",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L943",
+      "id": "services_api_getadmintransaction",
+      "community": 66,
+      "norm_label": "getadmintransaction"
+    },
+    {
+      "label": "patchAdminTransaction",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L955",
+      "id": "services_api_patchadmintransaction",
+      "community": 80,
+      "norm_label": "patchadmintransaction"
+    },
+    {
+      "label": "AdminUserRow",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L1011",
+      "id": "services_api_adminuserrow",
+      "community": 52,
+      "norm_label": "adminuserrow"
+    },
+    {
+      "label": "getAdminUsers",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L1023",
+      "id": "services_api_getadminusers",
+      "community": 69,
+      "norm_label": "getadminusers"
+    },
+    {
+      "label": "getAdminUser",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L1045",
+      "id": "services_api_getadminuser",
+      "community": 68,
+      "norm_label": "getadminuser"
+    },
+    {
+      "label": "patchAdminUser",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L1057",
+      "id": "services_api_patchadminuser",
+      "community": 81,
+      "norm_label": "patchadminuser"
+    },
+    {
+      "label": "getAdminCurrencies",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L1075",
+      "id": "services_api_getadmincurrencies",
+      "community": 62,
+      "norm_label": "getadmincurrencies"
+    },
+    {
+      "label": "createAdminCurrency",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L1093",
+      "id": "services_api_createadmincurrency",
+      "community": 53,
+      "norm_label": "createadmincurrency"
+    },
+    {
+      "label": "patchAdminCurrency",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L1110",
+      "id": "services_api_patchadmincurrency",
+      "community": 78,
+      "norm_label": "patchadmincurrency"
+    },
+    {
+      "label": "deleteAdminCurrency",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L1128",
+      "id": "services_api_deleteadmincurrency",
+      "community": 57,
+      "norm_label": "deleteadmincurrency"
+    },
+    {
+      "label": "AdminRateQuote",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L1140",
+      "id": "services_api_adminratequote",
+      "community": 51,
+      "norm_label": "adminratequote"
+    },
+    {
+      "label": "getAdminRateQuotes",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L1158",
+      "id": "services_api_getadminratequotes",
+      "community": 65,
+      "norm_label": "getadminratequotes"
+    },
+    {
+      "label": "patchAdminRateQuote",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L1176",
+      "id": "services_api_patchadminratequote",
+      "community": 79,
+      "norm_label": "patchadminratequote"
+    },
+    {
+      "label": "createAdminRateQuote",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L1197",
+      "id": "services_api_createadminratequote",
+      "community": 54,
+      "norm_label": "createadminratequote"
+    },
+    {
+      "label": "deleteAdminRateQuote",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/api.ts",
+      "source_location": "L1218",
+      "id": "services_api_deleteadminratequote",
+      "community": 58,
+      "norm_label": "deleteadminratequote"
+    },
+    {
+      "label": "AuthBridge",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/authBridge.ts",
+      "source_location": "L4",
+      "id": "services_authbridge_authbridge",
+      "community": 90,
+      "norm_label": "authbridge"
+    },
+    {
+      "label": "setAuthBridge",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/authBridge.ts",
+      "source_location": "L15",
+      "id": "services_authbridge_setauthbridge",
+      "community": 94,
+      "norm_label": "setauthbridge"
+    },
+    {
+      "label": "getAuthBridge",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/authBridge.ts",
+      "source_location": "L20",
+      "id": "services_authbridge_getauthbridge",
+      "community": 91,
+      "norm_label": "getauthbridge"
+    },
+    {
+      "label": "resetAuthFailureGuard",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/authBridge.ts",
+      "source_location": "L24",
+      "id": "services_authbridge_resetauthfailureguard",
+      "community": 93,
+      "norm_label": "resetauthfailureguard"
+    },
+    {
+      "label": "notifyAuthFailure",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/authBridge.ts",
+      "source_location": "L28",
+      "id": "services_authbridge_notifyauthfailure",
+      "community": 92,
+      "norm_label": "notifyauthfailure"
+    },
+    {
+      "label": "isTokenRelatedError",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/authSession.ts",
+      "source_location": "L5",
+      "id": "services_authsession_istokenrelatederror",
+      "community": 96,
+      "norm_label": "istokenrelatederror"
+    },
+    {
+      "label": "handleTokenAuthFailure",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/authSession.ts",
+      "source_location": "L20",
+      "id": "services_authsession_handletokenauthfailure",
+      "community": 95,
+      "norm_label": "handletokenauthfailure"
+    },
+    {
+      "label": "NewLocalTransactionInput",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/transactionsStorage.ts",
+      "source_location": "L8",
+      "id": "services_transactionsstorage_newlocaltransactioninput",
+      "community": 99,
+      "norm_label": "newlocaltransactioninput"
+    },
+    {
+      "label": "getLocalTransactions",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/transactionsStorage.ts",
+      "source_location": "L43",
+      "id": "services_transactionsstorage_getlocaltransactions",
+      "community": 98,
+      "norm_label": "getlocaltransactions"
+    },
+    {
+      "label": "appendLocalTransaction",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/transactionsStorage.ts",
+      "source_location": "L55",
+      "id": "services_transactionsstorage_appendlocaltransaction",
+      "community": 97,
+      "norm_label": "appendlocaltransaction"
+    },
+    {
+      "label": "PersistedTransferQuote",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/transferQuoteStorage.ts",
+      "source_location": "L6",
+      "id": "services_transferquotestorage_persistedtransferquote",
+      "community": 4,
+      "norm_label": "persistedtransferquote"
+    },
+    {
+      "label": "saveTransferQuote",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/transferQuoteStorage.ts",
+      "source_location": "L16",
+      "id": "services_transferquotestorage_savetransferquote",
+      "community": 102,
+      "norm_label": "savetransferquote"
+    },
+    {
+      "label": "readTransferQuote",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/transferQuoteStorage.ts",
+      "source_location": "L25",
+      "id": "services_transferquotestorage_readtransferquote",
+      "community": 101,
+      "norm_label": "readtransferquote"
+    },
+    {
+      "label": "clearTransferQuote",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/services/transferQuoteStorage.ts",
+      "source_location": "L40",
+      "id": "services_transferquotestorage_cleartransferquote",
+      "community": 100,
+      "norm_label": "cleartransferquote"
+    },
+    {
+      "label": "ExchangeRates",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/types/index.ts",
+      "source_location": "L2",
+      "id": "types_index_exchangerates",
+      "community": 122,
+      "norm_label": "exchangerates"
+    },
+    {
+      "label": "ConversionMode",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/types/index.ts",
+      "source_location": "L13",
+      "id": "types_index_conversionmode",
+      "community": 4,
+      "norm_label": "conversionmode"
+    },
+    {
+      "label": "ConversionBreakdown",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/types/index.ts",
+      "source_location": "L15",
+      "id": "types_index_conversionbreakdown",
+      "community": 118,
+      "norm_label": "conversionbreakdown"
+    },
+    {
+      "label": "Currency",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/types/index.ts",
+      "source_location": "L32",
+      "id": "types_index_currency",
+      "community": 120,
+      "norm_label": "currency"
+    },
+    {
+      "label": "CurrencyMeta",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/types/index.ts",
+      "source_location": "L34",
+      "id": "types_index_currencymeta",
+      "community": 121,
+      "norm_label": "currencymeta"
+    },
+    {
+      "label": "ApiCurrency",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/types/index.ts",
+      "source_location": "L42",
+      "id": "types_index_apicurrency",
+      "community": 115,
+      "norm_label": "apicurrency"
+    },
+    {
+      "label": "Recipient",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/types/index.ts",
+      "source_location": "L54",
+      "id": "types_index_recipient",
+      "community": 126,
+      "norm_label": "recipient"
+    },
+    {
+      "label": "RecipientThin",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/types/index.ts",
+      "source_location": "L64",
+      "id": "types_index_recipientthin",
+      "community": 127,
+      "norm_label": "recipientthin"
+    },
+    {
+      "label": "TransactionStatus",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/types/index.ts",
+      "source_location": "L74",
+      "id": "types_index_transactionstatus",
+      "community": 130,
+      "norm_label": "transactionstatus"
+    },
+    {
+      "label": "RateSnapshot",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/types/index.ts",
+      "source_location": "L83",
+      "id": "types_index_ratesnapshot",
+      "community": 125,
+      "norm_label": "ratesnapshot"
+    },
+    {
+      "label": "ConversionBreakdownView",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/types/index.ts",
+      "source_location": "L91",
+      "id": "types_index_conversionbreakdownview",
+      "community": 119,
+      "norm_label": "conversionbreakdownview"
+    },
+    {
+      "label": "Transaction",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/types/index.ts",
+      "source_location": "L102",
+      "id": "types_index_transaction",
+      "community": 129,
+      "norm_label": "transaction"
+    },
+    {
+      "label": "KycStatus",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/types/index.ts",
+      "source_location": "L148",
+      "id": "types_index_kycstatus",
+      "community": 123,
+      "norm_label": "kycstatus"
+    },
+    {
+      "label": "User",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/types/index.ts",
+      "source_location": "L150",
+      "id": "types_index_user",
+      "community": 131,
+      "norm_label": "user"
+    },
+    {
+      "label": "AuthTokens",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/types/index.ts",
+      "source_location": "L167",
+      "id": "types_index_authtokens",
+      "community": 5,
+      "norm_label": "authtokens"
+    },
+    {
+      "label": "AuthSession",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/types/index.ts",
+      "source_location": "L173",
+      "id": "types_index_authsession",
+      "community": 5,
+      "norm_label": "authsession"
+    },
+    {
+      "label": "AdminDashboardStats",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/types/index.ts",
+      "source_location": "L178",
+      "id": "types_index_admindashboardstats",
+      "community": 112,
+      "norm_label": "admindashboardstats"
+    },
+    {
+      "label": "Paginated",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/types/index.ts",
+      "source_location": "L188",
+      "id": "types_index_paginated",
+      "community": 124,
+      "norm_label": "paginated"
+    },
+    {
+      "label": "AdminTransactionsByDayPoint",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/types/index.ts",
+      "source_location": "L195",
+      "id": "types_index_admintransactionsbydaypoint",
+      "community": 113,
+      "norm_label": "admintransactionsbydaypoint"
+    },
+    {
+      "label": "AdminTransactionsByDayResponse",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/types/index.ts",
+      "source_location": "L203",
+      "id": "types_index_admintransactionsbydayresponse",
+      "community": 114,
+      "norm_label": "admintransactionsbydayresponse"
+    },
+    {
+      "label": "ApiError",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/types/index.ts",
+      "source_location": "L209",
+      "id": "types_index_apierror",
+      "community": 116,
+      "norm_label": "apierror"
+    },
+    {
+      "label": "ApiResponse",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/types/index.ts",
+      "source_location": "L215",
+      "id": "types_index_apiresponse",
+      "community": 117,
+      "norm_label": "apiresponse"
+    },
+    {
+      "label": "ToastMessage",
+      "file_type": "code",
+      "source_file": "kryptera_front/src/types/index.ts",
+      "source_location": "L221",
+      "id": "types_index_toastmessage",
+      "community": 128,
+      "norm_label": "toastmessage"
+    },
+    {
+      "label": "Kryptera Platform",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "kryptera_readme_kryptera_platform",
+      "community": 2,
+      "norm_label": "kryptera platform"
+    },
+    {
+      "label": "Kryptera Design System",
+      "file_type": "rationale",
+      "source_file": "DESIGN.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "design_design_system",
+      "community": 2,
+      "norm_label": "kryptera design system"
+    },
+    {
+      "label": "Frontend Design System (Wise-inspired)",
+      "file_type": "rationale",
+      "source_file": "kryptera_front/DESIGN.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "kryptera_front_design_frontend_design_system",
+      "community": 2,
+      "norm_label": "frontend design system (wise-inspired)"
+    },
+    {
+      "label": "Docker Compose Infrastructure",
+      "file_type": "document",
+      "source_file": "docker-compose.yml",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "docker_compose_docker_infrastructure",
+      "community": 3,
+      "norm_label": "docker compose infrastructure"
+    },
+    {
+      "label": "PostgreSQL Database Service",
+      "file_type": "concept",
+      "source_file": "docker-compose.yml",
+      "source_location": "services.db",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "docker_compose_db_service",
+      "community": 3,
+      "norm_label": "postgresql database service"
+    },
+    {
+      "label": "Django Application Service",
+      "file_type": "concept",
+      "source_file": "docker-compose.yml",
+      "source_location": "services.django",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "docker_compose_django_service",
+      "community": 3,
+      "norm_label": "django application service"
+    },
+    {
+      "label": "Redis Service",
+      "file_type": "concept",
+      "source_file": "docker-compose.yml",
+      "source_location": "services.redis",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "docker_compose_redis_service",
+      "community": 3,
+      "norm_label": "redis service"
+    },
+    {
+      "label": "Celery Worker Service",
+      "file_type": "concept",
+      "source_file": "docker-compose.yml",
+      "source_location": "services.celery_worker",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "docker_compose_celery_worker_service",
+      "community": 3,
+      "norm_label": "celery worker service"
+    },
+    {
+      "label": "Celery Beat Scheduler Service",
+      "file_type": "concept",
+      "source_file": "docker-compose.yml",
+      "source_location": "services.celery_beat",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "docker_compose_celery_beat_service",
+      "community": 3,
+      "norm_label": "celery beat scheduler service"
+    },
+    {
+      "label": "Nginx Frontend Service",
+      "file_type": "concept",
+      "source_file": "docker-compose.yml",
+      "source_location": "services.nginx",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "docker_compose_nginx_service",
+      "community": 3,
+      "norm_label": "nginx frontend service"
+    },
+    {
+      "label": "Django REST API Backend",
+      "file_type": "document",
+      "source_file": "kryptera_back/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "back_readme_django_backend",
+      "community": 1,
+      "norm_label": "django rest api backend"
+    },
+    {
+      "label": "Users App (auth, KYC fields)",
+      "file_type": "concept",
+      "source_file": "kryptera_back/README.md",
+      "source_location": "users/",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "back_readme_users_app",
+      "community": 1,
+      "norm_label": "users app (auth, kyc fields)"
+    },
+    {
+      "label": "Rates App (ExchangeRate singleton, RateAuditLog)",
+      "file_type": "concept",
+      "source_file": "kryptera_back/README.md",
+      "source_location": "rates/",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "back_readme_rates_app",
+      "community": 1,
+      "norm_label": "rates app (exchangerate singleton, rateauditlog)"
+    },
+    {
+      "label": "Transactions App (UUID PK, POP upload)",
+      "file_type": "concept",
+      "source_file": "kryptera_back/README.md",
+      "source_location": "transactions/",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "back_readme_transactions_app",
+      "community": 1,
+      "norm_label": "transactions app (uuid pk, pop upload)"
+    },
+    {
+      "label": "Notifications App (Celery email tasks)",
+      "file_type": "concept",
+      "source_file": "kryptera_back/README.md",
+      "source_location": "notifications/",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "back_readme_notifications_app",
+      "community": 0,
+      "norm_label": "notifications app (celery email tasks)"
+    },
+    {
+      "label": "SimpleJWT Authentication",
+      "file_type": "concept",
+      "source_file": "kryptera_back/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "back_readme_simplejwt_auth",
+      "community": 1,
+      "norm_label": "simplejwt authentication"
+    },
+    {
+      "label": "Transaction Status Flow",
+      "file_type": "concept",
+      "source_file": "kryptera_back/README.md",
+      "source_location": "Transaction status flow",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "back_readme_transaction_status_flow",
+      "community": 0,
+      "norm_label": "transaction status flow"
+    },
+    {
+      "label": "KYC Status on User Model",
+      "file_type": "concept",
+      "source_file": "kryptera_back/README.md",
+      "source_location": "users/models.py",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "back_readme_kyc_status",
+      "community": 0,
+      "norm_label": "kyc status on user model"
+    },
+    {
+      "label": "Proof of Payment (POP) Upload",
+      "file_type": "concept",
+      "source_file": "kryptera_back/README.md",
+      "source_location": "transactions/<id>/pop/",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "back_readme_pop_upload",
+      "community": 0,
+      "norm_label": "proof of payment (pop) upload"
+    },
+    {
+      "label": "SMTP Email Configuration",
+      "file_type": "concept",
+      "source_file": "kryptera_back/README.md",
+      "source_location": "Email notifications section",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "back_readme_smtp_email_config",
+      "community": 0,
+      "norm_label": "smtp email configuration"
+    },
+    {
+      "label": "Celery with Redis Broker (Python dependency)",
+      "file_type": "concept",
+      "source_file": "kryptera_back/requirements.txt",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "requirements_celery_redis",
+      "community": 3,
+      "norm_label": "celery with redis broker (python dependency)"
+    },
+    {
+      "label": "Django REST Framework",
+      "file_type": "concept",
+      "source_file": "kryptera_back/requirements.txt",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "requirements_djangorestframework",
+      "community": 49,
+      "norm_label": "django rest framework"
+    },
+    {
+      "label": "djangorestframework-simplejwt",
+      "file_type": "concept",
+      "source_file": "kryptera_back/requirements.txt",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "requirements_simplejwt",
+      "community": 1,
+      "norm_label": "djangorestframework-simplejwt"
+    },
+    {
+      "label": "psycopg2-binary (PostgreSQL driver)",
+      "file_type": "concept",
+      "source_file": "kryptera_back/requirements.txt",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "requirements_psycopg2",
+      "community": 3,
+      "norm_label": "psycopg2-binary (postgresql driver)"
+    },
+    {
+      "label": "Admin KYC Submitted Email Template (HTML)",
+      "file_type": "document",
+      "source_file": "kryptera_back/notifications/templates/notifications/emails/admin_kyc_submitted.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "emails_admin_kyc_submitted_html",
+      "community": 0,
+      "norm_label": "admin kyc submitted email template (html)"
+    },
+    {
+      "label": "Admin KYC Submitted Email Template (TXT)",
+      "file_type": "document",
+      "source_file": "kryptera_back/notifications/templates/notifications/emails/admin_kyc_submitted.txt",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "emails_admin_kyc_submitted_txt",
+      "community": 0,
+      "norm_label": "admin kyc submitted email template (txt)"
+    },
+    {
+      "label": "Admin POP Uploaded Email Template (HTML)",
+      "file_type": "document",
+      "source_file": "kryptera_back/notifications/templates/notifications/emails/admin_pop_uploaded.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "emails_admin_pop_uploaded_html",
+      "community": 0,
+      "norm_label": "admin pop uploaded email template (html)"
+    },
+    {
+      "label": "Admin POP Uploaded Email Template (TXT)",
+      "file_type": "document",
+      "source_file": "kryptera_back/notifications/templates/notifications/emails/admin_pop_uploaded.txt",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "emails_admin_pop_uploaded_txt",
+      "community": 0,
+      "norm_label": "admin pop uploaded email template (txt)"
+    },
+    {
+      "label": "User KYC Approved Email Template (HTML)",
+      "file_type": "document",
+      "source_file": "kryptera_back/notifications/templates/notifications/emails/user_kyc_approved.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "emails_user_kyc_approved_html",
+      "community": 0,
+      "norm_label": "user kyc approved email template (html)"
+    },
+    {
+      "label": "User KYC Approved Email Template (TXT)",
+      "file_type": "document",
+      "source_file": "kryptera_back/notifications/templates/notifications/emails/user_kyc_approved.txt",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "emails_user_kyc_approved_txt",
+      "community": 0,
+      "norm_label": "user kyc approved email template (txt)"
+    },
+    {
+      "label": "User KYC Rejected Email Template (HTML)",
+      "file_type": "document",
+      "source_file": "kryptera_back/notifications/templates/notifications/emails/user_kyc_rejected.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "emails_user_kyc_rejected_html",
+      "community": 0,
+      "norm_label": "user kyc rejected email template (html)"
+    },
+    {
+      "label": "User KYC Rejected Email Template (TXT)",
+      "file_type": "document",
+      "source_file": "kryptera_back/notifications/templates/notifications/emails/user_kyc_rejected.txt",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "emails_user_kyc_rejected_txt",
+      "community": 0,
+      "norm_label": "user kyc rejected email template (txt)"
+    },
+    {
+      "label": "User KYC Submitted Email Template (HTML)",
+      "file_type": "document",
+      "source_file": "kryptera_back/notifications/templates/notifications/emails/user_kyc_submitted.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "emails_user_kyc_submitted_html",
+      "community": 0,
+      "norm_label": "user kyc submitted email template (html)"
+    },
+    {
+      "label": "User KYC Submitted Email Template (TXT)",
+      "file_type": "document",
+      "source_file": "kryptera_back/notifications/templates/notifications/emails/user_kyc_submitted.txt",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "emails_user_kyc_submitted_txt",
+      "community": 0,
+      "norm_label": "user kyc submitted email template (txt)"
+    },
+    {
+      "label": "User Transaction Completed Email Template (HTML)",
+      "file_type": "document",
+      "source_file": "kryptera_back/notifications/templates/notifications/emails/user_transaction_completed.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "emails_user_transaction_completed_html",
+      "community": 0,
+      "norm_label": "user transaction completed email template (html)"
+    },
+    {
+      "label": "User Transaction Completed Email Template (TXT)",
+      "file_type": "document",
+      "source_file": "kryptera_back/notifications/templates/notifications/emails/user_transaction_completed.txt",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "emails_user_transaction_completed_txt",
+      "community": 0,
+      "norm_label": "user transaction completed email template (txt)"
+    },
+    {
+      "label": "React TypeScript Frontend",
+      "file_type": "document",
+      "source_file": "kryptera_front/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "front_readme_react_frontend",
+      "community": 2,
+      "norm_label": "react typescript frontend"
+    },
+    {
+      "label": "API Service Layer (api.ts)",
+      "file_type": "concept",
+      "source_file": "kryptera_front/README.md",
+      "source_location": "src/services/api.ts",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "front_readme_api_ts",
+      "community": 1,
+      "norm_label": "api service layer (api.ts)"
+    },
+    {
+      "label": "RatesContext (global exchange rates state)",
+      "file_type": "concept",
+      "source_file": "kryptera_front/README.md",
+      "source_location": "src/context/RatesContext.tsx",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "front_readme_rates_context",
+      "community": 1,
+      "norm_label": "ratescontext (global exchange rates state)"
+    },
+    {
+      "label": "ConverterPage",
+      "file_type": "concept",
+      "source_file": "kryptera_front/README.md",
+      "source_location": "src/pages/ConverterPage.tsx",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "front_readme_converter_page",
+      "community": 2,
+      "norm_label": "converterpage"
+    },
+    {
+      "label": "AdminPage",
+      "file_type": "concept",
+      "source_file": "kryptera_front/README.md",
+      "source_location": "src/pages/AdminPage.tsx",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "front_readme_admin_page",
+      "community": 2,
+      "norm_label": "adminpage"
+    },
+    {
+      "label": "useConverter Hook (conversion logic)",
+      "file_type": "concept",
+      "source_file": "kryptera_front/README.md",
+      "source_location": "src/hooks/useConverter.ts",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "front_readme_use_converter",
+      "community": 2,
+      "norm_label": "useconverter hook (conversion logic)"
+    },
+    {
+      "label": "Frontend Entry Point (index.html)",
+      "file_type": "document",
+      "source_file": "kryptera_front/index.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "front_index_html_entry",
+      "community": 2,
+      "norm_label": "frontend entry point (index.html)"
+    },
+    {
+      "label": "Feature Extension Plan",
+      "file_type": "document",
+      "source_file": "plan.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "plan_feature_extension_plan",
+      "community": 1,
+      "norm_label": "feature extension plan"
+    },
+    {
+      "label": "Currency Model (planned: rates.Currency)",
+      "file_type": "concept",
+      "source_file": "plan.md",
+      "source_location": "\u00a72.1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "plan_currency_model",
+      "community": 1,
+      "norm_label": "currency model (planned: rates.currency)"
+    },
+    {
+      "label": "ExchangeRateQuote Model (planned)",
+      "file_type": "concept",
+      "source_file": "plan.md",
+      "source_location": "\u00a72.2",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "plan_exchange_rate_quote",
+      "community": 1,
+      "norm_label": "exchangeratequote model (planned)"
+    },
+    {
+      "label": "Recipient Model (planned new app)",
+      "file_type": "concept",
+      "source_file": "plan.md",
+      "source_location": "\u00a72.3",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "plan_recipient_model",
+      "community": 1,
+      "norm_label": "recipient model (planned new app)"
+    },
+    {
+      "label": "Transaction Rate Snapshot (planned)",
+      "file_type": "concept",
+      "source_file": "plan.md",
+      "source_location": "\u00a72.2, \u00a72.5",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "plan_rate_snapshot",
+      "community": 1,
+      "norm_label": "transaction rate snapshot (planned)"
+    },
+    {
+      "label": "JWT Refresh Token 30-Day Lifetime",
+      "file_type": "rationale",
+      "source_file": "plan.md",
+      "source_location": "\u00a74",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "plan_jwt_30_days",
+      "community": 1,
+      "norm_label": "jwt refresh token 30-day lifetime"
+    },
+    {
+      "label": "RBAC via is_admin + IsAdminUser",
+      "file_type": "concept",
+      "source_file": "plan.md",
+      "source_location": "\u00a71",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "plan_rbac",
+      "community": 1,
+      "norm_label": "rbac via is_admin + isadminuser"
+    },
+    {
+      "label": "Admin Dashboard (planned frontend /admin)",
+      "file_type": "concept",
+      "source_file": "plan.md",
+      "source_location": "\u00a76",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "plan_admin_dashboard",
+      "community": 2,
+      "norm_label": "admin dashboard (planned frontend /admin)"
+    }
+  ],
+  "links": [
+    {
+      "relation": "references",
+      "context": "field",
+      "confidence": "EXTRACTED",
+      "source_file": "kryptera_front/src/services/transferQuoteStorage.ts",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "services_transferquotestorage_persistedtransferquote",
+      "target": "types_index_conversionmode",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "inherits",
+      "context": "type",
+      "confidence": "EXTRACTED",
+      "source_file": "kryptera_front/src/types/index.ts",
+      "source_location": "L173",
+      "weight": 1.0,
+      "source": "types_index_authsession",
+      "target": "types_index_authtokens",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "DESIGN.md reference",
+      "weight": 1.0,
+      "source": "kryptera_readme_kryptera_platform",
+      "target": "design_design_system"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "Project Structure",
+      "weight": 1.0,
+      "source": "kryptera_readme_kryptera_platform",
+      "target": "back_readme_django_backend"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "Project Structure",
+      "weight": 1.0,
+      "source": "kryptera_readme_kryptera_platform",
+      "target": "front_readme_react_frontend"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "plan.md reference",
+      "weight": 1.0,
+      "source": "kryptera_readme_kryptera_platform",
+      "target": "plan_feature_extension_plan"
+    },
+    {
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "kryptera_front/DESIGN.md",
+      "source_location": "identical content",
+      "weight": 1.0,
+      "source": "kryptera_front_design_frontend_design_system",
+      "target": "design_design_system"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "kryptera_front/README.md",
+      "source_location": "Wise-inspired design system (see DESIGN.md)",
+      "weight": 1.0,
+      "source": "front_readme_react_frontend",
+      "target": "kryptera_front_design_frontend_design_system"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docker-compose.yml",
+      "source_location": "services.celery_beat",
+      "weight": 1.0,
+      "source": "docker_compose_docker_infrastructure",
+      "target": "docker_compose_celery_beat_service"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docker-compose.yml",
+      "source_location": "services.celery_worker",
+      "weight": 1.0,
+      "source": "docker_compose_docker_infrastructure",
+      "target": "docker_compose_celery_worker_service"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docker-compose.yml",
+      "source_location": "services.db",
+      "weight": 1.0,
+      "source": "docker_compose_docker_infrastructure",
+      "target": "docker_compose_db_service"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docker-compose.yml",
+      "source_location": "services.django",
+      "weight": 1.0,
+      "source": "docker_compose_docker_infrastructure",
+      "target": "docker_compose_django_service"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docker-compose.yml",
+      "source_location": "services.nginx",
+      "weight": 1.0,
+      "source": "docker_compose_docker_infrastructure",
+      "target": "docker_compose_nginx_service"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docker-compose.yml",
+      "source_location": "services.redis",
+      "weight": 1.0,
+      "source": "docker_compose_docker_infrastructure",
+      "target": "docker_compose_redis_service"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docker-compose.yml",
+      "source_location": "depends_on: db",
+      "weight": 1.0,
+      "source": "docker_compose_celery_beat_service",
+      "target": "docker_compose_db_service"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docker-compose.yml",
+      "source_location": "depends_on: db",
+      "weight": 1.0,
+      "source": "docker_compose_celery_worker_service",
+      "target": "docker_compose_db_service"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docker-compose.yml",
+      "source_location": "depends_on: db",
+      "weight": 1.0,
+      "source": "docker_compose_django_service",
+      "target": "docker_compose_db_service"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "kryptera_back/requirements.txt",
+      "source_location": "psycopg2-binary",
+      "weight": 1.0,
+      "source": "requirements_psycopg2",
+      "target": "docker_compose_db_service"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docker-compose.yml",
+      "source_location": "depends_on: django",
+      "weight": 1.0,
+      "source": "docker_compose_nginx_service",
+      "target": "docker_compose_django_service"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docker-compose.yml",
+      "source_location": "depends_on: redis",
+      "weight": 1.0,
+      "source": "docker_compose_celery_beat_service",
+      "target": "docker_compose_redis_service"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docker-compose.yml",
+      "source_location": "depends_on: redis",
+      "weight": 1.0,
+      "source": "docker_compose_celery_worker_service",
+      "target": "docker_compose_redis_service"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "kryptera_back/requirements.txt",
+      "source_location": "celery[redis]==5.4.0",
+      "weight": 1.0,
+      "source": "requirements_celery_redis",
+      "target": "docker_compose_celery_worker_service"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "kryptera_back/requirements.txt",
+      "source_location": "celery[redis]==5.4.0",
+      "weight": 1.0,
+      "source": "requirements_celery_redis",
+      "target": "docker_compose_celery_beat_service"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "kryptera_back/README.md",
+      "source_location": "Email notifications section",
+      "weight": 1.0,
+      "source": "back_readme_django_backend",
+      "target": "back_readme_notifications_app"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "kryptera_back/README.md",
+      "source_location": "Project Structure",
+      "weight": 1.0,
+      "source": "back_readme_django_backend",
+      "target": "back_readme_rates_app"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "kryptera_back/README.md",
+      "source_location": "Stack: SimpleJWT",
+      "weight": 1.0,
+      "source": "back_readme_django_backend",
+      "target": "back_readme_simplejwt_auth"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "kryptera_back/README.md",
+      "source_location": "Project Structure",
+      "weight": 1.0,
+      "source": "back_readme_django_backend",
+      "target": "back_readme_transactions_app"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "kryptera_back/README.md",
+      "source_location": "Project Structure",
+      "weight": 1.0,
+      "source": "back_readme_django_backend",
+      "target": "back_readme_users_app"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "kryptera_front/README.md",
+      "source_location": "Connecting to Django Backend",
+      "weight": 1.0,
+      "source": "front_readme_api_ts",
+      "target": "back_readme_django_backend"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "kryptera_back/README.md",
+      "source_location": "users/models.py KYC fields",
+      "weight": 1.0,
+      "source": "back_readme_users_app",
+      "target": "back_readme_kyc_status"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "plan.md",
+      "source_location": "\u00a72.4 Users suspend/deactivate",
+      "weight": 1.0,
+      "source": "plan_feature_extension_plan",
+      "target": "back_readme_users_app"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "plan.md",
+      "source_location": "User.is_admin + IsAdminUser",
+      "weight": 1.0,
+      "source": "plan_rbac",
+      "target": "back_readme_users_app"
+    },
+    {
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "kryptera_front/README.md",
+      "source_location": "RatesContext global state mirrors /api/v1/rates/",
+      "weight": 1.0,
+      "source": "front_readme_rates_context",
+      "target": "back_readme_rates_app"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "plan.md",
+      "source_location": "\u00a72.1 rates.Currency",
+      "weight": 1.0,
+      "source": "plan_currency_model",
+      "target": "back_readme_rates_app"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "plan.md",
+      "source_location": "\u00a72.2 evolve from ExchangeRate singleton",
+      "weight": 1.0,
+      "source": "plan_exchange_rate_quote",
+      "target": "back_readme_rates_app"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "plan.md",
+      "source_location": "\u00a72.2 Exchange rates evolve",
+      "weight": 1.0,
+      "source": "plan_feature_extension_plan",
+      "target": "back_readme_rates_app"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "kryptera_back/README.md",
+      "source_location": "POST /transactions/<id>/pop/",
+      "weight": 1.0,
+      "source": "back_readme_transactions_app",
+      "target": "back_readme_pop_upload"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "kryptera_back/README.md",
+      "source_location": "Transaction status flow",
+      "weight": 1.0,
+      "source": "back_readme_transactions_app",
+      "target": "back_readme_transaction_status_flow"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "plan.md",
+      "source_location": "\u00a72.5 Transactions history",
+      "weight": 1.0,
+      "source": "plan_feature_extension_plan",
+      "target": "back_readme_transactions_app"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "plan.md",
+      "source_location": "\u00a72.5 stored rate snapshot on Transaction",
+      "weight": 1.0,
+      "source": "plan_rate_snapshot",
+      "target": "back_readme_transactions_app"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "plan.md",
+      "source_location": "\u00a72.3 Transaction.recipient FK",
+      "weight": 1.0,
+      "source": "plan_recipient_model",
+      "target": "back_readme_transactions_app"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "kryptera_back/README.md",
+      "source_location": "Email notifications section",
+      "weight": 1.0,
+      "source": "back_readme_notifications_app",
+      "target": "back_readme_smtp_email_config"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "kryptera_back/README.md",
+      "source_location": "Events: user KYC submit",
+      "weight": 1.0,
+      "source": "back_readme_notifications_app",
+      "target": "emails_admin_kyc_submitted_html"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "kryptera_back/README.md",
+      "source_location": "Events: user KYC submit",
+      "weight": 1.0,
+      "source": "back_readme_notifications_app",
+      "target": "emails_admin_kyc_submitted_txt"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "kryptera_back/README.md",
+      "source_location": "Events: POP upload (admin alert)",
+      "weight": 1.0,
+      "source": "back_readme_notifications_app",
+      "target": "emails_admin_pop_uploaded_html"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "kryptera_back/README.md",
+      "source_location": "Events: POP upload (admin alert)",
+      "weight": 1.0,
+      "source": "back_readme_notifications_app",
+      "target": "emails_admin_pop_uploaded_txt"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "kryptera_back/README.md",
+      "source_location": "Events: KYC approve",
+      "weight": 1.0,
+      "source": "back_readme_notifications_app",
+      "target": "emails_user_kyc_approved_html"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "kryptera_back/README.md",
+      "source_location": "Events: KYC approve",
+      "weight": 1.0,
+      "source": "back_readme_notifications_app",
+      "target": "emails_user_kyc_approved_txt"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "kryptera_back/README.md",
+      "source_location": "Events: KYC reject",
+      "weight": 1.0,
+      "source": "back_readme_notifications_app",
+      "target": "emails_user_kyc_rejected_html"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "kryptera_back/README.md",
+      "source_location": "Events: KYC reject",
+      "weight": 1.0,
+      "source": "back_readme_notifications_app",
+      "target": "emails_user_kyc_rejected_txt"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "kryptera_back/README.md",
+      "source_location": "Events: user KYC submit (user ack)",
+      "weight": 1.0,
+      "source": "back_readme_notifications_app",
+      "target": "emails_user_kyc_submitted_html"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "kryptera_back/README.md",
+      "source_location": "Events: user KYC submit (user ack)",
+      "weight": 1.0,
+      "source": "back_readme_notifications_app",
+      "target": "emails_user_kyc_submitted_txt"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "kryptera_back/README.md",
+      "source_location": "Events: transaction completed",
+      "weight": 1.0,
+      "source": "back_readme_notifications_app",
+      "target": "emails_user_transaction_completed_html"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "kryptera_back/README.md",
+      "source_location": "Events: transaction completed",
+      "weight": 1.0,
+      "source": "back_readme_notifications_app",
+      "target": "emails_user_transaction_completed_txt"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "kryptera_back/README.md",
+      "source_location": "Celery worker must be running",
+      "weight": 1.0,
+      "source": "back_readme_notifications_app",
+      "target": "requirements_celery_redis"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "plan.md",
+      "source_location": "\u00a74 JWT & 30 days",
+      "weight": 1.0,
+      "source": "plan_jwt_30_days",
+      "target": "back_readme_simplejwt_auth"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "kryptera_back/requirements.txt",
+      "source_location": "djangorestframework-simplejwt==5.3.1",
+      "weight": 1.0,
+      "source": "requirements_simplejwt",
+      "target": "back_readme_simplejwt_auth"
+    },
+    {
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "kryptera_back/notifications/templates/notifications/emails/user_transaction_completed.html",
+      "source_location": "status=completed triggers email",
+      "weight": 1.0,
+      "source": "back_readme_transaction_status_flow",
+      "target": "emails_user_transaction_completed_html"
+    },
+    {
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "kryptera_back/notifications/templates/notifications/emails/admin_kyc_submitted.html",
+      "source_location": "{{ kyc_legal_name }}, {{ kyc_id_number }}, {{ kyc_country }}",
+      "weight": 1.0,
+      "source": "back_readme_kyc_status",
+      "target": "emails_admin_kyc_submitted_html"
+    },
+    {
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "kryptera_back/notifications/templates/notifications/emails/user_kyc_approved.html",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "back_readme_kyc_status",
+      "target": "emails_user_kyc_approved_html"
+    },
+    {
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "kryptera_back/notifications/templates/notifications/emails/user_kyc_rejected.html",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "back_readme_kyc_status",
+      "target": "emails_user_kyc_rejected_html"
+    },
+    {
+      "relation": "shares_data_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "kryptera_back/notifications/templates/notifications/emails/admin_pop_uploaded.html",
+      "source_location": "{{ reference }}, {{ input_amount }}, {{ result_amount }}",
+      "weight": 1.0,
+      "source": "back_readme_pop_upload",
+      "target": "emails_admin_pop_uploaded_html"
+    },
+    {
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "kryptera_back/notifications/templates/notifications/emails/admin_kyc_submitted.html",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "emails_admin_kyc_submitted_html",
+      "target": "emails_admin_kyc_submitted_txt"
+    },
+    {
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "kryptera_back/notifications/templates/notifications/emails/admin_pop_uploaded.html",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "emails_admin_pop_uploaded_html",
+      "target": "emails_admin_pop_uploaded_txt"
+    },
+    {
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "kryptera_back/notifications/templates/notifications/emails/user_kyc_approved.html",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "emails_user_kyc_approved_html",
+      "target": "emails_user_kyc_approved_txt"
+    },
+    {
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "kryptera_back/notifications/templates/notifications/emails/user_kyc_rejected.html",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "emails_user_kyc_rejected_html",
+      "target": "emails_user_kyc_rejected_txt"
+    },
+    {
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "kryptera_back/notifications/templates/notifications/emails/user_kyc_submitted.html",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "emails_user_kyc_submitted_html",
+      "target": "emails_user_kyc_submitted_txt"
+    },
+    {
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "kryptera_back/notifications/templates/notifications/emails/user_transaction_completed.html",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "emails_user_transaction_completed_html",
+      "target": "emails_user_transaction_completed_txt"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "kryptera_front/index.html",
+      "source_location": "<script src=/src/main.tsx>",
+      "weight": 1.0,
+      "source": "front_index_html_entry",
+      "target": "front_readme_react_frontend"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "kryptera_front/README.md",
+      "source_location": "Project Structure",
+      "weight": 1.0,
+      "source": "front_readme_react_frontend",
+      "target": "front_readme_admin_page"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "kryptera_front/README.md",
+      "source_location": "Project Structure",
+      "weight": 1.0,
+      "source": "front_readme_react_frontend",
+      "target": "front_readme_api_ts"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "kryptera_front/README.md",
+      "source_location": "Project Structure",
+      "weight": 1.0,
+      "source": "front_readme_react_frontend",
+      "target": "front_readme_converter_page"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "kryptera_front/README.md",
+      "source_location": "Project Structure",
+      "weight": 1.0,
+      "source": "front_readme_react_frontend",
+      "target": "front_readme_rates_context"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "kryptera_front/README.md",
+      "source_location": "Project Structure",
+      "weight": 1.0,
+      "source": "front_readme_react_frontend",
+      "target": "front_readme_use_converter"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "kryptera_front/README.md",
+      "source_location": "ConverterPage uses useConverter hook",
+      "weight": 1.0,
+      "source": "front_readme_converter_page",
+      "target": "front_readme_use_converter"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "plan.md",
+      "source_location": "\u00a76 /admin dashboard shell",
+      "weight": 1.0,
+      "source": "plan_admin_dashboard",
+      "target": "front_readme_admin_page"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "plan.md",
+      "source_location": "\u00a76 Frontend plan",
+      "weight": 1.0,
+      "source": "plan_feature_extension_plan",
+      "target": "plan_admin_dashboard"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "plan.md",
+      "source_location": "\u00a72.1",
+      "weight": 1.0,
+      "source": "plan_feature_extension_plan",
+      "target": "plan_currency_model"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "plan.md",
+      "source_location": "\u00a72.2",
+      "weight": 1.0,
+      "source": "plan_feature_extension_plan",
+      "target": "plan_exchange_rate_quote"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "plan.md",
+      "source_location": "\u00a74",
+      "weight": 1.0,
+      "source": "plan_feature_extension_plan",
+      "target": "plan_jwt_30_days"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "plan.md",
+      "source_location": "\u00a72.2, \u00a72.5",
+      "weight": 1.0,
+      "source": "plan_feature_extension_plan",
+      "target": "plan_rate_snapshot"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "plan.md",
+      "source_location": "\u00a71 RBAC",
+      "weight": 1.0,
+      "source": "plan_feature_extension_plan",
+      "target": "plan_rbac"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "plan.md",
+      "source_location": "\u00a72.3",
+      "weight": 1.0,
+      "source": "plan_feature_extension_plan",
+      "target": "plan_recipient_model"
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "kyc_email_notification_flow",
+      "label": "KYC Notification Flow: User submits KYC -> user ack email + admin alert email",
+      "nodes": [
+        "back_readme_kyc_status",
+        "emails_user_kyc_submitted_html",
+        "emails_admin_kyc_submitted_html",
+        "back_readme_notifications_app"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 0.95,
+      "source_file": "kryptera_back/README.md"
+    },
+    {
+      "id": "transaction_completion_flow",
+      "label": "Transaction Completion Flow: POP upload -> admin review -> completed email",
+      "nodes": [
+        "back_readme_pop_upload",
+        "emails_admin_pop_uploaded_html",
+        "emails_user_transaction_completed_html",
+        "back_readme_transaction_status_flow"
+      ],
+      "relation": "implement",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "kryptera_back/README.md"
+    },
+    {
+      "id": "docker_celery_async_stack",
+      "label": "Async Processing Stack: Redis broker + Celery worker + Celery beat",
+      "nodes": [
+        "docker_compose_redis_service",
+        "docker_compose_celery_worker_service",
+        "docker_compose_celery_beat_service"
+      ],
+      "relation": "form",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docker-compose.yml"
+    }
+  ],
+  "built_at_commit": "c4bf477f6da6efce1bc869d5a701d48034074d77"
+}

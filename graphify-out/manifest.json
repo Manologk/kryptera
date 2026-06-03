@@ -1,0 +1,1032 @@
+{
+  "C:\\Projects\\kryptera\\.claude\\settings.local.json": {
+    "mtime": 1780493418.2968218,
+    "ast_hash": "ee4c1e520e881c66ae9ee7dfd2c39cd3",
+    "semantic_hash": "ee4c1e520e881c66ae9ee7dfd2c39cd3"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\config\\__init__.py": {
+    "mtime": 1780410992.3150463,
+    "ast_hash": "c1f09c3022b458fdb72d75da02e2dda3",
+    "semantic_hash": "c1f09c3022b458fdb72d75da02e2dda3"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\config\\admin_urls.py": {
+    "mtime": 1780410992.3150463,
+    "ast_hash": "3321f9f2761e2fcbef21b93811c6b6dd",
+    "semantic_hash": "3321f9f2761e2fcbef21b93811c6b6dd"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\config\\api_urls.py": {
+    "mtime": 1780410992.3150463,
+    "ast_hash": "f34e2f502687a0a0a499067be6f000af",
+    "semantic_hash": "f34e2f502687a0a0a499067be6f000af"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\config\\asgi.py": {
+    "mtime": 1780410992.3150463,
+    "ast_hash": "09ae6302340dd7c5350f52292250356b",
+    "semantic_hash": "09ae6302340dd7c5350f52292250356b"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\config\\celery.py": {
+    "mtime": 1780410992.3150463,
+    "ast_hash": "76ae46619d23b5a74e2585bdab667a3e",
+    "semantic_hash": "76ae46619d23b5a74e2585bdab667a3e"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\config\\settings.py": {
+    "mtime": 1780410992.3150463,
+    "ast_hash": "2a3bbdc39a079f35171790c423ba0d01",
+    "semantic_hash": "2a3bbdc39a079f35171790c423ba0d01"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\config\\urls.py": {
+    "mtime": 1780410992.3150463,
+    "ast_hash": "e14293eb01d9baafaed81d0b9ae2c77b",
+    "semantic_hash": "e14293eb01d9baafaed81d0b9ae2c77b"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\config\\wsgi.py": {
+    "mtime": 1780410992.3150463,
+    "ast_hash": "a84d331117eb39ac8499026591f369de",
+    "semantic_hash": "a84d331117eb39ac8499026591f369de"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\manage.py": {
+    "mtime": 1780410992.3150463,
+    "ast_hash": "747c8c1f612fb07e1ea90758e5c3b6ad",
+    "semantic_hash": "747c8c1f612fb07e1ea90758e5c3b6ad"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\notifications\\__init__.py": {
+    "mtime": 1780410992.3150463,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\notifications\\apps.py": {
+    "mtime": 1780410992.3150463,
+    "ast_hash": "a27ffe2772363149fd8b12e565f90621",
+    "semantic_hash": "a27ffe2772363149fd8b12e565f90621"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\notifications\\attachments.py": {
+    "mtime": 1780410992.3150463,
+    "ast_hash": "89cc4dda88f45fdbe1c77460477834c3",
+    "semantic_hash": "89cc4dda88f45fdbe1c77460477834c3"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\notifications\\dispatch.py": {
+    "mtime": 1780410992.3150463,
+    "ast_hash": "6b42c5dfb630767b013ea47ef755a07c",
+    "semantic_hash": "6b42c5dfb630767b013ea47ef755a07c"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\notifications\\services.py": {
+    "mtime": 1780410992.3150463,
+    "ast_hash": "527ab94a02b974dab38327b677ab378e",
+    "semantic_hash": "527ab94a02b974dab38327b677ab378e"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\notifications\\tasks.py": {
+    "mtime": 1780410992.3150463,
+    "ast_hash": "e9c8523d229da6bcee747710198a2da7",
+    "semantic_hash": "e9c8523d229da6bcee747710198a2da7"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\notifications\\tests.py": {
+    "mtime": 1780410992.333935,
+    "ast_hash": "3955aef0ef382aaa8afe4ac3e3aa548b",
+    "semantic_hash": "3955aef0ef382aaa8afe4ac3e3aa548b"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\notifications\\utils.py": {
+    "mtime": 1780410992.333935,
+    "ast_hash": "7436f8d5349a2dbdaf680357fdd354c9",
+    "semantic_hash": "7436f8d5349a2dbdaf680357fdd354c9"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\rates\\__init__.py": {
+    "mtime": 1780410992.333935,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\rates\\admin.py": {
+    "mtime": 1780410992.333935,
+    "ast_hash": "547a2c1112155d47a66853bd29e93813",
+    "semantic_hash": "547a2c1112155d47a66853bd29e93813"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\rates\\admin_api.py": {
+    "mtime": 1780410992.333935,
+    "ast_hash": "41f153cb9a0b656962a2ffbc3a24a69e",
+    "semantic_hash": "41f153cb9a0b656962a2ffbc3a24a69e"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\rates\\apps.py": {
+    "mtime": 1780410992.333935,
+    "ast_hash": "4fe45972316993bd7a0fddf682794565",
+    "semantic_hash": "4fe45972316993bd7a0fddf682794565"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\rates\\migrations\\0001_initial.py": {
+    "mtime": 1780410992.333935,
+    "ast_hash": "02c4d44c88027fdae25facfc5ec03123",
+    "semantic_hash": "02c4d44c88027fdae25facfc5ec03123"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\rates\\migrations\\0002_initial.py": {
+    "mtime": 1780410992.333935,
+    "ast_hash": "576d14d8ddae28ae1ce8f0075f2d1ee8",
+    "semantic_hash": "576d14d8ddae28ae1ce8f0075f2d1ee8"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\rates\\migrations\\0003_extension_plan.py": {
+    "mtime": 1780410992.333935,
+    "ast_hash": "0694208141a7eba3ad8c5fe9cf3c22d8",
+    "semantic_hash": "0694208141a7eba3ad8c5fe9cf3c22d8"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\rates\\migrations\\0004_platform_settings.py": {
+    "mtime": 1780410992.333935,
+    "ast_hash": "fa662bfa8fb9e53193e2dc77bbad9c09",
+    "semantic_hash": "fa662bfa8fb9e53193e2dc77bbad9c09"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\rates\\migrations\\__init__.py": {
+    "mtime": 1780410992.333935,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\rates\\models.py": {
+    "mtime": 1780410992.333935,
+    "ast_hash": "ded0e34010e0dd5d201041f64b31ec04",
+    "semantic_hash": "ded0e34010e0dd5d201041f64b31ec04"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\rates\\permissions.py": {
+    "mtime": 1780410992.333935,
+    "ast_hash": "cebc4920b4da19e0ecbc705bc4f30fc1",
+    "semantic_hash": "cebc4920b4da19e0ecbc705bc4f30fc1"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\rates\\serializers.py": {
+    "mtime": 1780410992.333935,
+    "ast_hash": "bfe59dafed50598d950240ccea2ac26a",
+    "semantic_hash": "bfe59dafed50598d950240ccea2ac26a"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\rates\\services.py": {
+    "mtime": 1780410992.333935,
+    "ast_hash": "15c8627b20bfe2cab1b1f112c71782f8",
+    "semantic_hash": "15c8627b20bfe2cab1b1f112c71782f8"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\rates\\tests.py": {
+    "mtime": 1780410992.333935,
+    "ast_hash": "95492c51a3c0b4cccd1a8dc0ba1a8909",
+    "semantic_hash": "95492c51a3c0b4cccd1a8dc0ba1a8909"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\rates\\urls.py": {
+    "mtime": 1780410992.333935,
+    "ast_hash": "38ef8c20fadbf22aaa02c228b8dcc43b",
+    "semantic_hash": "38ef8c20fadbf22aaa02c228b8dcc43b"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\rates\\views.py": {
+    "mtime": 1780410992.333935,
+    "ast_hash": "14b6817aeca417d817e5eb52f3b4af1f",
+    "semantic_hash": "14b6817aeca417d817e5eb52f3b4af1f"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\recipients\\__init__.py": {
+    "mtime": 1780410992.333935,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\recipients\\admin.py": {
+    "mtime": 1780410992.333935,
+    "ast_hash": "456456fcf6da7eee318d404729c7a857",
+    "semantic_hash": "456456fcf6da7eee318d404729c7a857"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\recipients\\apps.py": {
+    "mtime": 1780410992.333935,
+    "ast_hash": "aab46a0c5ec9294c25b589ee8cba6520",
+    "semantic_hash": "aab46a0c5ec9294c25b589ee8cba6520"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\recipients\\migrations\\0001_initial.py": {
+    "mtime": 1780410992.3394113,
+    "ast_hash": "96144282a3ab493324ce62dab4d96af4",
+    "semantic_hash": "96144282a3ab493324ce62dab4d96af4"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\recipients\\migrations\\0002_rename_rcp_user_active_idx_recipients__user_id_d338ff_idx.py": {
+    "mtime": 1780410992.3394113,
+    "ast_hash": "f79be0e5f21ff529bfb3334242aef679",
+    "semantic_hash": "f79be0e5f21ff529bfb3334242aef679"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\recipients\\migrations\\0003_recipient_contact_schema.py": {
+    "mtime": 1780410992.3394113,
+    "ast_hash": "df66c184cf8006a52bf63407d4dc9423",
+    "semantic_hash": "df66c184cf8006a52bf63407d4dc9423"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\recipients\\migrations\\0004_rename_recipients_owner_idx_recipients__owner_i_507911_idx_and_more.py": {
+    "mtime": 1780410992.3394113,
+    "ast_hash": "062ff1c60f79d21006b2405c1c60aa97",
+    "semantic_hash": "062ff1c60f79d21006b2405c1c60aa97"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\recipients\\migrations\\0005_recipient_delivery_method_required.py": {
+    "mtime": 1780410992.3394113,
+    "ast_hash": "e8150496f66cf0497144cbd00a35cae2",
+    "semantic_hash": "e8150496f66cf0497144cbd00a35cae2"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\recipients\\migrations\\__init__.py": {
+    "mtime": 1780410992.3394113,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\recipients\\models.py": {
+    "mtime": 1780410992.3394113,
+    "ast_hash": "9a73c228c3bef3207b3e364070c59f87",
+    "semantic_hash": "9a73c228c3bef3207b3e364070c59f87"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\recipients\\serializers.py": {
+    "mtime": 1780410992.3394113,
+    "ast_hash": "9b56297d4a9fb264766698f4242c6205",
+    "semantic_hash": "9b56297d4a9fb264766698f4242c6205"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\recipients\\urls.py": {
+    "mtime": 1780410992.3394113,
+    "ast_hash": "e08b5d3c3f2262d8d4b5de5f6dc49703",
+    "semantic_hash": "e08b5d3c3f2262d8d4b5de5f6dc49703"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\recipients\\views.py": {
+    "mtime": 1780410992.3394113,
+    "ast_hash": "4b8524485ff56f509a5269aee40de818",
+    "semantic_hash": "4b8524485ff56f509a5269aee40de818"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\transactions\\__init__.py": {
+    "mtime": 1780410992.3394113,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\transactions\\admin.py": {
+    "mtime": 1780410992.3394113,
+    "ast_hash": "8c2843a5f216430d4887edd0c31e8608",
+    "semantic_hash": "8c2843a5f216430d4887edd0c31e8608"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\transactions\\apps.py": {
+    "mtime": 1780410992.3394113,
+    "ast_hash": "58f18d7734fe74589ffbcf4ccdccab37",
+    "semantic_hash": "58f18d7734fe74589ffbcf4ccdccab37"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\transactions\\commission_zmw.py": {
+    "mtime": 1780410992.3394113,
+    "ast_hash": "bd8d1a175793f4cc1f858e6ee5569dc7",
+    "semantic_hash": "bd8d1a175793f4cc1f858e6ee5569dc7"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\transactions\\expire.py": {
+    "mtime": 1780410992.343459,
+    "ast_hash": "2c7d43d1871a6fdb44f3da2aa9148feb",
+    "semantic_hash": "2c7d43d1871a6fdb44f3da2aa9148feb"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\transactions\\management\\__init__.py": {
+    "mtime": 1780410992.343459,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\transactions\\management\\commands\\__init__.py": {
+    "mtime": 1780410992.343459,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\transactions\\management\\commands\\cancel_expired_transactions.py": {
+    "mtime": 1780410992.343459,
+    "ast_hash": "14097c1491f254e35b3b904da030608e",
+    "semantic_hash": "14097c1491f254e35b3b904da030608e"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\transactions\\migrations\\0001_initial.py": {
+    "mtime": 1780410992.343459,
+    "ast_hash": "fb71db3d9a57eb3e8ec7637e9434a6da",
+    "semantic_hash": "fb71db3d9a57eb3e8ec7637e9434a6da"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\transactions\\migrations\\0002_initial.py": {
+    "mtime": 1780410992.343459,
+    "ast_hash": "de17525ad2a52b40f617cd1b36852ded",
+    "semantic_hash": "de17525ad2a52b40f617cd1b36852ded"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\transactions\\migrations\\0003_extension_plan.py": {
+    "mtime": 1780410992.343459,
+    "ast_hash": "45e0b521361f0434afc76d5fec9ef346",
+    "semantic_hash": "45e0b521361f0434afc76d5fec9ef346"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\transactions\\migrations\\0004_transfer_delivery_payment_status.py": {
+    "mtime": 1780410992.343459,
+    "ast_hash": "32fdfd25a540e51bf96f7d71cc241291",
+    "semantic_hash": "32fdfd25a540e51bf96f7d71cc241291"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\transactions\\migrations\\0005_transaction_phase3_lifecycle.py": {
+    "mtime": 1780410992.3454695,
+    "ast_hash": "198a1b1f63572909c439ca7a4f10d9a5",
+    "semantic_hash": "198a1b1f63572909c439ca7a4f10d9a5"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\transactions\\migrations\\0006_canceled_and_proof_deadline.py": {
+    "mtime": 1780410992.3454695,
+    "ast_hash": "1f5445d931e18f7c2f0cde53274678d1",
+    "semantic_hash": "1f5445d931e18f7c2f0cde53274678d1"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\transactions\\migrations\\0007_transaction_payment_deadline_finish_later.py": {
+    "mtime": 1780410992.3454695,
+    "ast_hash": "771f0625197e3d1255177c6bfc23427e",
+    "semantic_hash": "771f0625197e3d1255177c6bfc23427e"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\transactions\\migrations\\__init__.py": {
+    "mtime": 1780410992.3454695,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\transactions\\models.py": {
+    "mtime": 1780410992.3454695,
+    "ast_hash": "8ad6870b3e65f7566c4cd1fe60789cdb",
+    "semantic_hash": "8ad6870b3e65f7566c4cd1fe60789cdb"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\transactions\\pagination.py": {
+    "mtime": 1780410992.3454695,
+    "ast_hash": "999e77ce6b04c01543cbd7aa478472e9",
+    "semantic_hash": "999e77ce6b04c01543cbd7aa478472e9"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\transactions\\serializers.py": {
+    "mtime": 1780410992.3454695,
+    "ast_hash": "28f264f19466021886077cb8705c8f24",
+    "semantic_hash": "28f264f19466021886077cb8705c8f24"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\transactions\\tasks.py": {
+    "mtime": 1780410992.3472183,
+    "ast_hash": "0ba41beaaf57eb4a3dff3b3a2b9506f6",
+    "semantic_hash": "0ba41beaaf57eb4a3dff3b3a2b9506f6"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\transactions\\tests.py": {
+    "mtime": 1780410992.3472183,
+    "ast_hash": "b244909a78d450c46c33beb3a7b57c4a",
+    "semantic_hash": "b244909a78d450c46c33beb3a7b57c4a"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\transactions\\urls.py": {
+    "mtime": 1780410992.3472183,
+    "ast_hash": "dfc76b08ed2432dfabe5c4af58d4bd16",
+    "semantic_hash": "dfc76b08ed2432dfabe5c4af58d4bd16"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\transactions\\views.py": {
+    "mtime": 1780410992.3472183,
+    "ast_hash": "21db7ee1558b3200581bd001319b38ca",
+    "semantic_hash": "21db7ee1558b3200581bd001319b38ca"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\users\\__init__.py": {
+    "mtime": 1780410992.3472183,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\users\\admin.py": {
+    "mtime": 1780410992.3472183,
+    "ast_hash": "68870326f32361182f717bc42bffe660",
+    "semantic_hash": "68870326f32361182f717bc42bffe660"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\users\\admin_api.py": {
+    "mtime": 1780410992.3472183,
+    "ast_hash": "a577f0713e2497067c96b67803a5d290",
+    "semantic_hash": "a577f0713e2497067c96b67803a5d290"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\users\\apps.py": {
+    "mtime": 1780410992.3472183,
+    "ast_hash": "b58a3d79b02f68089b3ab907f861310d",
+    "semantic_hash": "b58a3d79b02f68089b3ab907f861310d"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\users\\kyc.py": {
+    "mtime": 1780410992.3472183,
+    "ast_hash": "ab7bacac02c54cd8c9897e06e06a83fd",
+    "semantic_hash": "ab7bacac02c54cd8c9897e06e06a83fd"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\users\\management\\__init__.py": {
+    "mtime": 1780410992.3472183,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\users\\management\\commands\\__init__.py": {
+    "mtime": 1780410992.3472183,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\users\\management\\commands\\seed.py": {
+    "mtime": 1780410992.3472183,
+    "ast_hash": "81d6b1f7a26603c32379654b04ec7717",
+    "semantic_hash": "81d6b1f7a26603c32379654b04ec7717"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\users\\migrations\\0001_initial.py": {
+    "mtime": 1780410992.3472183,
+    "ast_hash": "7762cd94c9c2055bbe783e289fbaa3ce",
+    "semantic_hash": "7762cd94c9c2055bbe783e289fbaa3ce"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\users\\migrations\\0002_extension_plan.py": {
+    "mtime": 1780410992.3472183,
+    "ast_hash": "aa1881c4faa5692498490bea7eb0c71c",
+    "semantic_hash": "aa1881c4faa5692498490bea7eb0c71c"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\users\\migrations\\0003_kyc_metadata.py": {
+    "mtime": 1780410992.3472183,
+    "ast_hash": "a81f78601d8e5c152d8f0645ed392566",
+    "semantic_hash": "a81f78601d8e5c152d8f0645ed392566"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\users\\migrations\\__init__.py": {
+    "mtime": 1780410992.3472183,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\users\\models.py": {
+    "mtime": 1780410992.3472183,
+    "ast_hash": "8525b3dac29d1bfc90cd47e34ab106bb",
+    "semantic_hash": "8525b3dac29d1bfc90cd47e34ab106bb"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\users\\serializers.py": {
+    "mtime": 1780410992.3527687,
+    "ast_hash": "46ae5303f1d480a2196b2f96c8884caf",
+    "semantic_hash": "46ae5303f1d480a2196b2f96c8884caf"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\users\\tests.py": {
+    "mtime": 1780410992.3527687,
+    "ast_hash": "9134e96f0d2b6ef9bc2cf852e8b5d7f2",
+    "semantic_hash": "9134e96f0d2b6ef9bc2cf852e8b5d7f2"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\users\\tests_kyc.py": {
+    "mtime": 1780410992.3527687,
+    "ast_hash": "17a294cd1b469166a911a21934492bdc",
+    "semantic_hash": "17a294cd1b469166a911a21934492bdc"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\users\\views.py": {
+    "mtime": 1780410992.3527687,
+    "ast_hash": "0e70bec6657664860b282525169c584e",
+    "semantic_hash": "0e70bec6657664860b282525169c584e"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\components.json": {
+    "mtime": 1780410992.3527687,
+    "ast_hash": "558fdc057872d1478dbf4efe249ae8a6",
+    "semantic_hash": "558fdc057872d1478dbf4efe249ae8a6"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\eslint.config.mjs": {
+    "mtime": 1780410992.3527687,
+    "ast_hash": "0171a686dd0ba42c95b12a8bd9f2477f",
+    "semantic_hash": "0171a686dd0ba42c95b12a8bd9f2477f"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\package.json": {
+    "mtime": 1780410992.3566093,
+    "ast_hash": "6c2f5e77e6cf816da3abc155346577c6",
+    "semantic_hash": "6c2f5e77e6cf816da3abc155346577c6"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\app\\App.tsx": {
+    "mtime": 1780410992.3566093,
+    "ast_hash": "5c47ccf116250f84795a39b54fbf31bc",
+    "semantic_hash": "5c47ccf116250f84795a39b54fbf31bc"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\components\\ContactWidget.tsx": {
+    "mtime": 1780410992.3566093,
+    "ast_hash": "c8a8c98da41e9dff054f50c9e3df444d",
+    "semantic_hash": "c8a8c98da41e9dff054f50c9e3df444d"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\components\\layout\\Layout.tsx": {
+    "mtime": 1780410992.3566093,
+    "ast_hash": "510601dc70f4a737569890c9bf3919e5",
+    "semantic_hash": "510601dc70f4a737569890c9bf3919e5"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\components\\layout\\Nav.tsx": {
+    "mtime": 1780410992.3566093,
+    "ast_hash": "e0e321a19d1a68bd8e1728dd29f41e1b",
+    "semantic_hash": "e0e321a19d1a68bd8e1728dd29f41e1b"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\components\\layout\\PublicLayout.tsx": {
+    "mtime": 1780410992.3566093,
+    "ast_hash": "68f6c48f271b7d0a54945d48e2ed9e29",
+    "semantic_hash": "68f6c48f271b7d0a54945d48e2ed9e29"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\components\\routing\\ClientRouteGuard.tsx": {
+    "mtime": 1780410992.3566093,
+    "ast_hash": "5b95667d440b97edf1161d31f4bdc9e5",
+    "semantic_hash": "5b95667d440b97edf1161d31f4bdc9e5"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\components\\ui\\badge.tsx": {
+    "mtime": 1780410992.3566093,
+    "ast_hash": "d706cf9f277140fa610e254bd7b9541a",
+    "semantic_hash": "d706cf9f277140fa610e254bd7b9541a"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\components\\ui\\button.tsx": {
+    "mtime": 1780410992.3566093,
+    "ast_hash": "1389ab0e8b448b9304314543d8e6c714",
+    "semantic_hash": "1389ab0e8b448b9304314543d8e6c714"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\components\\ui\\card.tsx": {
+    "mtime": 1780410992.3566093,
+    "ast_hash": "942ea87f5215d31e469831d3a19fdfe5",
+    "semantic_hash": "942ea87f5215d31e469831d3a19fdfe5"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\components\\ui\\dialog.tsx": {
+    "mtime": 1780410992.3566093,
+    "ast_hash": "27d5984fee61e7cc2fbf612980e90038",
+    "semantic_hash": "27d5984fee61e7cc2fbf612980e90038"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\components\\ui\\dropdown-menu.tsx": {
+    "mtime": 1780410992.3566093,
+    "ast_hash": "17c1f06da3e785e876d54e996b4ad09c",
+    "semantic_hash": "17c1f06da3e785e876d54e996b4ad09c"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\components\\ui\\input.tsx": {
+    "mtime": 1780410992.3566093,
+    "ast_hash": "81bce128184c219427273a4c3e838a84",
+    "semantic_hash": "81bce128184c219427273a4c3e838a84"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\components\\ui\\label.tsx": {
+    "mtime": 1780410992.3566093,
+    "ast_hash": "c5c17c273b0b0a20ce2e72a9f060a1c2",
+    "semantic_hash": "c5c17c273b0b0a20ce2e72a9f060a1c2"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\components\\ui\\select.tsx": {
+    "mtime": 1780410992.362915,
+    "ast_hash": "5ce9c560b9743eec8f9d6f6195bc30b6",
+    "semantic_hash": "5ce9c560b9743eec8f9d6f6195bc30b6"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\components\\ui\\separator.tsx": {
+    "mtime": 1780410992.362915,
+    "ast_hash": "f797b1a3227af649ade57d43437da987",
+    "semantic_hash": "f797b1a3227af649ade57d43437da987"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\components\\ui\\sheet.tsx": {
+    "mtime": 1780410992.362915,
+    "ast_hash": "23614410199e47fe0119793554340ff7",
+    "semantic_hash": "23614410199e47fe0119793554340ff7"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\components\\ui\\skeleton.tsx": {
+    "mtime": 1780410992.362915,
+    "ast_hash": "fc0938686abad92e43b0d7091e5af80d",
+    "semantic_hash": "fc0938686abad92e43b0d7091e5af80d"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\components\\ui\\table.tsx": {
+    "mtime": 1780410992.362915,
+    "ast_hash": "516b65c8cf634700ccfb9d0f2d6482db",
+    "semantic_hash": "516b65c8cf634700ccfb9d0f2d6482db"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\components\\ui\\textarea.tsx": {
+    "mtime": 1780410992.362915,
+    "ast_hash": "7e27b8d6c3f19d7cf3285188bd735a04",
+    "semantic_hash": "7e27b8d6c3f19d7cf3285188bd735a04"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\constants\\config.ts": {
+    "mtime": 1780410992.362915,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\constants\\index.ts": {
+    "mtime": 1780410992.362915,
+    "ast_hash": "70ce1e452972489366ad2f00133324c8",
+    "semantic_hash": "70ce1e452972489366ad2f00133324c8"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\constants\\routes.ts": {
+    "mtime": 1780410992.362915,
+    "ast_hash": "aa270c889fe31196d4f136ab1c43221f",
+    "semantic_hash": "aa270c889fe31196d4f136ab1c43221f"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\constants\\transferPlaceholders.ts": {
+    "mtime": 1780410992.362915,
+    "ast_hash": "48d9365f460ce25e715397780989b976",
+    "semantic_hash": "48d9365f460ce25e715397780989b976"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\context\\AuthContext.tsx": {
+    "mtime": 1780410992.362915,
+    "ast_hash": "d657ddc04ccb902e5bee7ac77e0752af",
+    "semantic_hash": "d657ddc04ccb902e5bee7ac77e0752af"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\context\\RatesContext.tsx": {
+    "mtime": 1780410992.362915,
+    "ast_hash": "596e183d2ebc075b9ab43e51379bd58c",
+    "semantic_hash": "596e183d2ebc075b9ab43e51379bd58c"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\features\\admin\\components\\TransactionTable.tsx": {
+    "mtime": 1780410992.362915,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\features\\admin\\components\\UserTable.tsx": {
+    "mtime": 1780410992.362915,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\features\\admin\\hooks.ts": {
+    "mtime": 1780410992.362915,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\features\\admin\\queryKeys.ts": {
+    "mtime": 1780410992.362915,
+    "ast_hash": "4a22173bd74a3007510e3acf78631754",
+    "semantic_hash": "4a22173bd74a3007510e3acf78631754"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\features\\admin\\rateSlugLabels.ts": {
+    "mtime": 1780410992.362915,
+    "ast_hash": "997b35a806acb1ab277ae80eb9bff4a8",
+    "semantic_hash": "997b35a806acb1ab277ae80eb9bff4a8"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\features\\admin\\transactionLabels.ts": {
+    "mtime": 1780410992.362915,
+    "ast_hash": "ff8aabb5ff8db94ce69258bb5bac46e4",
+    "semantic_hash": "ff8aabb5ff8db94ce69258bb5bac46e4"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\features\\admin\\types.ts": {
+    "mtime": 1780410992.368413,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\features\\auth\\components\\LoginForm.tsx": {
+    "mtime": 1780410992.368413,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\features\\auth\\components\\RegisterForm.tsx": {
+    "mtime": 1780410992.368413,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\features\\auth\\hooks.ts": {
+    "mtime": 1780410992.368413,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\features\\auth\\types.ts": {
+    "mtime": 1780410992.368413,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\features\\recipient\\deliveryDetails.ts": {
+    "mtime": 1780410992.368413,
+    "ast_hash": "3aaa369a513fdfd43cde256a7cd29046",
+    "semantic_hash": "3aaa369a513fdfd43cde256a7cd29046"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\features\\transaction\\TransactionSummaryCard.tsx": {
+    "mtime": 1780410992.368413,
+    "ast_hash": "f91e472d994ea5b1f0e4dd190a7d905d",
+    "semantic_hash": "f91e472d994ea5b1f0e4dd190a7d905d"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\features\\transaction\\TransactionTableUi.tsx": {
+    "mtime": 1780410992.368413,
+    "ast_hash": "2fd2a5a8d86e1197069b43cbe77c6127",
+    "semantic_hash": "2fd2a5a8d86e1197069b43cbe77c6127"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\features\\transaction\\components\\SummaryCard.tsx": {
+    "mtime": 1780410992.3704221,
+    "ast_hash": "59f6bff18c39c33e92dd60aa4082ae23",
+    "semantic_hash": "59f6bff18c39c33e92dd60aa4082ae23"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\features\\transaction\\components\\TransferForm.tsx": {
+    "mtime": 1780410992.3704221,
+    "ast_hash": "c05ac782aa11ed1c8b4ef96d309ffbc3",
+    "semantic_hash": "c05ac782aa11ed1c8b4ef96d309ffbc3"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\features\\transaction\\hooks.ts": {
+    "mtime": 1780410992.3704221,
+    "ast_hash": "16049dbbfaca3ce660ed96b7561a8c20",
+    "semantic_hash": "16049dbbfaca3ce660ed96b7561a8c20"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\features\\transaction\\transactionReference.ts": {
+    "mtime": 1780410992.3704221,
+    "ast_hash": "cff8c716f7e86b2b051274e86cd81ec1",
+    "semantic_hash": "cff8c716f7e86b2b051274e86cd81ec1"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\features\\transaction\\types.ts": {
+    "mtime": 1780410992.3704221,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\features\\transaction\\utils.ts": {
+    "mtime": 1780410992.3704221,
+    "ast_hash": "4f14dbc9ce753ff41b797581fa04dc95",
+    "semantic_hash": "4f14dbc9ce753ff41b797581fa04dc95"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\features\\transfer\\ChoiceTile.tsx": {
+    "mtime": 1780410992.3704221,
+    "ast_hash": "ba2758d41eb60dc03d3d4c5c6b0959ba",
+    "semantic_hash": "ba2758d41eb60dc03d3d4c5c6b0959ba"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\features\\transfer\\PaymentDeadlineBanner.tsx": {
+    "mtime": 1780410992.3704221,
+    "ast_hash": "5e85d3ca5f0c3a50844c42c4cfaffa4a",
+    "semantic_hash": "5e85d3ca5f0c3a50844c42c4cfaffa4a"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\features\\transfer\\PendingTransaction.tsx": {
+    "mtime": 1780410992.3704221,
+    "ast_hash": "09cf9fe1630f64e6f9692fd0d4612701",
+    "semantic_hash": "09cf9fe1630f64e6f9692fd0d4612701"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\features\\transfer\\ProofOfPaymentCard.tsx": {
+    "mtime": 1780410992.3704221,
+    "ast_hash": "4d1608c44a53613bf55a2777059acedd",
+    "semantic_hash": "4d1608c44a53613bf55a2777059acedd"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\features\\transfer\\RecipientStepPanel.tsx": {
+    "mtime": 1780410992.3704221,
+    "ast_hash": "a94a998bff3cf8694031a43260f96c1e",
+    "semantic_hash": "a94a998bff3cf8694031a43260f96c1e"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\features\\transfer\\TransferStepIndicator.tsx": {
+    "mtime": 1780410992.3704221,
+    "ast_hash": "b3fcd153989a7db8a17067f2407a1e1d",
+    "semantic_hash": "b3fcd153989a7db8a17067f2407a1e1d"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\features\\transfer\\TransferWizard.tsx": {
+    "mtime": 1780410992.3704221,
+    "ast_hash": "dd35dde50441e500c25e2c4b0f3f6a55",
+    "semantic_hash": "dd35dde50441e500c25e2c4b0f3f6a55"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\hooks\\useAuth.ts": {
+    "mtime": 1780410992.3704221,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\hooks\\useConverter.ts": {
+    "mtime": 1780410992.3752482,
+    "ast_hash": "e228c684723c79e6bb61be5e35106023",
+    "semantic_hash": "e228c684723c79e6bb61be5e35106023"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\hooks\\useTransactionCountdown.js": {
+    "mtime": 1780410992.3752482,
+    "ast_hash": "64ea7aa3d9cee3bba07b1e8a543c7c89",
+    "semantic_hash": "64ea7aa3d9cee3bba07b1e8a543c7c89"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\hooks\\useTransactionCountdown.ts": {
+    "mtime": 1780410992.3752482,
+    "ast_hash": "a4cecb376abe6aaf755dc337ab50fab8",
+    "semantic_hash": "a4cecb376abe6aaf755dc337ab50fab8"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\lib\\conversionMath.ts": {
+    "mtime": 1780410992.3752482,
+    "ast_hash": "7c6d67eaba50901434f422745bf1c01e",
+    "semantic_hash": "7c6d67eaba50901434f422745bf1c01e"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\lib\\kyc.ts": {
+    "mtime": 1780410992.3752482,
+    "ast_hash": "6ec4ac75d99507f70feb90be9dc1fba8",
+    "semantic_hash": "6ec4ac75d99507f70feb90be9dc1fba8"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\lib\\media.ts": {
+    "mtime": 1780410992.3752482,
+    "ast_hash": "247c2c4baf11f7c26492de0c48977fd2",
+    "semantic_hash": "247c2c4baf11f7c26492de0c48977fd2"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\lib\\money.ts": {
+    "mtime": 1780410992.3752482,
+    "ast_hash": "d4b7c67f07511eac24fcbf0cb2b0d4bd",
+    "semantic_hash": "d4b7c67f07511eac24fcbf0cb2b0d4bd"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\lib\\userRole.ts": {
+    "mtime": 1780410992.3752482,
+    "ast_hash": "f74da136b4ddde07f68e8d66af8f3fd8",
+    "semantic_hash": "f74da136b4ddde07f68e8d66af8f3fd8"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\lib\\utils.ts": {
+    "mtime": 1780410992.3752482,
+    "ast_hash": "a04f8d04422001647c72c8675f5c2359",
+    "semantic_hash": "a04f8d04422001647c72c8675f5c2359"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\main.tsx": {
+    "mtime": 1780410992.3752482,
+    "ast_hash": "a3c486cb5e963b6ddd317f8859e9b22b",
+    "semantic_hash": "a3c486cb5e963b6ddd317f8859e9b22b"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\pages\\ActivityPage.tsx": {
+    "mtime": 1780410992.3752482,
+    "ast_hash": "51be21eeb0ae764b21323987120e0481",
+    "semantic_hash": "51be21eeb0ae764b21323987120e0481"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\pages\\ConverterPage.tsx": {
+    "mtime": 1780410992.3752482,
+    "ast_hash": "ecaa5ea4beddb4f5ec184fe4d29d67b9",
+    "semantic_hash": "ecaa5ea4beddb4f5ec184fe4d29d67b9"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\pages\\KycPage.tsx": {
+    "mtime": 1780410992.3752482,
+    "ast_hash": "c8acac4ab4fd89c72f0a335ca47ea414",
+    "semantic_hash": "c8acac4ab4fd89c72f0a335ca47ea414"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\pages\\LoginPage.tsx": {
+    "mtime": 1780410992.3790183,
+    "ast_hash": "a49f29849d93a04159dc939e445b7cc0",
+    "semantic_hash": "a49f29849d93a04159dc939e445b7cc0"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\pages\\RecipientsPage.tsx": {
+    "mtime": 1780410992.3790183,
+    "ast_hash": "e831d23a270a73c81cdc10eab4baff87",
+    "semantic_hash": "e831d23a270a73c81cdc10eab4baff87"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\pages\\RegisterPage.tsx": {
+    "mtime": 1780410992.3790183,
+    "ast_hash": "95738610ce5f405f02ac713ad689bfa1",
+    "semantic_hash": "95738610ce5f405f02ac713ad689bfa1"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\pages\\TransactionDetailPage.tsx": {
+    "mtime": 1780410992.3790183,
+    "ast_hash": "c15725987576b281bac402b36d2f247c",
+    "semantic_hash": "c15725987576b281bac402b36d2f247c"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\pages\\TransferConfirmationPage.tsx": {
+    "mtime": 1780410992.3790183,
+    "ast_hash": "e6a5a9ef2bedfcc6ff94bb1ffc556a90",
+    "semantic_hash": "e6a5a9ef2bedfcc6ff94bb1ffc556a90"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\pages\\TransferPage.tsx": {
+    "mtime": 1780410992.3790183,
+    "ast_hash": "b9c03c48807c7615f5067fd17d47945f",
+    "semantic_hash": "b9c03c48807c7615f5067fd17d47945f"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\pages\\admin\\AdminCurrenciesPage.tsx": {
+    "mtime": 1780410992.38118,
+    "ast_hash": "a69c41af6f777ed8e44e2eddcbc0b2a1",
+    "semantic_hash": "a69c41af6f777ed8e44e2eddcbc0b2a1"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\pages\\admin\\AdminDashboardPage.tsx": {
+    "mtime": 1780410992.38118,
+    "ast_hash": "cfb43c9c8309169858b6d3bb01403477",
+    "semantic_hash": "cfb43c9c8309169858b6d3bb01403477"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\pages\\admin\\AdminPendingTransactionDetailPage.tsx": {
+    "mtime": 1780410992.38118,
+    "ast_hash": "7cd2c1577e543ecc69e2e1ba5ac0eaa6",
+    "semantic_hash": "7cd2c1577e543ecc69e2e1ba5ac0eaa6"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\pages\\admin\\AdminPendingTransactionsPage.tsx": {
+    "mtime": 1780410992.38118,
+    "ast_hash": "79f5faad4d1b8a9f935d66d4edfa6a22",
+    "semantic_hash": "79f5faad4d1b8a9f935d66d4edfa6a22"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\pages\\admin\\AdminRatesPage.tsx": {
+    "mtime": 1780410992.38118,
+    "ast_hash": "9be51d7fc7d75a0f2cc668f2d5c7ed87",
+    "semantic_hash": "9be51d7fc7d75a0f2cc668f2d5c7ed87"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\pages\\admin\\AdminShell.tsx": {
+    "mtime": 1780410992.38118,
+    "ast_hash": "62d0b940c33eac14652174f67b47743a",
+    "semantic_hash": "62d0b940c33eac14652174f67b47743a"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\pages\\admin\\AdminTransactionDetailPage.tsx": {
+    "mtime": 1780410992.38118,
+    "ast_hash": "8024188069b7c1c34578cc565a0fb64d",
+    "semantic_hash": "8024188069b7c1c34578cc565a0fb64d"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\pages\\admin\\AdminTransactionsPage.tsx": {
+    "mtime": 1780410992.38118,
+    "ast_hash": "b6c280744fbcf5c30427a111e04690aa",
+    "semantic_hash": "b6c280744fbcf5c30427a111e04690aa"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\pages\\admin\\AdminUsersPage.tsx": {
+    "mtime": 1780410992.3838377,
+    "ast_hash": "451aa17f89f48e61b4abd305d24099b8",
+    "semantic_hash": "451aa17f89f48e61b4abd305d24099b8"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\pages\\admin\\RequireAdmin.tsx": {
+    "mtime": 1780410992.3838377,
+    "ast_hash": "119cc71b18f06fd16bb4bc1ec04d9848",
+    "semantic_hash": "119cc71b18f06fd16bb4bc1ec04d9848"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\providers\\QueryProvider.tsx": {
+    "mtime": 1780410992.3838377,
+    "ast_hash": "a9917fc7a68b5d7d43144b6d250a44fc",
+    "semantic_hash": "a9917fc7a68b5d7d43144b6d250a44fc"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\services\\api.ts": {
+    "mtime": 1780410992.3838377,
+    "ast_hash": "9204452ff7f7d46db121eb932b028075",
+    "semantic_hash": "9204452ff7f7d46db121eb932b028075"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\services\\authBridge.ts": {
+    "mtime": 1780410992.3838377,
+    "ast_hash": "b2360b79ac08593c24abd59077681316",
+    "semantic_hash": "b2360b79ac08593c24abd59077681316"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\services\\authSession.ts": {
+    "mtime": 1780410992.3838377,
+    "ast_hash": "6a50f23c5ebdb65d4b2d7e97133042d7",
+    "semantic_hash": "6a50f23c5ebdb65d4b2d7e97133042d7"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\services\\transactionsStorage.ts": {
+    "mtime": 1780410992.3838377,
+    "ast_hash": "1a3875a304b355fc7994e06f6889facb",
+    "semantic_hash": "1a3875a304b355fc7994e06f6889facb"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\services\\transferQuoteStorage.ts": {
+    "mtime": 1780410992.3838377,
+    "ast_hash": "1c497ab883b63d3ecd318ed803b621dc",
+    "semantic_hash": "1c497ab883b63d3ecd318ed803b621dc"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\types\\global.ts": {
+    "mtime": 1780410992.3838377,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\types\\index.ts": {
+    "mtime": 1780410992.3838377,
+    "ast_hash": "2f3c3e28dad36d2f8df00be0b740b304",
+    "semantic_hash": "2f3c3e28dad36d2f8df00be0b740b304"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\utils\\formatCurrency.ts": {
+    "mtime": 1780410992.3838377,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\src\\utils\\validators.ts": {
+    "mtime": 1780410992.3838377,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\tsconfig.json": {
+    "mtime": 1780410992.3838377,
+    "ast_hash": "e31c81139d338a67e79a2870aa1a9f0d",
+    "semantic_hash": "e31c81139d338a67e79a2870aa1a9f0d"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\tsconfig.node.json": {
+    "mtime": 1780410992.3838377,
+    "ast_hash": "281e378713152cccc7860c818db55849",
+    "semantic_hash": "281e378713152cccc7860c818db55849"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\vite.config.ts": {
+    "mtime": 1780410992.3838377,
+    "ast_hash": "b9fce1c5368c6953672db0373cb0912f",
+    "semantic_hash": "b9fce1c5368c6953672db0373cb0912f"
+  },
+  "C:\\Projects\\kryptera\\DESIGN.md": {
+    "mtime": 1780410992.2358594,
+    "ast_hash": "7d3f519444b908ef29928c79cf69751c",
+    "semantic_hash": "7d3f519444b908ef29928c79cf69751c"
+  },
+  "C:\\Projects\\kryptera\\README.md": {
+    "mtime": 1780410992.2358594,
+    "ast_hash": "b49871af5250cb0dffe6f72b049eca4a",
+    "semantic_hash": "b49871af5250cb0dffe6f72b049eca4a"
+  },
+  "C:\\Projects\\kryptera\\docker-compose.yml": {
+    "mtime": 1780410992.3150463,
+    "ast_hash": "5827a57e220e6b0d87be26ca6e2c8a88",
+    "semantic_hash": "5827a57e220e6b0d87be26ca6e2c8a88"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\README.md": {
+    "mtime": 1780410992.3150463,
+    "ast_hash": "a13bf10062e35e4c2caa3a460372b6fe",
+    "semantic_hash": "a13bf10062e35e4c2caa3a460372b6fe"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\notifications\\templates\\notifications\\emails\\admin_kyc_submitted.html": {
+    "mtime": 1780410992.3311148,
+    "ast_hash": "f0408b494c78c9d6f7a99893e89c91d7",
+    "semantic_hash": "f0408b494c78c9d6f7a99893e89c91d7"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\notifications\\templates\\notifications\\emails\\admin_kyc_submitted.txt": {
+    "mtime": 1780410992.3311148,
+    "ast_hash": "919304d5ec952b51fa28319d704debbf",
+    "semantic_hash": "919304d5ec952b51fa28319d704debbf"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\notifications\\templates\\notifications\\emails\\admin_pop_uploaded.html": {
+    "mtime": 1780410992.3311148,
+    "ast_hash": "829bec8ad9ddffad865d9c2f67615d20",
+    "semantic_hash": "829bec8ad9ddffad865d9c2f67615d20"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\notifications\\templates\\notifications\\emails\\admin_pop_uploaded.txt": {
+    "mtime": 1780410992.3311148,
+    "ast_hash": "90ee66a4c83e09aeecfa838605d02b5d",
+    "semantic_hash": "90ee66a4c83e09aeecfa838605d02b5d"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\notifications\\templates\\notifications\\emails\\user_kyc_approved.html": {
+    "mtime": 1780410992.3311148,
+    "ast_hash": "01a4efc321a61fbdb25494c6e214ddee",
+    "semantic_hash": "01a4efc321a61fbdb25494c6e214ddee"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\notifications\\templates\\notifications\\emails\\user_kyc_approved.txt": {
+    "mtime": 1780410992.3311148,
+    "ast_hash": "3317b4d04771458f44176ba384ac5cfa",
+    "semantic_hash": "3317b4d04771458f44176ba384ac5cfa"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\notifications\\templates\\notifications\\emails\\user_kyc_rejected.html": {
+    "mtime": 1780410992.3311148,
+    "ast_hash": "cb0517178b55ab1039485883b7255fa4",
+    "semantic_hash": "cb0517178b55ab1039485883b7255fa4"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\notifications\\templates\\notifications\\emails\\user_kyc_rejected.txt": {
+    "mtime": 1780410992.3311148,
+    "ast_hash": "bc243fbe05cd6b20016f4e1d1f86c63c",
+    "semantic_hash": "bc243fbe05cd6b20016f4e1d1f86c63c"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\notifications\\templates\\notifications\\emails\\user_kyc_submitted.html": {
+    "mtime": 1780410992.3311148,
+    "ast_hash": "412c5fe4d6d09148106a15c5c0bc2efa",
+    "semantic_hash": "412c5fe4d6d09148106a15c5c0bc2efa"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\notifications\\templates\\notifications\\emails\\user_kyc_submitted.txt": {
+    "mtime": 1780410992.3311148,
+    "ast_hash": "fec7b79bf344ad9cd8fa93f0310b45c8",
+    "semantic_hash": "fec7b79bf344ad9cd8fa93f0310b45c8"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\notifications\\templates\\notifications\\emails\\user_transaction_completed.html": {
+    "mtime": 1780410992.3311148,
+    "ast_hash": "90b74f58857b54b9c01669bd074d33df",
+    "semantic_hash": "90b74f58857b54b9c01669bd074d33df"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\notifications\\templates\\notifications\\emails\\user_transaction_completed.txt": {
+    "mtime": 1780410992.333935,
+    "ast_hash": "3f492744af302d6298d62900963b481a",
+    "semantic_hash": "3f492744af302d6298d62900963b481a"
+  },
+  "C:\\Projects\\kryptera\\kryptera_back\\requirements.txt": {
+    "mtime": 1780410992.3394113,
+    "ast_hash": "7d43399c4ace2f3c198f4352e34a627a",
+    "semantic_hash": "7d43399c4ace2f3c198f4352e34a627a"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\DESIGN.md": {
+    "mtime": 1780410992.3527687,
+    "ast_hash": "49c91218315c4d6b000fa8f857d59783",
+    "semantic_hash": "49c91218315c4d6b000fa8f857d59783"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\README.md": {
+    "mtime": 1780410992.3527687,
+    "ast_hash": "efc760ab89e190d4cc4c416f9af79d82",
+    "semantic_hash": "efc760ab89e190d4cc4c416f9af79d82"
+  },
+  "C:\\Projects\\kryptera\\kryptera_front\\index.html": {
+    "mtime": 1780410992.3527687,
+    "ast_hash": "e92b4981235d365a521fcb6adee40c89",
+    "semantic_hash": "e92b4981235d365a521fcb6adee40c89"
+  },
+  "C:\\Projects\\kryptera\\plan.md": {
+    "mtime": 1780410992.3838377,
+    "ast_hash": "acea352aedf6a40e7bf6fd77f9b18dd9",
+    "semantic_hash": "acea352aedf6a40e7bf6fd77f9b18dd9"
+  }
+}

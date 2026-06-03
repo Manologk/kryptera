@@ -7,13 +7,14 @@ import {
   type ReactNode,
 } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Banknote, Bitcoin, Building2, Copy, Smartphone } from 'lucide-react'
+import { Banknote, Bitcoin, Building2, Copy, MessageCircle, Smartphone } from 'lucide-react'
 import { toast } from 'sonner'
 import { clearTransferQuote, readTransferQuote } from '@/services/transferQuoteStorage'
 import { createRecipient, createTransaction, getRecipients, uploadPop } from '@/services/api'
 import { useTransactions } from '@/features/transaction/hooks'
 import { useAuth } from '@/context/AuthContext'
 import { useTransactionCountdown } from '@/hooks/useTransactionCountdown'
+import { CONTACT_INFO } from '@/constants'
 import { ROUTES, transferConfirmation } from '@/constants/routes'
 import Layout, { PageHeader } from '@/components/layout/Layout'
 import Button from '@/components/ui/button'
@@ -41,6 +42,13 @@ import Card, { CardContent, CardHeader } from '@/components/ui/card'
 import ChoiceTile from './ChoiceTile'
 import RecipientStepPanel from './RecipientStepPanel'
 import TransferStepIndicator, { type TransferWizardStep } from './TransferStepIndicator'
+
+const buildWhatsappPaymentUrl = (amount: number, currency: string, methodLabel: string): string => {
+  const message =
+    `Hi, I have a Russia → Zambia transfer for ${amount.toLocaleString()} ${currency} ` +
+    `and I'd like to request the ${methodLabel} payment details to complete my payment.`
+  return `https://wa.me/${CONTACT_INFO.whatsapp}?text=${encodeURIComponent(message)}`
+}
 
 const POP_ACCEPT = 'image/jpeg,image/png,image/webp,application/pdf'
 const POP_FORM_ID = 'transfer-wizard-pop-form'
@@ -100,33 +108,39 @@ const getYouSendSummary = (tx: Transaction): YouSendSummary => {
 
 type SummaryKrypteraReceiveProps = {
   paymentMethod?: string
+  mode?: string
+  whatsappUrl?: string
   onCopyUsdtAddress?: () => void
 }
 
-const SummaryKrypteraReceiveAccount = ({ paymentMethod, onCopyUsdtAddress }: SummaryKrypteraReceiveProps) => {
+const SummaryKrypteraReceiveAccount = ({ paymentMethod, mode, whatsappUrl, onCopyUsdtAddress }: SummaryKrypteraReceiveProps) => {
   if (!paymentMethod) return null
+
+  if (mode === 'russia-zambia') {
+    return (
+      <div className="border-b border-border py-3 text-sm">
+        <p className="font-medium text-muted-foreground">Where you send</p>
+        <a
+          href={whatsappUrl ?? `https://wa.me/${CONTACT_INFO.whatsapp}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-2 flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 p-3 no-underline transition-colors hover:bg-green-100"
+        >
+          <MessageCircle className="mt-0.5 h-4 w-4 shrink-0 text-green-600" aria-hidden />
+          <div>
+            <p className="font-semibold text-green-900">Request payment details on WhatsApp</p>
+            <p className="mt-0.5 text-xs text-green-800">Tap to message us — we'll send the details right away.</p>
+          </div>
+        </a>
+      </div>
+    )
+  }
 
   return (
     <div className="border-b border-border py-3 text-sm">
       <p className="font-medium text-muted-foreground">Where you send</p>
       <p className="mt-0.5 text-xs text-muted-foreground">Kryptera receiving account</p>
       <div className="mt-3 rounded-lg border border-border bg-muted/30 p-3 text-foreground">
-        {paymentMethod === 'pay_bank_ru' ? (
-          <dl className="space-y-2.5">
-            <div>
-              <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Phone</dt>
-              <dd className="mt-0.5 font-mono text-base font-semibold">{KRYPTERA_PAY_BANK_RU.phone}</dd>
-            </div>
-            <div>
-              <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Recipient name</dt>
-              <dd className="mt-0.5 font-medium">{KRYPTERA_PAY_BANK_RU.accountName}</dd>
-            </div>
-            <div>
-              <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Bank</dt>
-              <dd className="mt-0.5 font-medium">{KRYPTERA_PAY_BANK_RU.bankName}</dd>
-            </div>
-          </dl>
-        ) : null}
         {paymentMethod === 'pay_mobile_money' ? (
           <div>
             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Mobile money number</p>
@@ -167,7 +181,9 @@ export default function TransferWizard() {
   const { accessToken } = useAuth()
   const { refresh: refreshTransactions } = useTransactions()
 
-  const corridorMode = readTransferQuote()?.mode ?? 'zambia-russia'
+  const quote = readTransferQuote()
+  const corridorMode = quote?.mode ?? 'zambia-russia'
+  const quoteInputAmount = quote?.inputAmount ?? 0
   const deliveryOptionsForCorridor = useMemo(() => getDeliveryOptionsForCorridor(corridorMode), [corridorMode])
   const paymentOptionsForCorridor = useMemo(() => getPaymentOptionsForCorridor(corridorMode), [corridorMode])
 
@@ -196,6 +212,12 @@ export default function TransferWizard() {
 
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryOptionId | null>(null)
   const [paymentMethod, setPaymentMethod] = useState<PaymentOptionId | null>(null)
+
+  const whatsappPaymentUrl = useMemo(() => {
+    if (!paymentMethod) return `https://wa.me/${CONTACT_INFO.whatsapp}`
+    const methodLabel = paymentMethod === 'pay_bank_ru' ? 'Bank transfer' : 'Crypto (USDT)'
+    return buildWhatsappPaymentUrl(quoteInputAmount, 'RUB', methodLabel)
+  }, [paymentMethod, quoteInputAmount])
 
   const [createdTransactionId, setCreatedTransactionId] = useState<string | null>(null)
   const [proofStepTransaction, setProofStepTransaction] = useState<Transaction | null>(null)
@@ -494,35 +516,26 @@ export default function TransferWizard() {
                 ))}
               </div>
 
-              {paymentMethod === 'pay_bank_ru' ? (
-                <div
-                  className="rounded-lg border border-border bg-muted/30 p-4 text-sm"
+              {corridorMode === 'russia-zambia' && paymentMethod != null ? (
+                <a
+                  href={whatsappPaymentUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   style={{ animation: 'fadeUp 0.25s ease' }}
+                  className="flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 p-4 text-sm no-underline transition-colors hover:bg-green-100"
                 >
-                  <p className="font-semibold text-foreground">Pay by bank transfer (Russia)</p>
-                  <dl className="mt-3 space-y-3 text-foreground">
-                    <div>
-                      <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Phone</dt>
-                      <dd className="mt-1 font-mono text-base font-semibold">{KRYPTERA_PAY_BANK_RU.phone}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Recipient name</dt>
-                      <dd className="mt-1 font-medium">{KRYPTERA_PAY_BANK_RU.accountName}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Bank</dt>
-                      <dd className="mt-1 font-medium">{KRYPTERA_PAY_BANK_RU.bankName}</dd>
-                    </div>
-                  </dl>
-                  <ul className="mt-3 list-disc space-y-2 pl-5 text-muted-foreground">
-                    {KRYPTERA_PAY_BANK_RU.instructions.map(line => (
-                      <li key={line}>{line}</li>
-                    ))}
-                  </ul>
-                </div>
+                  <MessageCircle className="mt-0.5 h-5 w-5 shrink-0 text-green-600" aria-hidden />
+                  <div>
+                    <p className="font-semibold text-green-900">Request payment details on WhatsApp</p>
+                    <p className="mt-1 text-green-800">
+                      Payment details for this method are shared privately. Tap here to message us on WhatsApp
+                      and we'll send you the details right away.
+                    </p>
+                  </div>
+                </a>
               ) : null}
 
-              {paymentMethod === 'pay_mobile_money' ? (
+              {corridorMode !== 'russia-zambia' && paymentMethod === 'pay_mobile_money' ? (
                 <div
                   className="rounded-lg border border-border bg-muted/30 p-4 text-sm"
                   style={{ animation: 'fadeUp 0.25s ease' }}
@@ -537,7 +550,7 @@ export default function TransferWizard() {
                 </div>
               ) : null}
 
-              {paymentMethod === 'pay_crypto_usdt' ? (
+              {corridorMode !== 'russia-zambia' && paymentMethod === 'pay_crypto_usdt' ? (
                 <div
                   className="rounded-lg border border-border bg-muted/30 p-4 text-sm"
                   style={{ animation: 'fadeUp 0.25s ease' }}
@@ -630,6 +643,16 @@ export default function TransferWizard() {
                     </div>
                     <SummaryKrypteraReceiveAccount
                       paymentMethod={proofStepTransaction.paymentMethod}
+                      mode={proofStepTransaction.mode}
+                      whatsappUrl={
+                        proofStepTransaction.mode === 'russia-zambia' && proofStepTransaction.paymentMethod
+                          ? buildWhatsappPaymentUrl(
+                              Number(proofStepTransaction.inputAmount),
+                              proofStepTransaction.inputCurrency,
+                              proofStepTransaction.paymentMethod === 'pay_bank_ru' ? 'Bank transfer' : 'Crypto (USDT)',
+                            )
+                          : undefined
+                      }
                       onCopyUsdtAddress={() => void handleCopyUsdtAddress()}
                     />
                     <div className="flex flex-wrap items-center justify-between gap-2 pt-2.5 text-sm">
