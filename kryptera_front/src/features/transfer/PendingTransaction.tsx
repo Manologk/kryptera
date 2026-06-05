@@ -5,6 +5,7 @@ import type { Transaction } from '@/types'
 import Button from '@/components/ui/button'
 import Card, { CardContent, CardHeader } from '@/components/ui/card'
 import { Alert } from '@/components/ui/badge'
+import { UploadBusyOverlay } from '@/components/ui/upload-busy-overlay'
 import { ProofOfPaymentCard } from '@/features/transfer/ProofOfPaymentCard'
 
 export type PendingTransactionProps = {
@@ -132,7 +133,8 @@ export const PendingTransaction = ({
               : 'Upload a screenshot or PDF of your payment to continue.'
           }
         />
-        <CardContent className="pt-0">
+        <CardContent className="relative pt-0">
+          <UploadBusyOverlay busy={uploading} label="Uploading proof of payment…" />
           {uploadError ? (
             <div className="mb-4">
               <Alert type="error" message={uploadError} onClose={() => setUploadError(null)} />
@@ -159,7 +161,11 @@ export const PendingTransaction = ({
               />
             </div>
             <Button type="submit" size="lg" loading={uploading} disabled={!file || uploading}>
-              {transaction.popPath ? 'Submit new proof' : 'Submit proof'}
+              {uploading
+                ? 'Uploading…'
+                : transaction.popPath
+                  ? 'Submit new proof'
+                  : 'Submit proof'}
             </Button>
           </form>
         </CardContent>

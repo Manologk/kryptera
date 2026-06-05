@@ -26,6 +26,9 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
     volumes:
       - static_files:/app/staticfiles
       - media_files:/app/mediafiles

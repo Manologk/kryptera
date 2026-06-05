@@ -19,6 +19,7 @@ import { ROUTES, transferConfirmation } from '@/constants/routes'
 import Layout, { PageHeader } from '@/components/layout/Layout'
 import Button from '@/components/ui/button'
 import { Alert, StatusBadge } from '@/components/ui/badge'
+import { UploadBusyOverlay } from '@/components/ui/upload-busy-overlay'
 import {
   getDeliveryMethodTitle,
   getDeliveryOptionsForCorridor,
@@ -128,8 +129,7 @@ const SummaryKrypteraReceiveAccount = ({ paymentMethod, mode, whatsappUrl, onCop
         >
           <MessageCircle className="mt-0.5 h-4 w-4 shrink-0 text-green-600" aria-hidden />
           <div>
-            <p className="font-semibold text-green-900">Request payment details on WhatsApp</p>
-            <p className="mt-0.5 text-xs text-green-800">Tap to message us — we'll send the details right away.</p>
+            <p className="font-semibold text-green-900">Click here to request for payment details</p>
           </div>
         </a>
       </div>
@@ -348,6 +348,10 @@ export default function TransferWizard() {
       setStep3Error('You must be signed in to submit this transfer.')
       return
     }
+    if (createdTransactionId && proofStepTransaction) {
+      setStep(4)
+      return
+    }
     const quote = readTransferQuote()
     if (!quote) {
       setStep3Error('Calculate an amount on the home page first, then tap Send to continue.')
@@ -410,6 +414,7 @@ export default function TransferWizard() {
     setPopUploadBusy(false)
     if (res.error) {
       setPopUploadError(res.error.message)
+      refreshTransactions()
       return
     }
     refreshTransactions()
@@ -526,11 +531,7 @@ export default function TransferWizard() {
                 >
                   <MessageCircle className="mt-0.5 h-5 w-5 shrink-0 text-green-600" aria-hidden />
                   <div>
-                    <p className="font-semibold text-green-900">Request payment details on WhatsApp</p>
-                    <p className="mt-1 text-green-800">
-                      Payment details for this method are shared privately. Tap here to message us on WhatsApp
-                      and we'll send you the details right away.
-                    </p>
+                    <p className="font-semibold text-green-900">Click here to request for payment details</p>
                   </div>
                 </a>
               ) : null}
@@ -583,9 +584,10 @@ export default function TransferWizard() {
           {step === 4 ? (
             <form
               id={POP_FORM_ID}
-              className="space-y-6 animate-fade-up"
+              className="relative space-y-6 animate-fade-up"
               onSubmit={e => void handleSubmitPopProof(e)}
             >
+              <UploadBusyOverlay busy={popUploadBusy} label="Uploading proof of payment…" />
               <p className="text-sm text-muted-foreground">
                 Your transfer is created. Upload a screenshot or PDF of your payment so we can verify it.
               </p>
@@ -778,7 +780,7 @@ export default function TransferWizard() {
               loading={popUploadBusy}
               disabled={!popFile || popUploadBusy || isExpired || countdownLoading}
             >
-              Submit proof
+              {popUploadBusy ? 'Uploading…' : 'Submit proof'}
             </Button>
           ) : null}
         </div>

@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { TRANSACTION_TABLE_PAGE_SIZE } from '@/constants';
 import { ROUTES, activityTransaction } from '@/constants/routes';
 import { recipientDisplay } from '@/features/admin/transactionLabels';
 import { useTransactions } from '@/features/transaction/hooks';
 import { transactionReferenceDisplay } from '@/features/transaction/transactionReference';
-import { RecipientStackedCell, TxRowDetailLink, TxTableCheckbox } from '@/features/transaction/TransactionTableUi';
+import { RecipientStackedCell, TxRowViewAction } from '@/features/transaction/TransactionTableUi';
 import { formatMoneyAmount } from '@/features/transaction/utils';
 import Card, { CardHeader } from '@/components/ui/card';
 import Layout, { PageHeader } from '@/components/layout/Layout';
@@ -32,7 +32,6 @@ const STATUS_FILTER_OPTIONS: { value: 'all' | TransactionStatus; label: string }
 
 export default function ActivityPage() {
   const { transactions, isApi, remoteLoading } = useTransactions();
-  const [selected, setSelected] = useState<Set<string>>(() => new Set());
   const [statusFilter, setStatusFilter] = useState<'all' | TransactionStatus>('all');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -61,17 +60,6 @@ export default function ActivityPage() {
   }, [transactions, statusFilter, searchTrim]);
 
   useEffect(() => {
-    setSelected(prev => {
-      const ids = new Set(filtered.map(t => t.id));
-      const next = new Set<string>();
-      prev.forEach(id => {
-        if (ids.has(id)) next.add(id);
-      });
-      return next;
-    });
-  }, [filtered]);
-
-  useEffect(() => {
     setPage(1);
   }, [statusFilter, searchTrim]);
 
@@ -85,30 +73,6 @@ export default function ActivityPage() {
     const start = (page - 1) * TRANSACTION_TABLE_PAGE_SIZE;
     return filtered.slice(start, start + TRANSACTION_TABLE_PAGE_SIZE);
   }, [filtered, page]);
-
-  const allSelected =
-    pageSlice.length > 0 && pageSlice.every(t => selected.has(t.id));
-  const someSelected = pageSlice.some(t => selected.has(t.id)) && !allSelected;
-
-  const toggleRow = (id: string) => {
-    setSelected(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
-
-  const handleHeaderPress = () => {
-    const ids = pageSlice.map(t => t.id);
-    const allPageSelected = ids.length > 0 && ids.every(id => selected.has(id));
-    setSelected(prev => {
-      const next = new Set(prev);
-      if (allPageSelected) ids.forEach(id => next.delete(id));
-      else ids.forEach(id => next.add(id));
-      return next;
-    });
-  };
 
   const rangeStart = filtered.length === 0 ? 0 : (page - 1) * TRANSACTION_TABLE_PAGE_SIZE + 1;
   const rangeEnd = Math.min(page * TRANSACTION_TABLE_PAGE_SIZE, filtered.length);
@@ -177,18 +141,11 @@ export default function ActivityPage() {
 
           <div className="overflow-hidden rounded-[14px] border border-[#EBEBEB] bg-white">
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[640px] border-collapse">
+              <table className="w-full min-w-[560px] border-collapse">
                 <thead className="border-b border-[#EBEBEB] bg-[#F7F7F5]">
                   <tr className="h-10">
-                    <th className="w-12 px-2 text-center align-middle">
-                      <div className="flex justify-center">
-                        <TxTableCheckbox
-                          checked={allSelected}
-                          indeterminate={someSelected}
-                          ariaLabel="Select all on this page"
-                          onPress={handleHeaderPress}
-                        />
-                      </div>
+                    <th className="w-12 px-2 text-center align-middle" aria-label="View">
+                      <span className="sr-only">View</span>
                     </th>
                     <th className="px-3 text-left align-middle text-[11px] font-semibold uppercase tracking-[0.06em] text-[#888]">
                       Recipient
@@ -202,25 +159,17 @@ export default function ActivityPage() {
                     <th className="px-3 text-left align-middle text-[11px] font-semibold uppercase tracking-[0.06em] text-[#888]">
                       Status
                     </th>
-                    <th className="min-w-[52px] px-0 text-center align-middle" aria-hidden />
                   </tr>
                 </thead>
                 <tbody>
                   {pageSlice.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="px-4 py-8 text-center text-sm text-[#888]">
+                      <td colSpan={5} className="px-4 py-8 text-center text-sm text-[#888]">
                         No transfers match your filters.
                       </td>
                     </tr>
                   ) : (
-                    pageSlice.map(tx => (
-                      <ActivityTableRow
-                        key={tx.id}
-                        tx={tx}
-                        selected={selected.has(tx.id)}
-                        onToggle={() => toggleRow(tx.id)}
-                      />
-                    ))
+                    pageSlice.map(tx => <ActivityTableRow key={tx.id} tx={tx} />)
                   )}
                 </tbody>
               </table>
@@ -265,25 +214,31 @@ export default function ActivityPage() {
   );
 }
 
-function ActivityTableRow({
-  tx,
-  selected,
-  onToggle,
-}: {
-  tx: Transaction;
-  selected: boolean;
-  onToggle: () => void;
-}) {
+function ActivityTableRow({ tx }: { tx: Transaction }) {
+  const navigate = useNavigate();
+  const detailHref = activityTransaction(tx.id);
+
+  const openDetail = () => navigate(detailHref);
+
   return (
     <tr
+      onClick={openDetail}
+      onKeyDown={e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openDetail();
+        }
+      }}
+      tabIndex={0}
+      role="link"
+      aria-label={`View transfer to ${recipientDisplay(tx)}`}
       className={cn(
-        'min-h-[64px] border-b border-[#EBEBEB] transition-colors duration-150',
-        selected ? 'bg-[#F0FAF5] hover:bg-[#F0FAF5]' : 'bg-white hover:bg-[#F7F7F5]',
+        'min-h-[64px] cursor-pointer border-b border-[#EBEBEB] bg-white transition-colors duration-150 hover:bg-[#F7F7F5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#163300]/25',
       )}
     >
       <td className="w-12 px-2 text-center align-middle">
-        <div className="flex min-h-[64px] items-center justify-center">
-          <TxTableCheckbox checked={selected} ariaLabel="Select transfer" onCheckedChange={() => onToggle()} />
+        <div className="flex min-h-[64px] items-center justify-center" onClick={e => e.stopPropagation()}>
+          <TxRowViewAction detailHref={detailHref} />
         </div>
       </td>
       <td className="px-3 align-middle">
@@ -301,9 +256,6 @@ function ActivityTableRow({
       </td>
       <td className="px-3 align-middle">
         <StatusBadge status={tx.status} />
-      </td>
-      <td className="min-w-[52px] px-0 align-middle">
-        <TxRowDetailLink detailHref={activityTransaction(tx.id)} />
       </td>
     </tr>
   );

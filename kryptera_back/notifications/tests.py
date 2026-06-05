@@ -3,7 +3,6 @@ from decimal import Decimal
 from django.core import mail
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TransactionTestCase, override_settings
-from notifications.services import NotificationConfigError
 from rest_framework import status
 from rest_framework.test import APIClient
 
@@ -171,20 +170,49 @@ class NotificationEmailTests(TransactionTestCase):
         self.assertIn("completed", mail.outbox[0].subject.lower())
         self.assertTrue(mail.outbox[0].attachments)
 
-    def test_kyc_submit_fails_without_admin_emails(self):
+    def test_kyc_submit_succeeds_without_admin_emails(self):
         self.user.kyc_status = KycStatus.NOT_SUBMITTED
         self.user.save(update_fields=["kyc_status", "updated_at"])
         with override_settings(ADMIN_NOTIFICATION_EMAILS=[]):
             mail.outbox.clear()
             self.client.force_authenticate(user=self.user)
-            with self.assertRaises(NotificationConfigError):
-                self.client.post(
-                    "/api/v1/auth/kyc/",
-                    {
-                        "kyc_doc": kyc_file(),
-                        "kyc_legal_name": "Legal",
-                        "kyc_id_number": "X1",
-                        "kyc_country": "ZM",
-                    },
-                    format="multipart",
-                )
+            res = self.client.post(
+                "/api/v1/auth/kyc/",
+                {
+                    "kyc_doc": kyc_file(),
+                    "kyc_legal_name": "Legal",
+                    "kyc_id_number": "X1",
+                    "kyc_country": "ZM",
+                },
+                format="multipart",
+            )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.kyc_status, KycStatus.PENDING)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, ["notify-user@test.com"])
+
+    def test_pop_upload_succeeds_without_admin_emails(self):
+        self.client.force_authenticate(user=self.user)
+        create = self.client.post(
+            "/api/v1/transactions/",
+            {
+                "mode": "russia-zambia",
+                "input_amount": "10000",
+                "purpose": "Test",
+            },
+            format="json",
+        )
+        self.assertEqual(create.status_code, status.HTTP_201_CREATED)
+        tx_id = create.data["id"]
+        with override_settings(ADMIN_NOTIFICATION_EMAILS=[]):
+            mail.outbox.clear()
+            pop = self.client.post(
+                f"/api/v1/transactions/{tx_id}/pop/",
+                {"pop_file": pop_file()},
+                format="multipart",
+            )
+        self.assertEqual(pop.status_code, status.HTTP_200_OK)
+        tx = Transaction.objects.get(pk=tx_id)
+        self.assertTrue(tx.pop_file)
+        self.assertEqual(len(mail.outbox), 0)

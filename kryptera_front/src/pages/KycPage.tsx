@@ -10,6 +10,7 @@ import Input from '@/components/ui/input'
 import Button from '@/components/ui/button'
 import { Alert } from '@/components/ui/badge'
 import { Label } from '@/components/ui/label'
+import { UploadBusyOverlay } from '@/components/ui/upload-busy-overlay'
 import { KYC_DOC_ACCEPT, submitKyc } from '@/services/api'
 
 const COUNTRY_OPTIONS = [
@@ -117,7 +118,8 @@ export default function KycPage() {
               </div>
             ) : null}
 
-            <form className="space-y-4" onSubmit={handleSubmit} id="kyc-form">
+            <form className="relative space-y-4" onSubmit={handleSubmit} id="kyc-form">
+              <UploadBusyOverlay busy={busy} label="Uploading documents…" />
               <div className="space-y-2">
                 <Label htmlFor="kyc-legal-name">Legal name (as on ID)</Label>
                 <Input
@@ -165,8 +167,8 @@ export default function KycPage() {
                 />
               </div>
               {error ? <Alert type="error" message={error} onClose={() => setError(null)} /> : null}
-              <Button type="submit" disabled={busy} className="w-full">
-                {busy ? 'Submitting…' : 'Submit for verification'}
+              <Button type="submit" loading={busy} disabled={busy} className="w-full">
+                Submit for verification
               </Button>
             </form>
           </CardContent>

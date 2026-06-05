@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ChevronsUpDown } from 'lucide-react'
+import { ChevronsUpDown, MoreVertical } from 'lucide-react'
 import { recipientDisplay, recipientPhoneLine } from '@/features/admin/transactionLabels'
 import { transactionReferenceDisplay } from '@/features/transaction/transactionReference'
 import { cn } from '@/lib/utils'
@@ -79,6 +79,18 @@ export function TxRowDetailLink({ detailHref }: { detailHref: string }) {
         View
       </Link>
     </div>
+  )
+}
+
+export function TxRowViewAction({ detailHref }: { detailHref: string }) {
+  return (
+    <Link
+      to={detailHref}
+      className="inline-flex h-10 w-10 items-center justify-center rounded-[10px] text-[#163300] transition-colors hover:bg-[#F7F7F5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#163300]/25"
+      aria-label="View transfer"
+    >
+      <MoreVertical className="h-5 w-5" aria-hidden />
+    </Link>
   )
 }
 
