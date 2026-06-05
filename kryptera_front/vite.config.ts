@@ -21,6 +21,9 @@ export default defineConfig({
       '/api': { target: 'http://localhost:8000', changeOrigin: true },
       /** Django FileField URLs are under MEDIA_URL (default /media/); same-origin as /api in dev */
       '/media': { target: 'http://localhost:8000', changeOrigin: true },
+      /** Django admin at /admin/admin/ (React app uses /admin/dashboard, etc.) */
+      '/admin/admin': { target: 'http://localhost:8000', changeOrigin: true },
+      '/static': { target: 'http://localhost:8000', changeOrigin: true },
     },
   },
 });
