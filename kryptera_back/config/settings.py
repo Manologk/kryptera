@@ -17,11 +17,25 @@ ALLOWED_HOSTS = [
     for h in os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
     if h.strip()
 ]
-CSRF_TRUSTED_ORIGINS = [
+
+FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost").rstrip("/")
+
+_csrf_origins = [
     o.strip()
     for o in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",")
     if o.strip()
 ]
+if FRONTEND_URL and FRONTEND_URL not in _csrf_origins:
+    _csrf_origins.append(FRONTEND_URL)
+for host in ALLOWED_HOSTS:
+    if host in ("localhost", "127.0.0.1", "*"):
+        continue
+    for scheme in ("https", "http"):
+        origin = f"{scheme}://{host}"
+        if origin not in _csrf_origins:
+            _csrf_origins.append(origin)
+CSRF_TRUSTED_ORIGINS = _csrf_origins
+
 USE_X_FORWARDED_HOST = os.environ.get("USE_X_FORWARDED_HOST", "True") == "True"
 if os.environ.get("BEHIND_REVERSE_PROXY", "True") == "True":
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
@@ -46,6 +60,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -125,6 +140,14 @@ CORS_ALLOW_CREDENTIALS = True
 
 STATIC_URL = "/static/"
 STATIC_ROOT = str(Path(os.environ.get("STATIC_ROOT", BASE_DIR / "staticfiles")).resolve())
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    },
+}
 MEDIA_URL = "/media/"
 MEDIA_ROOT = str(Path(os.environ.get("MEDIA_ROOT", BASE_DIR / "mediafiles")).resolve())
 
@@ -163,7 +186,5 @@ ADMIN_NOTIFICATION_EMAILS = [
     for e in os.environ.get("ADMIN_NOTIFICATION_EMAILS", "").split(",")
     if e.strip()
 ]
-
-FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost").rstrip("/")
 
 NOTIFICATION_MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024

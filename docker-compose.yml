@@ -92,7 +92,6 @@ services:
     ports:
      - "80:80"
     volumes:
-      - static_files:/app/staticfiles:ro
       - media_files:/app/mediafiles:ro
     depends_on:
       - django
