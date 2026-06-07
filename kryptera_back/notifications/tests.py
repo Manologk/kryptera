@@ -80,7 +80,7 @@ class NotificationEmailTests(TransactionTestCase):
         self.assertEqual(len(user_mails), 1)
         self.assertEqual(len(admin_mails), 2)
         self.assertIn("verification received", user_mails[0].subject.lower())
-        self.assertTrue(any(m.attachments for m in admin_mails))
+        self.assertTrue(all(not m.attachments for m in admin_mails))
 
     def test_kyc_approve_sends_user_email(self):
         self.user.kyc_status = KycStatus.PENDING

@@ -224,6 +224,8 @@ export default function RecipientStepPanel({
                 label="Mobile money number"
                 value={deliveryDetailFields.wallet}
                 onChange={e => onDeliveryDetailFieldsChange({ wallet: e.target.value })}
+                required
+                hint="Required. Used as the contact phone if you leave phone number blank."
               />
             ) : null}
             {newDeliveryMethod === 'bank_deposit' ? (

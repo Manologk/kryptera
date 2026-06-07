@@ -9,4 +9,5 @@ export const adminKeys = {
   pendingTransaction: (id: string) => ['admin', 'pendingTx', id] as const,
   currencies: (page: number) => ['admin', 'currencies', page] as const,
   rateQuotes: (page: number) => ['admin', 'rateQuotes', page] as const,
+  paymentReceiving: ['admin', 'paymentReceiving'] as const,
 };

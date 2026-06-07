@@ -5,9 +5,11 @@ import {
   buildDeliveryDetailsPayload,
   emptyDeliveryDetailFields,
   fieldsFromStoredDetails,
+  resolveRecipientPhoneNumber,
+  validateDeliveryDetails,
   type DeliveryDetailFields,
 } from '@/features/recipient/deliveryDetails';
-import { DELIVERY_OPTIONS, type DeliveryOptionId } from '@/constants/transferPlaceholders';
+import { RECIPIENT_DELIVERY_OPTIONS, type DeliveryOptionId } from '@/constants/transferPlaceholders';
 import type { Recipient } from '@/types';
 import Card, { CardHeader } from '@/components/ui/card';
 import Button from '@/components/ui/button';
@@ -23,7 +25,7 @@ export default function RecipientsPage() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [deliveryMethod, setDeliveryMethod] = useState<DeliveryOptionId | ''>('');
+  const [deliveryMethod, setDeliveryMethod] = useState<DeliveryOptionId | ''>('mobile_money');
   const [detailFields, setDetailFields] = useState<DeliveryDetailFields>(emptyDeliveryDetailFields());
   const [editing, setEditing] = useState<Recipient | null>(null);
 
@@ -51,12 +53,17 @@ export default function RecipientsPage() {
       setMsg({ type: 'error', text: 'Choose a delivery method for this recipient.' });
       return;
     }
+    const detailErr = validateDeliveryDetails(deliveryMethod, detailFields);
+    if (detailErr) {
+      setMsg({ type: 'error', text: detailErr });
+      return;
+    }
     setMsg(null);
     const details = buildDeliveryDetailsPayload(deliveryMethod, detailFields);
     const res = await createRecipient(accessToken, {
       full_name: fullName.trim(),
       email: email.trim() || undefined,
-      phone_number: phoneNumber.trim() || undefined,
+      phone_number: resolveRecipientPhoneNumber(phoneNumber, deliveryMethod, detailFields),
       delivery_method: deliveryMethod,
       delivery_details: details,
     });
@@ -66,7 +73,7 @@ export default function RecipientsPage() {
       setFullName('');
       setEmail('');
       setPhoneNumber('');
-      setDeliveryMethod('');
+      setDeliveryMethod('mobile_money');
       setDetailFields(emptyDeliveryDetailFields());
       await load();
     }
@@ -79,12 +86,17 @@ export default function RecipientsPage() {
       setMsg({ type: 'error', text: 'Choose a delivery method for this recipient.' });
       return;
     }
+    const detailErr = validateDeliveryDetails(deliveryMethod, detailFields);
+    if (detailErr) {
+      setMsg({ type: 'error', text: detailErr });
+      return;
+    }
     setMsg(null);
     const details = buildDeliveryDetailsPayload(deliveryMethod, detailFields);
     const res = await updateRecipient(accessToken, editing.id, {
       full_name: fullName.trim(),
       email: email.trim() || undefined,
-      phone_number: phoneNumber.trim() || undefined,
+      phone_number: resolveRecipientPhoneNumber(phoneNumber, deliveryMethod, detailFields),
       delivery_method: deliveryMethod,
       delivery_details: details,
     });
@@ -95,7 +107,7 @@ export default function RecipientsPage() {
       setFullName('');
       setEmail('');
       setPhoneNumber('');
-      setDeliveryMethod('');
+      setDeliveryMethod('mobile_money');
       setDetailFields(emptyDeliveryDetailFields());
       await load();
     }
@@ -119,7 +131,7 @@ export default function RecipientsPage() {
     setEmail(r.email ?? '');
     setPhoneNumber(r.phoneNumber ?? '');
     const dm = (r.deliveryMethod ?? '') as DeliveryOptionId | '';
-    setDeliveryMethod(dm && DELIVERY_OPTIONS.some(o => o.id === dm) ? dm : '');
+    setDeliveryMethod(dm && RECIPIENT_DELIVERY_OPTIONS.some(o => o.id === dm) ? dm : 'mobile_money');
     setDetailFields(fieldsFromStoredDetails(r.deliveryMethod, r.deliveryDetails));
     setMsg(null);
   }
@@ -129,7 +141,7 @@ export default function RecipientsPage() {
     setFullName('');
     setEmail('');
     setPhoneNumber('');
-    setDeliveryMethod('');
+    setDeliveryMethod('mobile_money');
     setDetailFields(emptyDeliveryDetailFields());
   }
 
@@ -196,8 +208,7 @@ export default function RecipientsPage() {
                   background: 'var(--color-surface)',
                 }}
               >
-                <option value="">Select…</option>
-                {DELIVERY_OPTIONS.map(o => (
+                {RECIPIENT_DELIVERY_OPTIONS.map(o => (
                   <option key={o.id} value={o.id}>
                     {o.title}
                   </option>
@@ -209,6 +220,8 @@ export default function RecipientsPage() {
                 label="Mobile money number"
                 value={detailFields.wallet}
                 onChange={e => setDetailFields(prev => ({ ...prev, wallet: e.target.value }))}
+                required
+                hint="Required. Used as the contact phone if you leave phone number blank."
               />
             ) : null}
             {deliveryMethod === 'bank_deposit' ? (
@@ -274,7 +287,7 @@ export default function RecipientsPage() {
                 <div>
                   <p style={{ fontWeight: 700, margin: 0 }}>{r.fullName}</p>
                   <p style={{ fontSize: 13, color: 'var(--color-text-muted)', margin: '6px 0 0' }}>
-                    {DELIVERY_OPTIONS.find(o => o.id === r.deliveryMethod)?.title ?? r.deliveryMethod ?? '—'}
+                    {RECIPIENT_DELIVERY_OPTIONS.find(o => o.id === r.deliveryMethod)?.title ?? r.deliveryMethod ?? '—'}
                     {r.phoneNumber ? ` · ${r.phoneNumber}` : ''}
                     {r.email ? ` · ${r.email}` : ''}
                   </p>

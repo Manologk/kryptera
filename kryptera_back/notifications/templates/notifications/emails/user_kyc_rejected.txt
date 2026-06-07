@@ -1,12 +1,12 @@
+{{ company_name }} — Identity verification update
+
 Hello {{ user_name }},
 
-We could not approve your identity verification at this time.
+We could not verify your identity with the documents provided.
 
 Reason:
 {{ rejection_reason }}
 
-Please resubmit your documents here:
-{{ kyc_url }}
+Resubmit verification: {{ kyc_url }}
 
-Thank you,
-Kryptera
+Need help? Contact {{ support_email }}

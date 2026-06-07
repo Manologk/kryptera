@@ -1,20 +1,13 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  type FormEvent,
-  type ReactNode,
-} from 'react'
+import { useCallback, useEffect, useMemo, useState, type FormEvent, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Banknote, Bitcoin, Building2, Copy, MessageCircle, Smartphone } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
+import { Banknote, Bitcoin, Building2, Smartphone } from 'lucide-react'
 import { toast } from 'sonner'
 import { clearTransferQuote, readTransferQuote } from '@/services/transferQuoteStorage'
-import { createRecipient, createTransaction, getRecipients, uploadPop } from '@/services/api'
+import { createRecipient, createTransaction, getPaymentReceiving, getRecipients, uploadPop } from '@/services/api'
 import { useTransactions } from '@/features/transaction/hooks'
 import { useAuth } from '@/context/AuthContext'
 import { useTransactionCountdown } from '@/hooks/useTransactionCountdown'
-import { CONTACT_INFO } from '@/constants'
 import { ROUTES, transferConfirmation } from '@/constants/routes'
 import Layout, { PageHeader } from '@/components/layout/Layout'
 import Button from '@/components/ui/button'
@@ -25,15 +18,15 @@ import {
   getDeliveryOptionsForCorridor,
   getPaymentMethodTitle,
   getPaymentOptionsForCorridor,
-  KRYPTERA_PAY_BANK_RU,
-  KRYPTERA_PAY_MOBILE_MONEY,
-  KRYPTERA_PAY_USDT,
   type DeliveryOptionId,
   type PaymentOptionId,
 } from '@/constants/transferPlaceholders'
+import { PaymentReceivingPanel } from '@/features/transfer/PaymentReceivingPanel'
+import { resolvePaymentReceivingConfig } from '@/features/transfer/paymentReceivingFallback'
 import {
   buildDeliveryDetailsPayload,
   emptyDeliveryDetailFields,
+  resolveRecipientPhoneNumber,
   validateDeliveryDetails,
   type DeliveryDetailFields,
 } from '@/features/recipient/deliveryDetails'
@@ -43,13 +36,6 @@ import Card, { CardContent, CardHeader } from '@/components/ui/card'
 import ChoiceTile from './ChoiceTile'
 import RecipientStepPanel from './RecipientStepPanel'
 import TransferStepIndicator, { type TransferWizardStep } from './TransferStepIndicator'
-
-const buildWhatsappPaymentUrl = (amount: number, currency: string, methodLabel: string): string => {
-  const message =
-    `Hi, I have a Russia → Zambia transfer for ${amount.toLocaleString()} ${currency} ` +
-    `and I'd like to request the ${methodLabel} payment details to complete my payment.`
-  return `https://wa.me/${CONTACT_INFO.whatsapp}?text=${encodeURIComponent(message)}`
-}
 
 const POP_ACCEPT = 'image/jpeg,image/png,image/webp,application/pdf'
 const POP_FORM_ID = 'transfer-wizard-pop-form'
@@ -107,75 +93,6 @@ const getYouSendSummary = (tx: Transaction): YouSendSummary => {
   return { primary: fiatLine }
 }
 
-type SummaryKrypteraReceiveProps = {
-  paymentMethod?: string
-  mode?: string
-  whatsappUrl?: string
-  onCopyUsdtAddress?: () => void
-}
-
-const SummaryKrypteraReceiveAccount = ({ paymentMethod, mode, whatsappUrl, onCopyUsdtAddress }: SummaryKrypteraReceiveProps) => {
-  if (!paymentMethod) return null
-
-  if (mode === 'russia-zambia') {
-    return (
-      <div className="border-b border-border py-3 text-sm">
-        <p className="font-medium text-muted-foreground">Where you send</p>
-        <a
-          href={whatsappUrl ?? `https://wa.me/${CONTACT_INFO.whatsapp}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-2 flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 p-3 no-underline transition-colors hover:bg-green-100"
-        >
-          <MessageCircle className="mt-0.5 h-4 w-4 shrink-0 text-green-600" aria-hidden />
-          <div>
-            <p className="font-semibold text-green-900">Click here to request for payment details</p>
-          </div>
-        </a>
-      </div>
-    )
-  }
-
-  return (
-    <div className="border-b border-border py-3 text-sm">
-      <p className="font-medium text-muted-foreground">Where you send</p>
-      <p className="mt-0.5 text-xs text-muted-foreground">Kryptera receiving account</p>
-      <div className="mt-3 rounded-lg border border-border bg-muted/30 p-3 text-foreground">
-        {paymentMethod === 'pay_mobile_money' ? (
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Mobile money number</p>
-            <p className="mt-1 font-mono text-base font-semibold">{KRYPTERA_PAY_MOBILE_MONEY.displayNumber}</p>
-          </div>
-        ) : null}
-        {paymentMethod === 'pay_crypto_usdt' ? (
-          <div className="space-y-2.5">
-            <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Network</p>
-              <p className="mt-0.5 font-medium">{KRYPTERA_PAY_USDT.network}</p>
-            </div>
-            <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Wallet address</p>
-              <div className="mt-1 flex items-start gap-2">
-                <p className="min-w-0 flex-1 break-all font-mono text-sm font-medium">{KRYPTERA_PAY_USDT.address}</p>
-                {onCopyUsdtAddress ? (
-                  <button
-                    type="button"
-                    onClick={() => onCopyUsdtAddress()}
-                    className="shrink-0 rounded-md border border-border bg-card p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                    aria-label="Copy wallet address to clipboard"
-                  >
-                    <Copy className="h-4 w-4" strokeWidth={2} aria-hidden />
-                  </button>
-                ) : null}
-              </div>
-            </div>
-          </div>
-        ) : null}
-      </div>
-    </div>
-  )
-}
-
 export default function TransferWizard() {
   const navigate = useNavigate()
   const { accessToken } = useAuth()
@@ -213,17 +130,33 @@ export default function TransferWizard() {
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryOptionId | null>(null)
   const [paymentMethod, setPaymentMethod] = useState<PaymentOptionId | null>(null)
 
-  const whatsappPaymentUrl = useMemo(() => {
-    if (!paymentMethod) return `https://wa.me/${CONTACT_INFO.whatsapp}`
-    const methodLabel = paymentMethod === 'pay_bank_ru' ? 'Bank transfer' : 'Crypto (USDT)'
-    return buildWhatsappPaymentUrl(quoteInputAmount, 'RUB', methodLabel)
-  }, [paymentMethod, quoteInputAmount])
+  const paymentConfigsQuery = useQuery({
+    queryKey: ['paymentReceiving', corridorMode],
+    enabled: Boolean(accessToken) && step >= 3,
+    queryFn: async () => {
+      const res = await getPaymentReceiving(accessToken!, corridorMode)
+      if (res.error) throw new Error(res.error.message)
+      return res.data ?? []
+    },
+  })
+
+  const activePaymentConfig = useMemo(() => {
+    if (!paymentMethod) return null
+    return resolvePaymentReceivingConfig(paymentConfigsQuery.data, corridorMode, paymentMethod)
+  }, [paymentConfigsQuery.data, corridorMode, paymentMethod])
 
   const [createdTransactionId, setCreatedTransactionId] = useState<string | null>(null)
   const [proofStepTransaction, setProofStepTransaction] = useState<Transaction | null>(null)
   const [popFile, setPopFile] = useState<File | null>(null)
   const [popUploadError, setPopUploadError] = useState<string | null>(null)
   const [popUploadBusy, setPopUploadBusy] = useState(false)
+
+  const proofStepPaymentConfig = useMemo(() => {
+    const method = proofStepTransaction?.paymentMethod as PaymentOptionId | undefined
+    const mode = proofStepTransaction?.mode ?? corridorMode
+    if (!method) return null
+    return resolvePaymentReceivingConfig(paymentConfigsQuery.data, mode, method)
+  }, [paymentConfigsQuery.data, proofStepTransaction, corridorMode])
 
   const { isExpired, isLoading: countdownLoading, loadError: countdownError, formattedRemaining } =
     useTransactionCountdown(createdTransactionId ?? undefined, {
@@ -247,10 +180,13 @@ export default function TransferWizard() {
   }, [loadRecipients])
 
   useEffect(() => {
-    const allowedDelivery: DeliveryOptionId =
+    const options = getDeliveryOptionsForCorridor(corridorMode)
+    const defaultDelivery: DeliveryOptionId =
       corridorMode === 'russia-zambia' ? 'mobile_money' : 'bank_deposit'
-    setDeliveryMethod(allowedDelivery)
-    setNewDeliveryMethod(prev => (prev === allowedDelivery ? prev : allowedDelivery))
+    const keepOrDefault = (prev: DeliveryOptionId | null) =>
+      prev != null && options.some(o => o.id === prev) ? prev : defaultDelivery
+    setDeliveryMethod(prev => keepOrDefault(prev))
+    setNewDeliveryMethod(prev => keepOrDefault(prev))
   }, [corridorMode])
 
   useEffect(() => {
@@ -296,7 +232,7 @@ export default function TransferWizard() {
       const res = await createRecipient(accessToken, {
         full_name: name,
         email: newEmail.trim() || undefined,
-        phone_number: newPhone.trim() || undefined,
+        phone_number: resolveRecipientPhoneNumber(newPhone, newDeliveryMethod, deliveryDetailFields),
         delivery_method: newDeliveryMethod,
         delivery_details: detailsPayload,
       })
@@ -320,9 +256,10 @@ export default function TransferWizard() {
     setStep(2)
   }
 
-  const handleCopyUsdtAddress = async () => {
+  const handleCopyUsdtAddress = async (address: string) => {
+    if (!address.trim()) return
     try {
-      await navigator.clipboard.writeText(KRYPTERA_PAY_USDT.address)
+      await navigator.clipboard.writeText(address)
       toast.success('Wallet address copied')
     } catch {
       toast.error('Could not copy. Select the address and copy manually.')
@@ -377,7 +314,7 @@ export default function TransferWizard() {
             commissionOnTop: quote.commissionOnTop,
             recipientFullName: newFullName.trim(),
             recipientEmail: newEmail.trim() || undefined,
-            recipientPhone: newPhone.trim() || undefined,
+            recipientPhone: resolveRecipientPhoneNumber(newPhone, newDeliveryMethod, deliveryDetailFields),
             recipientDeliveryMethod: newDeliveryMethod ?? undefined,
             recipientDeliveryDetails: inlineDelivery,
             deliveryMethod: deliveryMethod ?? undefined,
@@ -521,62 +458,20 @@ export default function TransferWizard() {
                 ))}
               </div>
 
-              {corridorMode === 'russia-zambia' && paymentMethod != null ? (
-                <a
-                  href={whatsappPaymentUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ animation: 'fadeUp 0.25s ease' }}
-                  className="flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 p-4 text-sm no-underline transition-colors hover:bg-green-100"
-                >
-                  <MessageCircle className="mt-0.5 h-5 w-5 shrink-0 text-green-600" aria-hidden />
-                  <div>
-                    <p className="font-semibold text-green-900">Click here to request for payment details</p>
-                  </div>
-                </a>
-              ) : null}
-
-              {corridorMode !== 'russia-zambia' && paymentMethod === 'pay_mobile_money' ? (
-                <div
-                  className="rounded-lg border border-border bg-muted/30 p-4 text-sm"
-                  style={{ animation: 'fadeUp 0.25s ease' }}
-                >
-                  <p className="font-semibold text-foreground">Pay with mobile money</p>
-                  <p className="mt-2 font-mono text-base font-semibold text-foreground">{KRYPTERA_PAY_MOBILE_MONEY.displayNumber}</p>
-                  <ul className="mt-3 list-disc space-y-2 pl-5 text-muted-foreground">
-                    {KRYPTERA_PAY_MOBILE_MONEY.instructions.map(line => (
-                      <li key={line}>{line}</li>
-                    ))}
-                  </ul>
-                </div>
-              ) : null}
-
-              {corridorMode !== 'russia-zambia' && paymentMethod === 'pay_crypto_usdt' ? (
-                <div
-                  className="rounded-lg border border-border bg-muted/30 p-4 text-sm"
-                  style={{ animation: 'fadeUp 0.25s ease' }}
-                >
-                  <p className="font-semibold text-foreground">Pay with USDT</p>
-                  <p className="mt-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">Network</p>
-                  <p className="font-medium text-foreground">{KRYPTERA_PAY_USDT.network}</p>
-                  <p className="mt-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">Wallet address</p>
-                  <div className="mt-1 flex items-start gap-2">
-                    <p className="min-w-0 flex-1 break-all font-mono text-sm text-foreground">{KRYPTERA_PAY_USDT.address}</p>
-                    <button
-                      type="button"
-                      onClick={() => void handleCopyUsdtAddress()}
-                      className="shrink-0 rounded-md border border-border bg-card p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                      aria-label="Copy wallet address to clipboard"
-                    >
-                      <Copy className="h-4 w-4" aria-hidden />
-                    </button>
-                  </div>
-                  <ul className="mt-3 list-disc space-y-2 pl-5 text-muted-foreground">
-                    {KRYPTERA_PAY_USDT.instructions.map(line => (
-                      <li key={line}>{line}</li>
-                    ))}
-                  </ul>
-                </div>
+              {paymentMethod != null && activePaymentConfig ? (
+                <PaymentReceivingPanel
+                  corridor={corridorMode}
+                  paymentMethod={paymentMethod}
+                  config={activePaymentConfig}
+                  amount={quoteInputAmount}
+                  inputCurrency={corridorMode === 'russia-zambia' ? 'RUB' : 'ZMW'}
+                  onCopyUsdtAddress={
+                    paymentMethod === 'pay_crypto_usdt'
+                      ? () =>
+                          void handleCopyUsdtAddress(activePaymentConfig.details.address ?? '')
+                      : undefined
+                  }
+                />
               ) : null}
             </div>
           ) : null}
@@ -643,20 +538,24 @@ export default function TransferWizard() {
                         {getPaymentMethodTitle(proofStepTransaction.paymentMethod)}
                       </span>
                     </div>
-                    <SummaryKrypteraReceiveAccount
-                      paymentMethod={proofStepTransaction.paymentMethod}
-                      mode={proofStepTransaction.mode}
-                      whatsappUrl={
-                        proofStepTransaction.mode === 'russia-zambia' && proofStepTransaction.paymentMethod
-                          ? buildWhatsappPaymentUrl(
-                              Number(proofStepTransaction.inputAmount),
-                              proofStepTransaction.inputCurrency,
-                              proofStepTransaction.paymentMethod === 'pay_bank_ru' ? 'Bank transfer' : 'Crypto (USDT)',
-                            )
-                          : undefined
-                      }
-                      onCopyUsdtAddress={() => void handleCopyUsdtAddress()}
-                    />
+                    {proofStepTransaction.paymentMethod && proofStepPaymentConfig ? (
+                      <PaymentReceivingPanel
+                        corridor={proofStepTransaction.mode}
+                        paymentMethod={proofStepTransaction.paymentMethod as PaymentOptionId}
+                        config={proofStepPaymentConfig}
+                        amount={Number(proofStepTransaction.inputAmount)}
+                        inputCurrency={proofStepTransaction.inputCurrency}
+                        variant="summary"
+                        onCopyUsdtAddress={
+                          proofStepTransaction.paymentMethod === 'pay_crypto_usdt'
+                            ? () =>
+                                void handleCopyUsdtAddress(
+                                  proofStepPaymentConfig.details.address ?? '',
+                                )
+                            : undefined
+                        }
+                      />
+                    ) : null}
                     <div className="flex flex-wrap items-center justify-between gap-2 pt-2.5 text-sm">
                       <span className="text-muted-foreground">Status</span>
                       <StatusBadge status={proofStepTransaction.status} />

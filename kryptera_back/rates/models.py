@@ -29,6 +29,38 @@ class PlatformSettings(models.Model):
         return f"Platform settings (commission={self.commission_rate})"
 
 
+class PaymentReceivingConfig(models.Model):
+    """Per-corridor payment method: show details on-site or request via WhatsApp."""
+
+    class DisplayMode(models.TextChoices):
+        WHATSAPP = "whatsapp", "Request via WhatsApp"
+        INLINE = "inline", "Show on site"
+
+    corridor = models.CharField(max_length=20, db_index=True)
+    payment_method = models.CharField(max_length=48, db_index=True)
+    display_mode = models.CharField(
+        max_length=20,
+        choices=DisplayMode.choices,
+        default=DisplayMode.WHATSAPP,
+    )
+    details = models.JSONField(default=dict, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["corridor", "payment_method"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["corridor", "payment_method"],
+                name="rates_paymentreceivingconfig_corridor_method_uniq",
+            ),
+        ]
+        verbose_name = "Payment receiving config"
+        verbose_name_plural = "Payment receiving configs"
+
+    def __str__(self):
+        return f"{self.corridor} / {self.payment_method} ({self.display_mode})"
+
+
 class Currency(models.Model):
     """Enabled currencies for UI and validation (codes align with Transaction currency choices)."""
 

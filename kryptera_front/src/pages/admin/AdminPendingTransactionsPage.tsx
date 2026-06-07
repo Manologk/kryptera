@@ -5,7 +5,7 @@ import { ADMIN_PAGE_SIZE } from '@/constants';
 import { adminPendingDetail } from '@/constants/routes';
 import { useAuth } from '@/context/AuthContext';
 import { adminKeys } from '@/features/admin/queryKeys';
-import { recipientDisplay } from '@/features/admin/transactionLabels';
+import { recipientDisplay, senderDisplay, senderSecondaryLine } from '@/features/admin/transactionLabels';
 import { formatMoneyAmount } from '@/features/transaction/utils';
 import { DELIVERY_OPTIONS, getPaymentMethodTitle } from '@/constants/transferPlaceholders';
 import { getAdminTransactions } from '@/services/api';
@@ -96,8 +96,15 @@ export default function AdminPendingTransactionsPage() {
                       <TableCell className="font-mono text-xs" title={tx.id}>
                         {shortId(tx.id)}
                       </TableCell>
-                      <TableCell className="max-w-[180px] truncate text-sm" title={tx.userEmail}>
-                        {tx.userEmail ?? '—'}
+                      <TableCell className="max-w-[180px] text-sm">
+                        <div className="truncate font-medium" title={senderDisplay(tx)}>
+                          {senderDisplay(tx)}
+                        </div>
+                        {senderSecondaryLine(tx) ? (
+                          <div className="truncate text-xs text-muted-foreground" title={senderSecondaryLine(tx)}>
+                            {senderSecondaryLine(tx)}
+                          </div>
+                        ) : null}
                       </TableCell>
                       <TableCell className="max-w-[160px] truncate text-sm">{recipientDisplay(tx)}</TableCell>
                       <TableCell className="whitespace-nowrap font-mono text-sm">

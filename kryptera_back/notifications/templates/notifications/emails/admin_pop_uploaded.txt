@@ -1,15 +1,18 @@
-Proof of payment uploaded for transaction {{ reference }}.
+{{ company_name }} — Proof of payment uploaded
 
-Sender: {{ user_full_name }} ({{ user_email }})
+Submitted by: {{ user_full_name }} ({{ user_email }})
 Phone: {{ user_phone }}
-Mode: {{ mode }}
-Amount: {{ input_amount }} {{ input_currency }} → {{ result_amount }} {{ result_currency }}
-Purpose: {{ purpose }}
+
+Reference: {{ reference }}
+Corridor: {{ mode_label }}
+Send: {{ input_amount }} {{ input_currency }}
+Receive: {{ result_amount }} {{ result_currency }}
 Recipient: {{ recipient_name }}
-Status: {{ status }}
-
-Review: {{ admin_pending_url }}
-{% if attachment_note %}
-
-Note: {{ attachment_note }}
+{% if purpose and purpose != "—" %}Purpose: {{ purpose }}
+{% endif %}{% if payment_method and payment_method != "—" %}Payment method: {{ payment_method }}
+{% endif %}{% if delivery_method and delivery_method != "—" %}Delivery method: {{ delivery_method }}
 {% endif %}
+The proof of payment is attached when available.
+{% if attachment_note %}{{ attachment_note }}{% endif %}
+
+Review pending transfer: {{ admin_pending_url }}

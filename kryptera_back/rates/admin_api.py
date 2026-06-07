@@ -109,9 +109,13 @@ class AdminDashboardStatsView(APIView):
         tx_all = Transaction.objects.all()
         tx_completed = Transaction.objects.filter(status=TransactionStatus.COMPLETED)
         by_status = dict(tx_all.values("status").annotate(c=Count("id")).values_list("status", "c"))
-        total_commission_zmw = sum(
-            (commission_amount_zmw(t) for t in tx_completed.iterator()),
-            start=Decimal("0"),
+        from transactions.serializers import quantize_money
+
+        total_commission_zmw = quantize_money(
+            sum(
+                (commission_amount_zmw(t) for t in tx_completed.iterator()),
+                start=Decimal("0"),
+            )
         )
 
         return Response(

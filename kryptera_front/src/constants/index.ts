@@ -25,7 +25,7 @@ export const DEFAULT_RATES: ExchangeRates = {
 };
 
 export const CONTACT_INFO = {
-  email: 'support@Kryptera.com',
+  email: 'support@kryptera.cc',
   phone: '+260771330585',
   whatsapp: '260771330585',
   telegram: '@Kryptera',

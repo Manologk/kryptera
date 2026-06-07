@@ -1,9 +1,12 @@
+{{ company_name }} — Identity verification received
+
 Hello {{ user_name }},
 
-We have received your identity verification documents. Our team will review them shortly.
+We have received your identity verification documents. Our team will review them and email you once a decision is made.
 
-You can check your verification status here:
-{{ kyc_url }}
+Status: Under review
+Submitted on: {{ kyc_submitted_at }}
 
-Thank you,
-Kryptera
+View verification status: {{ kyc_url }}
+
+Questions? Contact {{ support_email }}

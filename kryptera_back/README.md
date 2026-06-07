@@ -228,24 +228,38 @@ In `src/services/api.ts`, uncomment the `request(...)` calls and remove the loca
 
 ## Email notifications
 
-Outbound mail uses **SMTP** (required). Configure in `.env`:
+Outbound mail is sent via **Brevo SMTP relay**. Configure in `.env`:
 
 | Variable | Description |
 |----------|-------------|
-| `EMAIL_HOST` | SMTP server hostname |
-| `EMAIL_PORT` | Port (default `587`) |
-| `EMAIL_HOST_USER` | SMTP username (if required) |
-| `EMAIL_HOST_PASSWORD` | SMTP password (if required) |
-| `EMAIL_USE_TLS` | `True` / `False` (default `True`) |
-| `EMAIL_USE_SSL` | `True` / `False` (default `False`) |
-| `DEFAULT_FROM_EMAIL` | From address (default `noreply@kryptera.com`) |
-| `REPLY_TO_EMAIL` | Reply-To header (default `support@kryptera.com`) |
-| `ADMIN_NOTIFICATION_EMAILS` | Comma-separated admin inboxes for KYC/POP alerts |
+| `EMAIL_HOST` | `smtp-relay.brevo.com` |
+| `EMAIL_PORT` | `587` (TLS) |
+| `EMAIL_HOST_USER` | Brevo SMTP login (e.g. `xxxx@smtp-brevo.com`) |
+| `EMAIL_HOST_PASSWORD` | Brevo **SMTP key** (SMTP & API → SMTP — not your API key) |
+| `EMAIL_USE_TLS` | `True` |
+| `EMAIL_USE_SSL` | `False` |
+| `DEFAULT_FROM_EMAIL` | Verified sender in Brevo (Senders & IPs) |
+| `REPLY_TO_EMAIL` | Reply-To header (default `support@kryptera.cc`) |
+| `ADMIN_NOTIFICATION_EMAILS` | Comma- or semicolon-separated admin inboxes — **each address gets its own copy** of KYC/POP alerts |
 | `FRONTEND_URL` | Public app URL for links in emails |
 
-**Celery worker** must be running so notification tasks send after API requests commit.
+Verify your domain/sender in Brevo and add SPF/DKIM DNS records before production.
 
-Events: user KYC submit (user ack + admin alert with doc), KYC approve/reject (user), POP upload (admin with file), transaction completed (user with delivery proof).
+**Test SMTP** (sends synchronously, no Celery):
+
+```bash
+python manage.py send_test_email you@example.com
+```
+
+**Multiple admin recipients** — add every ops inbox to one line, for example:
+
+```env
+ADMIN_NOTIFICATION_EMAILS=emmanuelsiame29@gmail.com,ops@kryptera.cc,finance@kryptera.cc
+```
+
+**Celery worker** must be running so notification tasks send after API requests commit. Restart `django` and `celery_worker` after changing `.env`.
+
+Events: user KYC submit (user ack + admin alert — review doc in dashboard only), KYC approve/reject (user), POP upload (admin with file), transaction completed (user with delivery proof).
 
 ---
 

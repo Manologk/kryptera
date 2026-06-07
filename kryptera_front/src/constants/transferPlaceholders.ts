@@ -20,10 +20,15 @@ export const DELIVERY_OPTIONS = [
   },
 ]
 
-/** Russia → Zambia: recipient receives via mobile money only */
+/** Recipient payout methods available when saving a contact (mobile money default + bank). */
+export const RECIPIENT_DELIVERY_OPTIONS = DELIVERY_OPTIONS.filter(
+  o => o.id === 'mobile_money' || o.id === 'bank_deposit',
+)
+
+/** Russia → Zambia: mobile money (default) or bank; Zambia → Russia: bank deposit */
 export const getDeliveryOptionsForCorridor = (mode: ConversionMode) =>
   mode === 'russia-zambia'
-    ? DELIVERY_OPTIONS.filter(o => o.id === 'mobile_money')
+    ? RECIPIENT_DELIVERY_OPTIONS
     : DELIVERY_OPTIONS.filter(o => o.id === 'bank_deposit')
 
 export const PAYMENT_OPTIONS_ZAM_RUS = [

@@ -1,23 +1,22 @@
+{{ company_name }} — Transfer completed ({{ reference }})
+
 Hello {{ user_name }},
 
-Your transfer {{ reference }} has been completed.
+Your transfer has been completed.
 
-{{ input_amount }} {{ input_currency }} → {{ result_amount }} {{ result_currency }}
+Reference: {{ reference }}
+Corridor: {{ mode_label }}
 Recipient: {{ recipient_name }}
-{% if admin_notes %}
-
+Send: {{ input_amount }} {{ input_currency }}
+Receive: {{ result_amount }} {{ result_currency }}
+{% if purpose and purpose != "—" %}Purpose: {{ purpose }}
+{% endif %}{% if admin_notes %}
 Note from our team:
 {{ admin_notes }}
 {% endif %}
+Delivery proof is attached when available.
+{% if attachment_note %}{{ attachment_note }}{% endif %}
 
-View details: {{ activity_url }}
-{% if attachment_note %}
+View transfer: {{ activity_url }}
 
-Note: {{ attachment_note }}
-{% else %}
-
-Proof of delivery is attached to this email when available.
-{% endif %}
-
-Thank you,
-Kryptera
+Questions? Contact {{ support_email }}

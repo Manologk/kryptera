@@ -4,7 +4,7 @@ All endpoints live under /api/v1/
 """
 from django.urls import include, path
 from rest_framework_simplejwt.views import TokenRefreshView
-from rates.views import CurrencyPublicListView
+from rates.views import CurrencyPublicListView, PaymentReceivingListView
 from users.views import (
     KycDocumentDownloadView,
     KycSubmitView,
@@ -23,6 +23,7 @@ urlpatterns = [
     path("auth/kyc/document/", KycDocumentDownloadView.as_view(), name="auth-kyc-document"),
     # Public / user data
     path("currencies/", CurrencyPublicListView.as_view(), name="currency-list"),
+    path("payment-receiving/", PaymentReceivingListView.as_view(), name="payment-receiving-list"),
     path("recipients/", include("recipients.urls")),
     path("admin/", include("config.admin_urls")),
     # Exchange rates

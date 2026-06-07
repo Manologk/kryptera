@@ -1,16 +1,14 @@
-A user submitted KYC for review.
+{{ company_name }} — KYC submission awaiting review
 
-Account email: {{ user_email }}
-Profile name: {{ user_full_name }}
+Applicant: {{ user_full_name }} ({{ user_email }})
 Phone: {{ user_phone }}
+User ID: #{{ user_id }}
 
 Legal name: {{ kyc_legal_name }}
 ID number: {{ kyc_id_number }}
 Country: {{ kyc_country }}
 Submitted at: {{ kyc_submitted_at }}
 
-Review in admin: {{ admin_users_url }}
-{% if attachment_note %}
+For security, identity documents are not sent by email. Review the uploaded file in the admin dashboard.
 
-Note: {{ attachment_note }}
-{% endif %}
+Review in admin: {{ admin_users_url }}

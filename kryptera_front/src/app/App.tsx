@@ -9,6 +9,7 @@ import TransactionDetailPage from '@/pages/TransactionDetailPage';
 import RecipientsPage from '@/pages/RecipientsPage';
 import AdminDashboardPage from '@/pages/admin/AdminDashboardPage';
 import AdminRatesPage from '@/pages/admin/AdminRatesPage';
+import AdminPaymentDetailsPage from '@/pages/admin/AdminPaymentDetailsPage';
 import AdminCurrenciesPage from '@/pages/admin/AdminCurrenciesPage';
 import AdminUsersPage from '@/pages/admin/AdminUsersPage';
 import AdminTransactionsPage from '@/pages/admin/AdminTransactionsPage';
@@ -45,6 +46,7 @@ export default function App() {
               <Route path="dashboard" element={<AdminDashboardPage />} />
               <Route path="overview" element={<Navigate to="/admin/dashboard" replace />} />
               <Route path="rates" element={<AdminRatesPage />} />
+              <Route path="payment-details" element={<AdminPaymentDetailsPage />} />
               <Route path="currencies" element={<AdminCurrenciesPage />} />
               <Route path="users" element={<AdminUsersPage />} />
               <Route path="transactions" element={<AdminTransactionsPage />} />

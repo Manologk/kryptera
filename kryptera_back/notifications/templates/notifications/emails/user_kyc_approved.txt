@@ -1,8 +1,9 @@
+{{ company_name }} — Identity verification approved
+
 Hello {{ user_name }},
 
-Your identity verification has been approved. You can now send transfers on Kryptera.
+Your identity has been approved. You can now create transfers on {{ company_name }}.
 
 Start a transfer: {{ home_url }}
 
-Thank you,
-Kryptera
+Questions? Contact {{ support_email }}

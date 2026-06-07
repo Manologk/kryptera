@@ -40,3 +40,18 @@ export function recipientPhoneLine(tx: Transaction): string {
   const raw = r?.phoneNumber ?? s?.phone_number ?? s?.phone ?? '';
   return raw.trim();
 }
+
+/** Sender display name or email fallback. */
+export function senderDisplay(tx: Transaction): string {
+  const name = tx.userFullName?.trim();
+  const email = tx.userEmail?.trim();
+  return name || email || '—';
+}
+
+/** Secondary line under sender: email when name shown, else phone. */
+export function senderSecondaryLine(tx: Transaction): string {
+  const name = tx.userFullName?.trim();
+  const email = tx.userEmail?.trim();
+  if (name && email) return email;
+  return tx.userPhone?.trim() ?? '';
+}

@@ -12,6 +12,7 @@ import {
 import { useAuth } from '@/context/AuthContext';
 import { adminKeys } from '@/features/admin/queryKeys';
 import { transactionStatusLabel } from '@/features/admin/transactionLabels';
+import { formatMoneyAmount } from '@/features/transaction/utils';
 import { getAdminDashboardStats, getAdminDashboardTimeseries } from '@/services/api';
 import Card, { CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -105,7 +106,9 @@ export default function AdminDashboardPage() {
             <Card className="border border-border bg-muted/40 shadow-md">
               <CardHeader title="Total commission (ZMW)" subtitle="Sum of per-transfer commission in ZMW" />
               <CardContent>
-                <p className="font-mono text-2xl font-bold">{stats.totalCommissionZmw}</p>
+                <p className="font-mono text-2xl font-bold">
+                  {formatMoneyAmount(stats.totalCommissionZmw, 'ZMW')}
+                </p>
               </CardContent>
             </Card>
             <Card className="border border-border bg-muted/40 shadow-md">
@@ -157,7 +160,9 @@ export default function AdminDashboardPage() {
                 <Tooltip
                   contentStyle={{ borderRadius: 8, border: '1px solid hsl(var(--border))' }}
                   formatter={(value: number, name: string) => [
-                    typeof value === 'number' ? value.toLocaleString(undefined, { maximumFractionDigits: 2 }) : value,
+                    typeof value === 'number'
+                      ? value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                      : value,
                     name === 'zmw' ? 'ZMW volume' : 'RUB volume',
                   ]}
                   labelFormatter={(_, p) => (p[0]?.payload?.label != null ? String(p[0].payload.label) : '')}

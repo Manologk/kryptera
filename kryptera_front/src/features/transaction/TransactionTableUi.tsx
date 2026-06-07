@@ -1,6 +1,11 @@
 import { Link } from 'react-router-dom'
 import { ChevronsUpDown, MoreVertical } from 'lucide-react'
-import { recipientDisplay, recipientPhoneLine } from '@/features/admin/transactionLabels'
+import {
+  recipientDisplay,
+  recipientPhoneLine,
+  senderDisplay,
+  senderSecondaryLine,
+} from '@/features/admin/transactionLabels'
 import { transactionReferenceDisplay } from '@/features/transaction/transactionReference'
 import { cn } from '@/lib/utils'
 import type { Transaction } from '@/types'
@@ -53,6 +58,17 @@ export function TxTableCheckbox({
         </svg>
       ) : null}
     </button>
+  )
+}
+
+export function SenderStackedCell({ tx }: { tx: Transaction }) {
+  const primary = senderDisplay(tx)
+  const secondary = senderSecondaryLine(tx)
+  return (
+    <div className="flex min-w-0 max-w-[240px] flex-col gap-0.5 py-1">
+      <span className="text-[14px] font-medium leading-snug text-[#163300]">{primary}</span>
+      {secondary ? <span className="text-[12px] font-normal leading-snug text-[#888]">{secondary}</span> : null}
+    </div>
   )
 }
 

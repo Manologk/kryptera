@@ -32,6 +32,24 @@ class RecipientSerializer(serializers.ModelSerializer):
                 }
             )
         attrs["delivery_method"] = dm[:48]
+
+        phone = (attrs.get("phone_number") if "phone_number" in attrs else None)
+        if phone is None and self.instance is not None:
+            phone = self.instance.phone_number
+        phone = (phone or "").strip()
+        if not phone and dm == "mobile_money":
+            details = attrs.get("delivery_details")
+            if details is None and self.instance is not None:
+                details = self.instance.delivery_details
+            if isinstance(details, dict):
+                wallet = (details.get("wallet_number") or "").strip()
+                if wallet:
+                    phone = wallet
+        if phone:
+            attrs["phone_number"] = phone[:50]
+        elif "phone_number" in attrs:
+            attrs["phone_number"] = ""
+
         return attrs
 
 

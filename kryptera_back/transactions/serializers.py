@@ -329,10 +329,17 @@ class TransactionSerializer(serializers.ModelSerializer):
                 "delivery_details": rec.delivery_details or {},
             }
         elif recipient_full_name:
+            snapshot_phone = recipient_phone
+            if (
+                not snapshot_phone
+                and recipient_delivery_method == "mobile_money"
+                and isinstance(recipient_delivery_details, dict)
+            ):
+                snapshot_phone = (recipient_delivery_details.get("wallet_number") or "").strip()
             data["recipient_snapshot"] = {
                 "full_name": recipient_full_name,
                 "email": recipient_email,
-                "phone_number": recipient_phone,
+                "phone_number": snapshot_phone,
                 "delivery_method": recipient_delivery_method[:48] if recipient_delivery_method else "",
                 "delivery_details": recipient_delivery_details or {},
             }
@@ -476,7 +483,7 @@ class AdminTransactionSerializer(serializers.ModelSerializer):
     def get_commission_amount_zmw(self, obj: Transaction) -> str:
         from .commission_zmw import commission_amount_zmw
 
-        return str(commission_amount_zmw(obj))
+        return str(quantize_money(commission_amount_zmw(obj)))
 
     def get_conversion_breakdown(self, obj: Transaction):
         snap = obj.rate_snapshot or {}

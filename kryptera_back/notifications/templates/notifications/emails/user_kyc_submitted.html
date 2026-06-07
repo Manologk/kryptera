@@ -1,4 +1,52 @@
-<p>Hello {{ user_name }},</p>
-<p>We have received your identity verification documents. Our team will review them shortly.</p>
-<p><a href="{{ kyc_url }}">View verification status</a></p>
-<p>Thank you,<br>Kryptera</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Identity verification received</title>
+  <style>
+    body { margin: 0; background: #f0ede8; font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a1a; padding: 32px 16px; }
+    .wrapper { max-width: 560px; margin: 0 auto; background: #fff; border-radius: 12px; overflow: hidden; border: 1px solid #e8e5e0; }
+    .header { background: #0f2d1f; padding: 24px 32px; color: #d4edd7; font-size: 20px; font-weight: 600; }
+    .card { padding: 32px; }
+    h1 { margin: 0 0 12px; font-size: 24px; color: #0f2d1f; line-height: 1.3; }
+    p { margin: 0 0 16px; font-size: 15px; line-height: 1.7; color: #4a4a4a; }
+    .status { background: #eef5fc; border-left: 4px solid #2980b9; padding: 14px 18px; margin: 24px 0; border-radius: 0 8px 8px 0; }
+    .status strong { display: block; color: #1a6699; margin-bottom: 4px; }
+    .status span { font-size: 13px; color: #4a85aa; }
+    table { width: 100%; border-collapse: collapse; margin: 24px 0; }
+    td { padding: 10px 0; font-size: 14px; border-bottom: 1px solid #f0ede8; }
+    td:first-child { color: #888; width: 42%; }
+    td:last-child { font-weight: 600; text-align: right; }
+    .cta { text-align: center; margin: 28px 0 8px; }
+    .cta a { display: inline-block; background: #0f2d1f; color: #d4edd7; text-decoration: none; padding: 12px 28px; border-radius: 8px; font-weight: 600; }
+    .note { font-size: 13px; color: #888; border-top: 1px solid #f0ede8; padding-top: 20px; margin-top: 24px; }
+    .footer { background: #0f2d1f; color: #6a9a78; text-align: center; padding: 18px 32px; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="header">{{ company_name }}</div>
+    <div class="card">
+      <h1>We've received your documents, {{ user_name }}.</h1>
+      <p>Thank you for submitting your identity verification. Our team will review your information and email you once a decision is made.</p>
+
+      <div class="status">
+        <strong>Under review</strong>
+        <span>Submitted on {{ kyc_submitted_at }}</span>
+      </div>
+
+      <table>
+        <tr><td>Status</td><td style="color:#2980b9;">Under review</td></tr>
+      </table>
+
+      <div class="cta">
+        <a href="{{ kyc_url }}">View verification status</a>
+      </div>
+
+      <p class="note">Questions? Contact us at <a href="mailto:{{ support_email }}">{{ support_email }}</a>.</p>
+    </div>
+    <div class="footer">© {% now "Y" %} {{ company_name }}</div>
+  </div>
+</body>
+</html>

@@ -9,6 +9,7 @@ export const ROUTES = {
   /** @deprecated use adminDashboard */
   adminOverview: '/admin/dashboard',
   adminRates: '/admin/rates',
+  adminPaymentDetails: '/admin/payment-details',
   adminCurrencies: '/admin/currencies',
   adminUsers: '/admin/users',
   adminTransactions: '/admin/transactions',

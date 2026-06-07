@@ -5,7 +5,8 @@ import { toast } from 'sonner';
 import { ROUTES } from '@/constants/routes';
 import { useAuth } from '@/context/AuthContext';
 import { adminKeys } from '@/features/admin/queryKeys';
-import { recipientDisplay } from '@/features/admin/transactionLabels';
+import { recipientDisplay, senderDisplay, senderSecondaryLine } from '@/features/admin/transactionLabels';
+import { recipientPayoutDetailRows, recipientReceiveMethod } from '@/features/recipient/deliveryDetails';
 import { formatMoneyAmount } from '@/features/transaction/utils';
 import { DELIVERY_OPTIONS, getPaymentMethodTitle } from '@/constants/transferPlaceholders';
 import { getAdminTransaction, patchAdminTransaction, downloadTransactionPop } from '@/services/api';
@@ -167,7 +168,14 @@ export default function AdminPendingTransactionDetailPage() {
         <CardHeader title="Summary" subtitle={tx.mode === 'russia-zambia' ? 'Russia → Zambia' : 'Zambia → Russia'} />
         <CardContent className="divide-y divide-border">
           <SummaryRow label="Status" value={<StatusBadge status={tx.status} />} />
-          <SummaryRow label="Sender" value={tx.userEmail ?? '—'} />
+          <SummaryRow
+            label="Sender"
+            value={
+              senderSecondaryLine(tx)
+                ? `${senderDisplay(tx)} (${senderSecondaryLine(tx)})`
+                : senderDisplay(tx)
+            }
+          />
           <SummaryRow label="Recipient" value={recipientDisplay(tx)} />
           <SummaryRow
             label="Amount"
@@ -180,7 +188,13 @@ export default function AdminPendingTransactionDetailPage() {
             }
           />
           <SummaryRow label="Payment method" value={paymentLabel(tx.paymentMethod)} />
-          <SummaryRow label="Delivery method" value={deliveryLabel(tx.deliveryMethod)} />
+          <SummaryRow
+            label="Receive via"
+            value={deliveryLabel(recipientReceiveMethod(tx) ?? tx.deliveryMethod)}
+          />
+          {recipientPayoutDetailRows(tx).map(row => (
+            <SummaryRow key={row.label} label={row.label} value={row.value} mono={row.label === 'Account number'} />
+          ))}
           <SummaryRow label="Created" value={new Date(tx.createdAt).toLocaleString()} />
           <SummaryRow label="Updated" value={new Date(tx.updatedAt).toLocaleString()} />
           {tx.purpose ? <SummaryRow label="Purpose" value={tx.purpose} /> : null}

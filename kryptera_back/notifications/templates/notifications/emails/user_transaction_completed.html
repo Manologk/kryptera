@@ -1,8 +1,70 @@
-<p>Hello {{ user_name }},</p>
-<p>Your transfer <strong>{{ reference }}</strong> has been completed.</p>
-<p>{{ input_amount }} {{ input_currency }} → {{ result_amount }} {{ result_currency }}<br>
-Recipient: {{ recipient_name }}</p>
-{% if admin_notes %}<p><strong>Note from our team:</strong><br>{{ admin_notes }}</p>{% endif %}
-<p><a href="{{ activity_url }}">View transfer details</a></p>
-{% if attachment_note %}<p><em>{{ attachment_note }}</em></p>{% else %}<p>Proof of delivery is attached when available.</p>{% endif %}
-<p>Thank you,<br>Kryptera</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Transfer completed</title>
+  <style>
+    body { margin: 0; background: #f0ede8; font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a1a; padding: 32px 16px; }
+    .wrapper { max-width: 560px; margin: 0 auto; background: #fff; border-radius: 12px; overflow: hidden; border: 1px solid #e8e5e0; }
+    .header { background: #0f2d1f; padding: 24px 32px; color: #d4edd7; font-size: 20px; font-weight: 600; }
+    .card { padding: 32px; }
+    h1 { margin: 0 0 12px; font-size: 24px; color: #0f2d1f; line-height: 1.3; }
+    p { margin: 0 0 16px; font-size: 15px; line-height: 1.7; color: #4a4a4a; }
+    .status { background: #edfaf2; border-left: 4px solid #3dbd6b; padding: 14px 18px; margin: 24px 0; border-radius: 0 8px 8px 0; }
+    .status strong { display: block; color: #0f7a3c; }
+    table { width: 100%; border-collapse: collapse; margin: 24px 0; }
+    td { padding: 10px 0; font-size: 14px; border-bottom: 1px solid #f0ede8; }
+    td:first-child { color: #888; width: 42%; }
+    td:last-child { font-weight: 600; text-align: right; }
+    .amount td:last-child { font-size: 20px; color: #0f2d1f; }
+    .notes { background: #f8f6f2; border-radius: 10px; padding: 16px 18px; margin: 20px 0; font-size: 14px; color: #555; }
+    .attachment { font-size: 13px; color: #666; margin-bottom: 20px; }
+    .cta { text-align: center; margin: 28px 0 8px; }
+    .cta a { display: inline-block; background: #0f2d1f; color: #d4edd7; text-decoration: none; padding: 12px 28px; border-radius: 8px; font-weight: 600; }
+    .note { font-size: 13px; color: #888; border-top: 1px solid #f0ede8; padding-top: 20px; margin-top: 24px; }
+    .footer { background: #0f2d1f; color: #6a9a78; text-align: center; padding: 18px 32px; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="header">{{ company_name }}</div>
+    <div class="card">
+      <h1>Transfer complete, {{ user_name }}.</h1>
+      <p>Your transfer has been completed. A summary is below for your records.</p>
+
+      <div class="status">
+        <strong>Completed</strong>
+      </div>
+
+      <table>
+        <tr><td>Reference</td><td>{{ reference }}</td></tr>
+        <tr><td>Corridor</td><td>{{ mode_label }}</td></tr>
+        <tr><td>Recipient</td><td>{{ recipient_name }}</td></tr>
+        <tr><td>Send</td><td>{{ input_amount }} {{ input_currency }}</td></tr>
+        <tr class="amount"><td>Receive</td><td>{{ result_amount }} {{ result_currency }}</td></tr>
+        {% if purpose and purpose != "—" %}<tr><td>Purpose</td><td>{{ purpose }}</td></tr>{% endif %}
+      </table>
+
+      {% if admin_notes %}
+      <div class="notes">
+        <strong>Note from our team</strong><br>
+        {{ admin_notes }}
+      </div>
+      {% endif %}
+
+      <p class="attachment">
+        Delivery proof is attached when available.
+        {% if attachment_note %}{{ attachment_note }}{% endif %}
+      </p>
+
+      <div class="cta">
+        <a href="{{ activity_url }}">View transfer</a>
+      </div>
+
+      <p class="note">Questions? Contact <a href="mailto:{{ support_email }}">{{ support_email }}</a>.</p>
+    </div>
+    <div class="footer">© {% now "Y" %} {{ company_name }}</div>
+  </div>
+</body>
+</html>

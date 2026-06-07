@@ -9,11 +9,12 @@ from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Currency, ExchangeRate, PlatformSettings, RateAuditLog
+from .models import Currency, ExchangeRate, PaymentReceivingConfig, PlatformSettings, RateAuditLog
 from .permissions import IsAdminUser
 from .serializers import (
     CurrencySerializer,
     ExchangeRateSerializer,
+    PaymentReceivingConfigSerializer,
     PlatformCommissionSerializer,
     RateAuditLogSerializer,
 )
@@ -82,3 +83,37 @@ class RateAuditLogView(generics.ListAPIView):
     serializer_class = RateAuditLogSerializer
     permission_classes = [IsAdminUser]
     queryset = RateAuditLog.objects.select_related("changed_by").all()
+
+
+class PaymentReceivingListView(generics.ListAPIView):
+    """GET /api/v1/payment-receiving/ — authenticated users read payment configs."""
+
+    serializer_class = PaymentReceivingConfigSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_class = None
+
+    def get_queryset(self):
+        qs = PaymentReceivingConfig.objects.all()
+        corridor = (self.request.query_params.get("corridor") or "").strip()
+        if corridor:
+            qs = qs.filter(corridor=corridor)
+        return qs
+
+
+class AdminPaymentReceivingListView(generics.ListAPIView):
+    """GET /api/v1/admin/payment-receiving/ — admin list all configs."""
+
+    permission_classes = [IsAdminUser]
+    serializer_class = PaymentReceivingConfigSerializer
+    queryset = PaymentReceivingConfig.objects.all()
+    pagination_class = None
+
+
+class AdminPaymentReceivingDetailView(generics.RetrieveUpdateAPIView):
+    """GET/PATCH /api/v1/admin/payment-receiving/<id>/ — admin update one config."""
+
+    permission_classes = [IsAdminUser]
+    serializer_class = PaymentReceivingConfigSerializer
+    queryset = PaymentReceivingConfig.objects.all()
+    lookup_field = "pk"
+    http_method_names = ["get", "patch", "head", "options"]

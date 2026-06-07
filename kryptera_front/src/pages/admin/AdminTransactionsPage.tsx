@@ -8,9 +8,9 @@ import { adminKeys } from '@/features/admin/queryKeys'
 import { recipientDisplay } from '@/features/admin/transactionLabels'
 import {
   RecipientStackedCell,
+  SenderStackedCell,
   SortChevrons,
-  TxRowDetailLink,
-  TxTableCheckbox,
+  TxRowViewAction,
 } from '@/features/transaction/TransactionTableUi'
 import { formatMoneyAmount } from '@/features/transaction/utils'
 import { getAdminTransactions } from '@/services/api'
@@ -40,7 +40,6 @@ export default function AdminTransactionsPage() {
   const [page, setPage] = useState(1)
   const [sortKey, setSortKey] = useState<SortKey>('createdAt')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
-  const [selected, setSelected] = useState<Set<string>>(() => new Set())
   const [search, setSearch] = useState('')
   const [createdAfter, setCreatedAfter] = useState('')
   const [createdBefore, setCreatedBefore] = useState('')
@@ -110,17 +109,6 @@ export default function AdminTransactionsPage() {
     return list
   }, [rows, sortKey, sortDir, tab])
 
-  useEffect(() => {
-    const ids = new Set(sortedRows.map(t => t.id))
-    setSelected(prev => {
-      const next = new Set<string>()
-      prev.forEach(id => {
-        if (ids.has(id)) next.add(id)
-      })
-      return next
-    })
-  }, [sortedRows])
-
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {
       setSortDir(d => (d === 'asc' ? 'desc' : 'asc'))
@@ -132,29 +120,6 @@ export default function AdminTransactionsPage() {
 
   const submittedOrCreatedAt = (tx: Transaction) =>
     tab === 'awaiting_confirmation' ? tx.updatedAt : tx.createdAt
-
-  const allSelected = sortedRows.length > 0 && sortedRows.every(t => selected.has(t.id))
-  const someSelected = sortedRows.some(t => selected.has(t.id)) && !allSelected
-
-  const handleHeaderCheckbox = () => {
-    const ids = sortedRows.map(t => t.id)
-    const allPageSelected = ids.length > 0 && ids.every(id => selected.has(id))
-    setSelected(prev => {
-      const next = new Set(prev)
-      if (allPageSelected) ids.forEach(id => next.delete(id))
-      else ids.forEach(id => next.add(id))
-      return next
-    })
-  }
-
-  const toggleRow = (id: string) => {
-    setSelected(prev => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
-  }
 
   if (!accessToken) {
     return <p className="text-sm text-muted-foreground">Sign in as admin.</p>
@@ -271,18 +236,11 @@ export default function AdminTransactionsPage() {
           ) : (
             <div className="overflow-hidden rounded-[14px] border border-[#EBEBEB] bg-white">
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[980px] border-collapse">
+                <table className="w-full min-w-[1040px] border-collapse">
                   <thead className="border-b border-[#EBEBEB] bg-[#F7F7F5]">
                     <tr className="h-10">
-                      <th scope="col" className="w-12 px-2 text-center align-middle">
-                        <div className="flex justify-center">
-                          <TxTableCheckbox
-                            checked={allSelected}
-                            indeterminate={someSelected}
-                            ariaLabel="Select all on this page"
-                            onPress={handleHeaderCheckbox}
-                          />
-                        </div>
+                      <th scope="col" className="px-3 text-left align-middle text-[11px] font-semibold uppercase tracking-[0.06em] text-[#888]">
+                        Sender
                       </th>
                       <th
                         scope="col"
@@ -329,28 +287,17 @@ export default function AdminTransactionsPage() {
                       <th scope="col" className="px-3 text-left align-middle text-[11px] font-semibold uppercase tracking-[0.06em] text-[#888]">
                         Status
                       </th>
-                      <th scope="col" className="min-w-[52px] px-0 align-middle" aria-hidden />
+                      <th scope="col" className="w-12 px-2 align-middle" aria-label="Actions" />
                     </tr>
                   </thead>
                   <tbody>
-                    {sortedRows.map(tx => {
-                      const isSel = selected.has(tx.id)
-                      return (
+                    {sortedRows.map(tx => (
                         <tr
                           key={tx.id}
-                          className={cn(
-                            'min-h-[64px] border-b border-[#EBEBEB] transition-colors duration-150',
-                            isSel ? 'bg-[#F0FAF5] hover:bg-[#F0FAF5]' : 'bg-white hover:bg-[#F7F7F5]',
-                          )}
+                          className="min-h-[64px] border-b border-[#EBEBEB] bg-white transition-colors duration-150 hover:bg-[#F7F7F5]"
                         >
-                          <td className="w-12 px-2 text-center align-middle">
-                            <div className="flex min-h-[64px] items-center justify-center">
-                              <TxTableCheckbox
-                                checked={isSel}
-                                ariaLabel="Select transaction"
-                                onCheckedChange={() => toggleRow(tx.id)}
-                              />
-                            </div>
+                          <td className="px-3 align-middle">
+                            <SenderStackedCell tx={tx} />
                           </td>
                           <td className="px-3 align-middle">
                             <RecipientStackedCell tx={tx} includeReference />
@@ -376,12 +323,13 @@ export default function AdminTransactionsPage() {
                           <td className="px-3 align-middle">
                             <StatusBadge status={tx.status} />
                           </td>
-                          <td className="min-w-[52px] px-0 align-middle">
-                            <TxRowDetailLink detailHref={adminTransactionDetail(tx.id)} />
+                          <td className="w-12 px-2 align-middle">
+                            <div className="flex min-h-[64px] items-center justify-center">
+                              <TxRowViewAction detailHref={adminTransactionDetail(tx.id)} />
+                            </div>
                           </td>
                         </tr>
-                      )
-                    })}
+                    ))}
                   </tbody>
                 </table>
               </div>

@@ -2,7 +2,19 @@ import re
 
 from rest_framework import serializers
 
-from .models import Currency, ExchangeRate, ExchangeRateQuote, RateAuditLog, RateQuoteAuditLog
+from .models import (
+    Currency,
+    ExchangeRate,
+    ExchangeRateQuote,
+    PaymentReceivingConfig,
+    RateAuditLog,
+    RateQuoteAuditLog,
+)
+from .payment_receiving import (
+    CORRIDOR_CHOICES,
+    PAYMENT_METHODS_BY_CORRIDOR,
+    validate_payment_receiving_details,
+)
 
 _SLUG_RE = re.compile(r"^[a-z0-9_]{2,32}$")
 
@@ -113,3 +125,47 @@ class PlatformCommissionSerializer(serializers.Serializer):
         if value >= Decimal("1"):
             raise serializers.ValidationError("Commission must be less than 100%.")
         return value
+
+
+class PaymentReceivingConfigSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PaymentReceivingConfig
+        fields = [
+            "id",
+            "corridor",
+            "payment_method",
+            "display_mode",
+            "details",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "corridor", "payment_method", "updated_at"]
+
+    def validate(self, attrs):
+        instance = self.instance
+        corridor = instance.corridor if instance else attrs.get("corridor")
+        payment_method = instance.payment_method if instance else attrs.get("payment_method")
+        display_mode = attrs.get("display_mode", instance.display_mode if instance else None)
+        details = attrs.get("details", instance.details if instance else {})
+
+        if corridor and corridor not in CORRIDOR_CHOICES:
+            raise serializers.ValidationError({"corridor": "Invalid corridor."})
+        if corridor and payment_method:
+            allowed = PAYMENT_METHODS_BY_CORRIDOR.get(corridor, ())
+            if payment_method not in allowed:
+                raise serializers.ValidationError(
+                    {"payment_method": f"Not valid for corridor {corridor}."}
+                )
+
+        if display_mode == PaymentReceivingConfig.DisplayMode.INLINE:
+            attrs["details"] = validate_payment_receiving_details(
+                payment_method,
+                details if isinstance(details, dict) else {},
+                require_inline=True,
+            )
+        elif "details" in attrs:
+            attrs["details"] = validate_payment_receiving_details(
+                payment_method,
+                details if isinstance(details, dict) else {},
+                require_inline=False,
+            )
+        return attrs

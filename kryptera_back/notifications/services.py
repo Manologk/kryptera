@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+from decimal import Decimal, ROUND_HALF_UP
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
@@ -43,8 +44,9 @@ def _send_multipart(
     attachment=None,
 ) -> None:
     _ensure_smtp_configured()
-    text_body = render_to_string(f"notifications/emails/{template_base}.txt", context)
-    html_body = render_to_string(f"notifications/emails/{template_base}.html", context)
+    full_context = {**_base_email_context(), **context}
+    text_body = render_to_string(f"notifications/emails/{template_base}.txt", full_context)
+    html_body = render_to_string(f"notifications/emails/{template_base}.html", full_context)
     msg = EmailMultiAlternatives(
         subject=subject,
         body=text_body,
@@ -72,32 +74,57 @@ def _send_to_each_admin(*, subject: str, template_base: str, context: dict, atta
     return count
 
 
+def _base_email_context() -> dict:
+    return {
+        "company_name": "Kryptera",
+        "support_email": getattr(settings, "REPLY_TO_EMAIL", "") or settings.DEFAULT_FROM_EMAIL,
+    }
+
+
 def _user_display_name(user: User) -> str:
     return (user.full_name or user.kyc_legal_name or user.email).strip()
 
 
+def _format_submitted_at(dt) -> str:
+    if not dt:
+        return "—"
+    return timezone.localtime(dt).strftime("%Y-%m-%d %H:%M UTC")
+
+
+def _mode_label(mode: str) -> str:
+    labels = {
+        "russia-zambia": "Russia → Zambia",
+        "zambia-russia": "Zambia → Russia",
+    }
+    return labels.get(mode, mode)
+
+
+def _format_amount(value) -> str:
+    if value is None:
+        return "—"
+    quantized = Decimal(str(value)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+    return f"{quantized:,.2f}"
+
+
 def _kyc_context(user: User) -> dict:
-    submitted = user.kyc_submitted_at
     return {
-        "frontend_url": settings.FRONTEND_URL,
+        "user_id": user.pk,
         "user_email": user.email,
         "user_full_name": user.full_name or "—",
         "user_phone": user.phone or "—",
         "kyc_legal_name": user.kyc_legal_name or "—",
         "kyc_id_number": user.kyc_id_number or "—",
         "kyc_country": user.kyc_country or "—",
-        "kyc_submitted_at": timezone.localtime(submitted).strftime("%Y-%m-%d %H:%M UTC")
-        if submitted
-        else "—",
+        "kyc_submitted_at": _format_submitted_at(user.kyc_submitted_at),
         "admin_users_url": f"{settings.FRONTEND_URL}/admin/users",
     }
 
 
 def send_user_kyc_submitted(user: User) -> None:
     context = {
-        "frontend_url": settings.FRONTEND_URL,
         "user_name": _user_display_name(user),
         "kyc_url": f"{settings.FRONTEND_URL}/kyc",
+        "kyc_submitted_at": _format_submitted_at(user.kyc_submitted_at),
     }
     _send_multipart(
         subject="Kryptera — Identity verification received",
@@ -108,15 +135,10 @@ def send_user_kyc_submitted(user: User) -> None:
 
 
 def send_admins_kyc_submitted(user: User) -> int:
-    attachment, note = prepare_file_field_attachment(user.kyc_doc)
-    context = _kyc_context(user)
-    if note:
-        context["attachment_note"] = note
     return _send_to_each_admin(
         subject=f"Kryptera — KYC submitted by {user.email}",
         template_base="admin_kyc_submitted",
-        context=context,
-        attachment=attachment,
+        context=_kyc_context(user),
     )
 
 
@@ -125,7 +147,6 @@ def send_user_kyc_decision(user: User, *, new_status: str) -> None:
         template = "user_kyc_approved"
         subject = "Kryptera — Identity verification approved"
         context = {
-            "frontend_url": settings.FRONTEND_URL,
             "user_name": _user_display_name(user),
             "home_url": settings.FRONTEND_URL,
         }
@@ -133,7 +154,6 @@ def send_user_kyc_decision(user: User, *, new_status: str) -> None:
         template = "user_kyc_rejected"
         subject = "Kryptera — Identity verification update"
         context = {
-            "frontend_url": settings.FRONTEND_URL,
             "user_name": _user_display_name(user),
             "kyc_url": f"{settings.FRONTEND_URL}/kyc",
             "rejection_reason": (user.kyc_rejection_reason or "").strip()
@@ -154,24 +174,20 @@ def _transaction_context(tx: Transaction) -> dict:
     user = tx.user
     snap = tx.recipient_snapshot or {}
     return {
-        "frontend_url": settings.FRONTEND_URL,
         "reference": transaction_reference(tx),
-        "transaction_id": str(tx.pk),
         "user_email": user.email if user else "—",
         "user_full_name": (user.full_name if user else None) or "—",
         "user_phone": (user.phone if user else None) or "—",
-        "mode": tx.mode,
-        "input_amount": tx.input_amount,
+        "mode_label": _mode_label(tx.mode),
+        "input_amount": _format_amount(tx.input_amount),
         "input_currency": tx.input_currency,
-        "result_amount": tx.result_amount,
+        "result_amount": _format_amount(tx.result_amount),
         "result_currency": tx.result_currency,
         "purpose": tx.purpose or "—",
         "delivery_method": tx.delivery_method or "—",
         "payment_method": tx.payment_method or "—",
-        "status": tx.status,
         "recipient_name": snap.get("full_name") or "—",
         "admin_pending_url": f"{settings.FRONTEND_URL}/admin/pending/{tx.pk}",
-        "admin_transaction_url": f"{settings.FRONTEND_URL}/admin/transactions/{tx.pk}",
         "activity_url": f"{settings.FRONTEND_URL}/activity/{tx.pk}",
     }
 

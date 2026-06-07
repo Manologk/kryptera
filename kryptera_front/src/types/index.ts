@@ -180,7 +180,7 @@ export interface AdminDashboardStats {
   adminCount: number;
   transactionTotal: number;
   transactionsByStatus: Record<string, number>;
-  totalCommissionZmw: string;
+  totalCommissionZmw: number;
   pendingVerificationCount: number;
   enabledCurrencyCount: number;
 }

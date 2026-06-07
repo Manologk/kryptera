@@ -1,29 +1,39 @@
 import { StatusBadge } from '@/components/ui/badge'
+import { getDeliveryMethodTitle } from '@/constants/transferPlaceholders'
+import { senderDisplay, senderSecondaryLine } from '@/features/admin/transactionLabels'
+import { recipientPayoutDetailRows, recipientReceiveMethod } from '@/features/recipient/deliveryDetails'
 import { transactionReferenceDisplay } from '@/features/transaction/transactionReference'
 import { formatMoneyAmount } from '@/features/transaction/utils'
 import type { Transaction } from '@/types'
-
-function recipientPhone(tx: Transaction): string {
-  const r = tx.recipient
-  const s = tx.recipientSnapshot
-  const raw = r?.phoneNumber ?? s?.phone_number ?? s?.phone ?? ''
-  return raw.trim() !== '' ? raw : '—'
-}
 
 function recipientName(tx: Transaction): string {
   return tx.recipient?.fullName?.trim() || tx.recipientSnapshot?.full_name?.trim() || '—'
 }
 
+function senderValue(tx: Transaction): string {
+  const primary = senderDisplay(tx)
+  const secondary = senderSecondaryLine(tx)
+  return secondary ? `${primary} (${secondary})` : primary
+}
+
 export default function TransactionSummaryCard({ tx }: { tx: Transaction }) {
   const refDisplay = transactionReferenceDisplay(tx)
+  const receiveMethod = recipientReceiveMethod(tx)
+  const payoutRows = recipientPayoutDetailRows(tx)
   const rows = [
+    { label: 'Sender', value: senderValue(tx), mono: false },
     {
       label: 'Amount',
-      value: formatMoneyAmount(tx.resultAmount, tx.resultCurrency),
+      value: `${formatMoneyAmount(tx.inputAmount, tx.inputCurrency)} → ${formatMoneyAmount(tx.resultAmount, tx.resultCurrency)}`,
       mono: false,
     },
     { label: 'Recipient', value: recipientName(tx), mono: false },
-    { label: 'Phone', value: recipientPhone(tx), mono: false },
+    {
+      label: 'Receive via',
+      value: receiveMethod ? getDeliveryMethodTitle(receiveMethod) : '—',
+      mono: false,
+    },
+    ...payoutRows.map(row => ({ ...row, mono: row.label === 'Account number' })),
     { label: 'Reference', value: refDisplay, mono: true },
   ] as const
 

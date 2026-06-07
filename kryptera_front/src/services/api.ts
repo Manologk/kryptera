@@ -3,7 +3,7 @@
  */
 
 import { API_BASE } from '@/constants';
-import { formatMoneyForApi } from '@/lib/money';
+import { formatMoneyForApi, roundMoney } from '@/lib/money';
 import { getAuthBridge } from '@/services/authBridge';
 import { handleTokenAuthFailure, isTokenRelatedError } from '@/services/authSession';
 
@@ -867,7 +867,7 @@ function adminStatsFromApi(row: Record<string, unknown>): AdminDashboardStats {
     transactionTotal: Number(row.transaction_total ?? 0),
     transactionsByStatus:
       by != null && typeof by === 'object' ? (by as Record<string, number>) : {},
-    totalCommissionZmw: String(row.total_commission_zmw ?? '0'),
+    totalCommissionZmw: roundMoney(Number(row.total_commission_zmw ?? 0)),
     pendingVerificationCount: Number(row.pending_verification_count ?? 0),
     enabledCurrencyCount: Number(row.enabled_currency_count ?? 0),
   };
@@ -1223,6 +1223,118 @@ export async function deleteAdminRateQuote(token: string, id: number): Promise<A
     }).then(res => {
       if (res.error) return res;
       return { data: undefined };
+    }),
+  );
+}
+
+// ── Payment receiving configs ───────────────────────────────────────────────
+
+export type PaymentDisplayMode = 'whatsapp' | 'inline';
+
+export type PaymentReceivingDetails = {
+  phone?: string;
+  account_name?: string;
+  bank_name?: string;
+  address?: string;
+  network?: string;
+  display_number?: string;
+  instructions?: string[];
+};
+
+export type PaymentReceivingConfig = {
+  id: number;
+  corridor: string;
+  paymentMethod: string;
+  displayMode: PaymentDisplayMode;
+  details: PaymentReceivingDetails;
+  updatedAt: string;
+};
+
+function paymentReceivingFromApi(row: Record<string, unknown>): PaymentReceivingConfig {
+  const detailsRaw = row.details;
+  const details: PaymentReceivingDetails =
+    detailsRaw != null && typeof detailsRaw === 'object' && !Array.isArray(detailsRaw)
+      ? (detailsRaw as PaymentReceivingDetails)
+      : {};
+  const mode = row.display_mode;
+  const displayMode: PaymentDisplayMode = mode === 'inline' ? 'inline' : 'whatsapp';
+  return {
+    id: Number(row.id),
+    corridor: String(row.corridor ?? ''),
+    paymentMethod: String(row.payment_method ?? ''),
+    displayMode,
+    details,
+    updatedAt: String(row.updated_at ?? ''),
+  };
+}
+
+export async function getPaymentReceiving(
+  token: string,
+  corridor?: string,
+): Promise<ApiResponse<PaymentReceivingConfig[]>> {
+  const path = corridor
+    ? `/payment-receiving/?corridor=${encodeURIComponent(corridor)}`
+    : '/payment-receiving/';
+  return withTokenRetry(token, t =>
+    request<unknown>(path, {
+      headers: { Authorization: `Bearer ${t}` },
+    }).then(res => {
+      if (res.error) return res;
+      if (res.data == null) return { error: { message: 'Empty response' } };
+      const raw = res.data;
+      if (Array.isArray(raw)) {
+        return { data: raw.map(r => paymentReceivingFromApi(r as Record<string, unknown>)) };
+      }
+      const paged = parsePaginated(raw, r => paymentReceivingFromApi(r));
+      if (paged) return { data: paged.results };
+      return { error: { message: 'Invalid response' } };
+    }),
+  );
+}
+
+export async function getAdminPaymentReceiving(
+  token: string,
+): Promise<ApiResponse<PaymentReceivingConfig[]>> {
+  return withTokenRetry(token, t =>
+    request<unknown>('/admin/payment-receiving/', {
+      headers: { Authorization: `Bearer ${t}` },
+    }).then(res => {
+      if (res.error) return res;
+      if (res.data == null) return { error: { message: 'Empty response' } };
+      const raw = res.data;
+      if (Array.isArray(raw)) {
+        return { data: raw.map(r => paymentReceivingFromApi(r as Record<string, unknown>)) };
+      }
+      const paged = parsePaginated(raw, r => paymentReceivingFromApi(r));
+      if (paged) return { data: paged.results };
+      return { error: { message: 'Invalid response' } };
+    }),
+  );
+}
+
+export async function patchAdminPaymentReceiving(
+  token: string,
+  id: number,
+  body: {
+    displayMode?: PaymentDisplayMode;
+    details?: PaymentReceivingDetails;
+  },
+): Promise<ApiResponse<PaymentReceivingConfig>> {
+  return withTokenRetry(token, t =>
+    request<Record<string, unknown>>(`/admin/payment-receiving/${id}/`, {
+      method: 'PATCH',
+      body: JSON.stringify({
+        display_mode: body.displayMode,
+        details: body.details,
+      }),
+      headers: {
+        Authorization: `Bearer ${t}`,
+        'Content-Type': 'application/json',
+      },
+    }).then(res => {
+      if (res.error) return res;
+      if (res.data == null) return { error: { message: 'Empty response' } };
+      return { data: paymentReceivingFromApi(res.data) };
     }),
   );
 }

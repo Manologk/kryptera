@@ -30,6 +30,7 @@ const dashPath = `${ROUTES.admin}/dashboard`;
 const transactionsPath = `${ROUTES.admin}/transactions`;
 const usersPath = `${ROUTES.admin}/users`;
 const settingsPath = `${ROUTES.admin}/rates`;
+const paymentDetailsPath = ROUTES.adminPaymentDetails;
 
 function IconDashboard({ className, active }: { className?: string; active?: boolean }) {
   const c = active ? '#fff' : '#666';
@@ -228,6 +229,19 @@ export default function AdminShell() {
               }
             >
               Rates Setup
+            </NavLink>
+            <NavLink
+              to={paymentDetailsPath}
+              className={({ isActive }) =>
+                cn(
+                  'flex min-h-[44px] items-center px-4 text-sm transition-colors',
+                  isActive
+                    ? 'border-l-[3px] border-[var(--kryptera-green)] bg-[#1f1f1f] font-medium text-white'
+                    : 'border-l-[3px] border-transparent text-[#888] hover:bg-[#1a1a1a]',
+                )
+              }
+            >
+              Payment details
             </NavLink>
           </nav>
 
